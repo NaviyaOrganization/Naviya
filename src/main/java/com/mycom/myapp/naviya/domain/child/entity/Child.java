@@ -13,7 +13,7 @@ import java.util.List;
 public class Child {
     @Id
     @Column(name = "child_id")
-    private long childId;
+    private String childId;
 
     @ManyToOne
     @JoinColumn(name = "user_id")

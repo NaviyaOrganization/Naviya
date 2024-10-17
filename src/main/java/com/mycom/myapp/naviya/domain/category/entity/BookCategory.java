@@ -12,7 +12,7 @@ import java.util.List;
 public class BookCategory {
     @Id
     @Column(name = "category_id")
-    private Long categoryId;
+    private String categoryId;
 
     @Column(name = "category_name")
     private String categoryName;
