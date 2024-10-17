@@ -7,6 +7,7 @@ import com.mycom.myapp.naviya.domain.child.entity.ChildBookLike;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.sql.Timestamp;
 import java.util.List;
 @Data
 public class BookDto {
@@ -17,7 +18,7 @@ public class BookDto {
     private String recommendedAge;
     private String publisher;
     private String author;
-    private String count;
+    private long count;
     private String eiType;
     private String snType;
     private String tfType;
@@ -26,4 +27,5 @@ public class BookDto {
     //private List<UserRecentBooks> recentBooks;
     //private List<ChildBookLike> likedBooks;
     private CategoryBookDto categoryBookDto;
+    private Timestamp createDate;
 }

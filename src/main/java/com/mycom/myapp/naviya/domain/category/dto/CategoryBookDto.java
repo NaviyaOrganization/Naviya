@@ -5,5 +5,5 @@ import lombok.Data;
 @Data
 public class CategoryBookDto {
     private String categoryName;
-    private String categoryId;
+    private Long categoryId;
 }

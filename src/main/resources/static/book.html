@@ -12,17 +12,9 @@
     }
 
     async function getCommonCode(){
-
-        // url
         let url = "/Book/List";
-
-        // post, parameter
         let fetchOptions = {
             method: "GET"
-            //,headers: {
-             //   'Content-Type': 'application/json'
-            //},
-            //body:'["001", "002"]'
         }
 
         let response = await fetch(url, fetchOptions);

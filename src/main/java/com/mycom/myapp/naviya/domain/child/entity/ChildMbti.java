@@ -8,7 +8,7 @@ import lombok.Data;
 public class ChildMbti {
     @Id
     @Column(name = "MbtiId")
-    private String mbtiId;
+    private Long mbtiId;
 
     @Column(name = "ei_type")
     private String eiType;

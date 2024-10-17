@@ -23,7 +23,7 @@ public class Book {
 
     private String publisher;
     private String author;
-    private String count;
+    private long count;
 
     @Column(name = "ei_type")
     private String eiType;
@@ -47,5 +47,7 @@ public class Book {
     @OneToMany(mappedBy = "book")
     private List<ChildBookLike> likedBooks;
 
+    @Column(name = "create_date")
+    private Timestamp createDate;
     // Getters and Setters
 }

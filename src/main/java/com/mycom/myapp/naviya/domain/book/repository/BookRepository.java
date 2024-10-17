@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import java.util.List;
 
 public interface BookRepository extends JpaRepository<Book, Long> {
-    //@Query("SELECT b FROM Book b LEFT JOIN FETCH b.category LEFT JOIN FETCH b.recentBooks LEFT JOIN FETCH b.likedBooks")
-    //List<Book> findAllWithAssociations();
+    List<Book> findAllByOrderByCreateDateDesc();
+    List<Book> findAllByOrderByCreateDateAsc();
+    List<Book> findAllByOrderByCountDesc();
 }
