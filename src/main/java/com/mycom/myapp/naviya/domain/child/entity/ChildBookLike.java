@@ -2,7 +2,7 @@ package com.mycom.myapp.naviya.domain.child.entity;
 import com.mycom.myapp.naviya.domain.book.entity.Book;
 import jakarta.persistence.*;
 import lombok.Data;
-
+import java.sql.Timestamp;
 import java.sql.Timestamp;
 @Entity
 @Data
@@ -10,7 +10,7 @@ import java.sql.Timestamp;
 public class ChildBookLike {
     @Id
     @Column(name = "like_id")
-    private String likeId;
+    private Long likeId;
 
     @ManyToOne
     @JoinColumn(name = "book_id")
@@ -20,5 +20,9 @@ public class ChildBookLike {
     @JoinColumn(name = "child_id")
     private Child child;
 
+    @Column(name = "create_date")
+    private Timestamp createdate;
     // Getters and Setters
+
+
 }
