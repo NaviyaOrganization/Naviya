@@ -28,7 +28,7 @@ public class LotterytServiceImpl implements LotteryService{
         try {
             log.info("새로운 응모 요청 처리 중 - 이메일: {}", request.getEmail());
 
-            if (redisTemplate.hasKey(request.getEmail())) {
+            if (Boolean.TRUE.equals(redisTemplate.hasKey(request.getEmail()))) {
                 log.warn("중복 응모 시도 - 이메일: {}", request.getEmail());
                 return "이미 응모한 이메일입니다.";
             }
