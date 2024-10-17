@@ -11,7 +11,7 @@ import java.sql.Timestamp;
 public class UserRecentBooks {
     @Id
     @Column(name = "rcent_book_id")
-    private String rcentBookId;
+    private Long rcentBookId;
 
     @Column(name = "viewed_at")
     private Timestamp viewedAt;
