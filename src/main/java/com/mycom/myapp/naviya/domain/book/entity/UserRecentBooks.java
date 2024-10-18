@@ -4,25 +4,25 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 import java.sql.Timestamp;
-
-@Entity
 @Data
+@Entity
 @Table(name = "User_Recent_Books")
 public class UserRecentBooks {
     @Id
-    @Column(name = "rcent_book_id")
-    private Long rcentBookId;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "recent_book_id")
+    private Long recentBookId;
 
     @Column(name = "viewed_at")
     private Timestamp viewedAt;
 
     @ManyToOne
-    @JoinColumn(name = "book_id")
-    private Book book;
-
-    @ManyToOne
-    @JoinColumn(name = "child_id")
+    @JoinColumn(name = "child_id", nullable = false)
     private Child child;
+
+    @OneToOne
+    @JoinColumn(name="book_id")
+    private Book book;
 
     // Getters and Setters
 }

@@ -1,24 +1,24 @@
 package com.mycom.myapp.naviya.domain.child.entity;
+
 import com.mycom.myapp.naviya.domain.book.entity.Book;
-import com.mycom.myapp.naviya.global.mbti.entity.Mbti;
 import jakarta.persistence.*;
-import lombok.Data;
 
-@Data
 @Entity
-@Table(name = "ChildMbti")
+@Table(name = "child_book_dislike")
+public class ChildBookDislike {
 
-public class ChildMbti {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "MbtiId")
-    private Long mbtiId;
+    @Column(name = "dislike_book_id")
+    private Long dislikeBookId;
 
     @ManyToOne
     @JoinColumn(name = "child_id", nullable = false)
     private Child child;
 
-    @OneToOne()
-    @JoinColumn(name = "mbti_id", nullable = false)
-    private Mbti mbti;
+    @OneToOne
+    @JoinColumn(name = "book_id", nullable = false)
+    private Book book;
+
+    // Getters and Setters
 }

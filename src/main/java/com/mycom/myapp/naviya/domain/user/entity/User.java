@@ -11,12 +11,20 @@ import java.util.List;
 @Table(name = "user")
 public class User {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
-    private long userId;
+    private Long userId;
 
+    @Column(name = "email")
     private String email;
+
+    @Column(name = "password")
     private String password;
+
+    @Column(name = "name")
     private String name;
+
+    @Column(name = "phone")
     private String phone;
 
     @Column(name = "created_at")
@@ -24,9 +32,6 @@ public class User {
 
     @Column(name = "updated_at")
     private Timestamp updatedAt;
-
-    @OneToMany(mappedBy = "user")
-    private List<Child> children;
 
     // Getters and Setters
 }
