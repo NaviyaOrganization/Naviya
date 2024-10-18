@@ -2,7 +2,7 @@ package com.mycom.myapp.naviya.domain.book.service;
 
 import com.mycom.myapp.naviya.domain.book.dto.BookDto;
 import com.mycom.myapp.naviya.domain.book.dto.BookResultDto;
-
+/*
 public interface BookSerive {
     BookResultDto delBook(Long bookId);
     BookResultDto detailBook(BookDto bookDto);
@@ -12,4 +12,4 @@ public interface BookSerive {
     BookResultDto listbookOrderByCreateDate();
     BookResultDto listBookChildFavor(long ChildId);
     BookResultDto listBookFavorCount();
-}
+}*/

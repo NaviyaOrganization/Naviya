@@ -1,10 +1,10 @@
 package com.mycom.myapp.naviya.domain.book.service;
-import com.mycom.myapp.naviya.domain.book.entity.Book;
+/*import com.mycom.myapp.naviya.domain.book.entity.Book;
 import com.mycom.myapp.naviya.domain.book.dto.BookDto;
 import com.mycom.myapp.naviya.domain.book.dto.BookResultDto;
 import com.mycom.myapp.naviya.domain.book.repository.BookRepository;
-import com.mycom.myapp.naviya.domain.category.dto.CategoryBookDto;
 import com.mycom.myapp.naviya.domain.child.repository.ChildBookLikeRepository;
+import com.mycom.myapp.naviya.global.mbti.entity.Mbti;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -42,20 +42,12 @@ public class BookServiceImpl implements BookSerive {
         List<Book> books =bookRepository.findAll();
         List<BookDto> bookDtos = new ArrayList<>();
         for (Book book : books) {
+            Mbti mbti= new Mbti();
             BookDto bookDto = new BookDto();
             bookDto.setBookId(book.getBookId());
             bookDto.setTitle(book.getTitle());
             bookDto.setAuthor(book.getAuthor());
-            bookDto.setCount(book.getCount());
-            CategoryBookDto categoryBookDto = new CategoryBookDto();
-            categoryBookDto.setCategoryName(book.getCategory().getCategoryName());
-            categoryBookDto.setCategoryId(book.getCategory().getCategoryId());
-            bookDto.setCategoryBookDto(categoryBookDto);
             bookDto.setPublisher(book.getPublisher());
-            bookDto.setEiType(book.getEiType());
-            bookDto.setSnType(book.getSnType());
-            bookDto.setTfType(book.getTfType());
-            bookDto.setJpType(book.getJpType());
             bookDto.setSummary(book.getSummary());
             bookDto.setRecommendedAge(book.getRecommendedAge());
             bookDtos.add(bookDto);
@@ -170,3 +162,4 @@ public class BookServiceImpl implements BookSerive {
         return bookResultDto;
     }
 }
+*/
