@@ -1,8 +1,10 @@
 package com.mycom.myapp.naviya.domain.book.entity;
 
 import jakarta.persistence.*;
+import lombok.Data;
 
 @Entity
+@Data
 @Table(name = "book_favor_total")
 public class BookFavorTotal {
 

@@ -2,9 +2,10 @@ package com.mycom.myapp.naviya.domain.book.controller;
 
 import com.mycom.myapp.naviya.domain.book.dto.BookResultDto;
 //import com.mycom.myapp.naviya.domain.book.service.BookServiceImpl;
+import com.mycom.myapp.naviya.domain.book.service.BookServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-/*
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/Book")
@@ -30,9 +31,19 @@ public class BookController {
     {
         return bookServiceImpl.listBookChildFavor(childId);
     }
+    @GetMapping("/ListBookChildRecntRead")
+    public BookResultDto ListBookChildRecntRead(@RequestParam long childId)
+    {
+        return bookServiceImpl.listBookChildRecntRead(childId);
+    }
     @DeleteMapping("/BookDel")
     public BookResultDto DeleteBook(@RequestParam long bookId)
     {
         return bookServiceImpl.delBook(bookId);
     }
-}*/
+    @GetMapping("/BookDetail")
+    public BookResultDto DetailBook(@RequestParam long bookId)
+    {
+        return bookServiceImpl.detailBook(bookId);
+    }
+}

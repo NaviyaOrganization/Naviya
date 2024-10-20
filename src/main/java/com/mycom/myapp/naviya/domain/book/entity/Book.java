@@ -42,10 +42,12 @@ public class Book {
     @Column(name = "category_code")
     private String categoryCode;
 
-    @OneToOne(mappedBy = "book")
+    @OneToOne(cascade =CascadeType.ALL ,mappedBy = "book")
     private UserRecentBooks userRecentBooks;
     @OneToOne(cascade = CascadeType.ALL,mappedBy = "book")
     private ChildBookLike childBookLike;
+
+
     @OneToOne(cascade =CascadeType.ALL ,mappedBy = "book")
     private BookMbti bookMbti;
 
