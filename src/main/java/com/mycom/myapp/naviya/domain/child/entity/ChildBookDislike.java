@@ -16,7 +16,7 @@ public class ChildBookDislike {
     @JoinColumn(name = "child_id", nullable = false)
     private Child child;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "book_id", nullable = false)
     private Book book;
 
