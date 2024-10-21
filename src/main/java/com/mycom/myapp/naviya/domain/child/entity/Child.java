@@ -7,16 +7,17 @@ import lombok.Data;
 import java.sql.Timestamp;
 import java.util.List;
 
-@Entity
 @Data
+@Entity
 @Table(name = "child")
 public class Child {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "child_id")
-    private String childId;
+    private Long childId;
 
     @ManyToOne
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
     @Column(name = "child_name")
@@ -31,21 +32,13 @@ public class Child {
     @Column(name = "updated_at")
     private Timestamp updatedAt;
 
-    @OneToOne
-    @JoinColumn(name = "code_mbti", referencedColumnName = "MbtiId")
-    private ChildMbti mbti;
+    @Column(name = "code_mbti")
+    private String codeMbti;
 
-    @OneToMany(mappedBy = "child")
-    private List<UserRecentBooks> recentBooks;
-
-    @OneToMany(mappedBy = "child")
-    private List<ChildBookLike> likedBooks;
-
-    @OneToMany(mappedBy = "child")
-    private List<ChildMbtiHistory> mbtiHistories;
-
-    @OneToMany(mappedBy = "child")
-    private List<ChildFavorCategory> favorCategories;
+    @Column(name = "child_image")
+    private String childImage;
 
     // Getters and Setters
+    @OneToMany(mappedBy = "child")
+    private List<ChildBookDislike> childBookDislikes;
 }

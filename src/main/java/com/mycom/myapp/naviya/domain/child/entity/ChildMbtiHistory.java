@@ -8,8 +8,9 @@ import java.sql.Timestamp;
 @Table(name = "ChildMbtiHistory")
 public class ChildMbtiHistory {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "mbti_history_id")
-    private String mbtiHistoryId;
+    private Long mbtiHistoryId;
 
     @Column(name = "updated_at")
     private Timestamp updatedAt;
@@ -18,7 +19,7 @@ public class ChildMbtiHistory {
     private String codeNewMbti;
 
     @ManyToOne
-    @JoinColumn(name = "child_id")
+    @JoinColumn(name = "child_id", nullable = false)
     private Child child;
 
     // Getters and Setters
