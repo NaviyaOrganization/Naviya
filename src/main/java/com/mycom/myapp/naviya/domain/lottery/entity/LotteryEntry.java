@@ -1,5 +1,4 @@
 package com.mycom.myapp.naviya.domain.lottery.entity;
-import com.mycom.myapp.naviya.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
