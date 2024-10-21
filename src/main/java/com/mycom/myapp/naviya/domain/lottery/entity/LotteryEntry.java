@@ -1,4 +1,5 @@
 package com.mycom.myapp.naviya.domain.lottery.entity;
+import com.mycom.myapp.naviya.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -24,18 +25,14 @@ public class LotteryEntry {
     private String name;
 
     @Column(nullable = false, unique = true)
-    private String email;
-
-    @Column(nullable = false)
-    private String status; // 응모 상태: pending, success, fail
+    private String phone;
 
     @Column(name = "created_at")
     private Timestamp createdAt;
 
-    public LotteryEntry(String name, String email) {
+    public LotteryEntry(String name, String phone) {
         this.name = name;
-        this.email = email;
-        this.status = "pending";
+        this.phone = phone;
         this.createdAt = Timestamp.valueOf(LocalDateTime.now());
     }
 }

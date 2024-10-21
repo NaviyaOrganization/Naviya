@@ -11,7 +11,7 @@ import java.util.Optional;
 
 @Repository
 public interface LotteryRepository extends JpaRepository<LotteryEntry, Long> {
-    Optional<LotteryEntry> findByEmail(String email); // 이메일 기반으로 중복 체크
+    Optional<LotteryEntry> findByPhone(String phone); // 이메일 기반으로 중복 체크
 
 //    UPDATE lottery_entries
 //    SET status = :status

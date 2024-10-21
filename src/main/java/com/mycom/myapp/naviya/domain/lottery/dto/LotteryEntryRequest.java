@@ -7,5 +7,5 @@ import lombok.Setter;
 @Setter
 public class LotteryEntryRequest {
     private String name;  // 사용자 이름
-    private String email; // 사용자 이메일
+    private String phone; // 사용자 전화번호
 }
