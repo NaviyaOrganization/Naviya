@@ -8,7 +8,14 @@ import com.mycom.myapp.naviya.domain.book.entity.BookMbti;
 import com.mycom.myapp.naviya.domain.book.repository.BookFavorTotalRepository;
 import com.mycom.myapp.naviya.domain.book.repository.BookMbtiRepository;
 import com.mycom.myapp.naviya.domain.book.repository.BookRepository;
+import com.mycom.myapp.naviya.domain.child.entity.Child;
+import com.mycom.myapp.naviya.domain.child.entity.ChildBookDislike;
+import com.mycom.myapp.naviya.domain.child.entity.ChildBookLike;
+import com.mycom.myapp.naviya.domain.child.entity.ChildMbti;
+import com.mycom.myapp.naviya.domain.child.repository.ChildBookDisLikeRepository;
 import com.mycom.myapp.naviya.domain.child.repository.ChildBookLikeRepository;
+import com.mycom.myapp.naviya.domain.child.repository.ChildMbtiRepository;
+import com.mycom.myapp.naviya.domain.child.repository.ChildRepository;
 import com.mycom.myapp.naviya.global.mbti.Dto.MbtiDto;
 import com.mycom.myapp.naviya.global.mbti.entity.Mbti;
 import com.mycom.myapp.naviya.global.mbti.repository.MbtiRepository;
@@ -19,6 +26,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -26,11 +34,13 @@ import java.util.Optional;
 public class BookServiceImpl implements BookSerive {
 
     private final BookRepository bookRepository;
-    private final ChildBookLikeRepository childBookLikeRepository;
     private final MbtiRepository mbtiRepository;
+    private final ChildBookLikeRepository childBookLikeRepository;
+    private final ChildBookDisLikeRepository childBookDisLikeRepository;
     private final BookFavorTotalRepository bookFavorTotalRepository;
     private final BookMbtiRepository bookMbtiRepository;
-
+    private final ChildRepository childRepository;
+    private final ChildMbtiRepository childMbtiRepository;
     /*삭제순서 to 유성,정슈선
     연관관계 수정으로 book->bookmbti->mbti 한 방에 삭제
 
@@ -52,9 +62,6 @@ public class BookServiceImpl implements BookSerive {
         }
         return bookResultDto;
     }
-    //들어갈때 storgesession에 넣고 들어가면되지 않나하는 생각이 들어
-    //솔직히 있어야되는지 의문이지만 혹시 몰라 만들어놓습니다 to 정유선
-    //어차피 자세히보는건 굳이 dto쿼리로 안묶어도 될 것 같아서 필요할 것 같으면 바꿔주세용
     @Override
     public BookResultDto detailBook(Long bookId) {
         // BookRepository의 findAll() 메서드를 통해 모든 Book을 가져옴
@@ -111,10 +118,10 @@ public class BookServiceImpl implements BookSerive {
     }
 
     @Override
-    public BookResultDto listbookOrderByCreateDate() {
+    public BookResultDto listbookOrderByCreateDate(long childId) {
         BookResultDto bookResultDto=new BookResultDto();
         try{
-            List<BookDto> bookDto = bookRepository.findBookDtoDescCreateDate();
+            List<BookDto> bookDto = bookRepository.findBookDtoDescCreateDate(childId);
             bookResultDto.setBooks(bookDto);  // Book 리스트를 BookResultDto에 설정
             bookResultDto.setSuccess("success");
             return bookResultDto;
@@ -130,8 +137,8 @@ public class BookServiceImpl implements BookSerive {
     public BookResultDto listBookChildFavor(long ChildId) {
         BookResultDto bookResultDto=new BookResultDto();
         try{
-            List<BookDto> bookDto = bookRepository.findBooksByChildId(ChildId);
-            bookResultDto.setBooks(bookDto);  // Book 리스트를 BookResultDto에 설정
+            List<BookDto> bookDto = bookRepository.findBooksLikeByChildId(ChildId);
+            bookResultDto.setBooks(bookDto);
             bookResultDto.setSuccess("success");
             return bookResultDto;
         }
@@ -143,10 +150,10 @@ public class BookServiceImpl implements BookSerive {
     }
 
     @Override
-    public BookResultDto listBookFavorCount() {
+    public BookResultDto listBookFavorCount(long childId) {
         BookResultDto bookResultDto=new BookResultDto();
         try{
-            List<BookDto> bookDto = bookRepository.findBookDescBookFavor();
+            List<BookDto> bookDto = bookRepository.findBookDescBookFavorCount(childId);
             bookResultDto.setBooks(bookDto);  // Book 리스트를 BookResultDto에 설정
             bookResultDto.setSuccess("success");
             return bookResultDto;
@@ -160,7 +167,7 @@ public class BookServiceImpl implements BookSerive {
     public BookResultDto listBookChildRecntRead(long ChildId) {
         BookResultDto bookResultDto=new BookResultDto();
         try{
-        List<BookDto> bookDto = bookRepository.findBooksByChildIdOrderByCreatedAtDesc(ChildId);
+        List<BookDto> bookDto = bookRepository.findBooksByChildRecentRead(ChildId);
         bookResultDto.setBooks(bookDto);  // Book 리스트를 BookResultDto에 설정
         bookResultDto.setSuccess("success");
         return bookResultDto;
@@ -171,7 +178,224 @@ public class BookServiceImpl implements BookSerive {
             return bookResultDto;
         }
     }
+    @Transactional
     @Override
+    //1.좋아요 테이블에 책을 넣기
+    //2.mbti 성향테이블에 반영
+    //유효성 검사를 위한 쿼리가 너무 많아 수정 필요
+    // <-----------------임시--------------------->
+    //Type이 노멀이면 그냥 작은 가중치만 반영
+    //Type이 mbti면 현재 가중치의 1.5배
+    public BookResultDto ChildBookLike(long BookId, long ChildId,String Type) {
+        BookResultDto bookResultDto=new BookResultDto();
+        try{
+            Optional child=childRepository.findById(ChildId);
+            Child child1=new Child();
+            if(child.isPresent()){
+                child1=(Child)child.get();
+            }
+            else
+            {
+                bookResultDto.setSuccess("fail");
+                return bookResultDto;
+            }
+            Optional book=bookRepository.findById(BookId);
+            Book book1=new Book();
+            if(book.isPresent()){
+                book1=(Book)book.get();
+            }
+            else
+            {
+                bookResultDto.setSuccess("fail");
+                return bookResultDto;
+            }
+            ChildMbti childMbti = childMbtiRepository.findByChild_ChildId(ChildId);
+            if (childMbti == null) {
+                bookResultDto.setSuccess("fail");
+                return bookResultDto;
+            }
+            if (childBookDisLikeRepository.existsByChild_ChildIdAndBook_BookId(ChildId, BookId)) {
+                childBookDisLikeRepository.deleteByChild_ChildIdAndBook_BookId(ChildId, BookId);
+            }
+            BookMbti bookMbti = bookMbtiRepository.findByBook_BookId(BookId);
+            Mbti book2Mbti=new Mbti();
+            book2Mbti=bookMbti.getMbti();
+            Mbti mbti = childMbti.getMbti();
+            int EI;
+            int SN;
+            int TF;
+            int JP;
+            if (Type!=null &&Objects.equals(Type, "MBTI"))
+            {
+                EI= (int) (book2Mbti.getEiType()*1.5);
+                SN= (int) (book2Mbti.getSnType()*1.5);
+                TF= (int) (book2Mbti.getTfType()*1.5);
+                JP= (int) (book2Mbti.getJpType()*1.5);
+
+            } else if (Type!=null &&Objects.equals(Type, "NOMAL")) {
+                EI= book2Mbti.getEiType();
+                SN= book2Mbti.getSnType();
+                TF= book2Mbti.getTfType();
+                JP= book2Mbti.getJpType();
+            }
+            else
+            {
+                bookResultDto.setSuccess("fail");
+                return bookResultDto;
+            }if (!childBookLikeRepository.existsByChild_ChildIdAndBook_BookId(ChildId, BookId))
+            {
+                ChildBookLike childBookLike = new ChildBookLike();
+                childBookLike.setChild(child1);
+                childBookLike.setBook(book1);
+                childBookLike.setDelDate(null);
+                childBookLikeRepository.save(childBookLike);
+
+            }
+            else
+            {
+                bookResultDto.setSuccess("duplicate");
+                return bookResultDto;
+            }
+
+            mbti.setEiType(EI+mbti.getEiType());
+            mbti.setSnType(SN+mbti.getSnType());
+            mbti.setTfType(TF+mbti.getTfType());
+            mbti.setJpType(JP+mbti.getJpType());
+            mbtiRepository.save(mbti);
+            bookResultDto.setSuccess("success");
+
+            return bookResultDto;
+        }
+        catch(Exception e){
+            e.printStackTrace();
+            bookResultDto.setSuccess("fail");
+            return bookResultDto;
+        }
+    }
+
+    @Override
+    @Transactional
+    public BookResultDto ChildBookDisLike(long BookId, long ChildId,String Type) {
+        BookResultDto bookResultDto=new BookResultDto();
+        try{
+
+            Optional child=childRepository.findById(ChildId);
+            Child child1=new Child();
+            if(child.isPresent()){
+                child1=(Child)child.get();
+            }
+            else
+            {
+                bookResultDto.setSuccess("fail");
+                return bookResultDto;
+            }
+            Optional book=bookRepository.findById(BookId);
+            Book book1=new Book();
+            if(book.isPresent()){
+                book1=(Book)book.get();
+            }
+            else
+            {
+                bookResultDto.setSuccess("fail");
+                return bookResultDto;
+            }
+            ChildMbti childMbti = childMbtiRepository.findByChild_ChildId(ChildId);
+            if (childMbti == null) {
+                bookResultDto.setSuccess("fail");
+                return bookResultDto;
+            }
+            if (childBookLikeRepository.existsByChild_ChildIdAndBook_BookId(ChildId, BookId)) {
+                childBookLikeRepository.deleteByChildIdAndBookId(ChildId, BookId);
+            }
+            BookMbti bookMbti = bookMbtiRepository.findByBook_BookId(BookId);
+            Mbti book2Mbti=new Mbti();
+            book2Mbti=bookMbti.getMbti();
+            Mbti mbti = childMbti.getMbti();
+            int EI;
+            int SN;
+            int TF;
+            int JP;
+            if (Type!=null &&Objects.equals(Type, "MBTI"))
+            {
+                EI= (int) (book2Mbti.getEiType()*1.5);
+                SN= (int) (book2Mbti.getSnType()*1.5);
+                TF= (int) (book2Mbti.getTfType()*1.5);
+                JP= (int) (book2Mbti.getJpType()*1.5);
+
+            } else if (Type!=null &&Objects.equals(Type, "NOMAL")) {
+                EI= book2Mbti.getEiType();
+                SN= book2Mbti.getSnType();
+                TF= book2Mbti.getTfType();
+                JP= book2Mbti.getJpType();
+            }
+            else
+            {
+                bookResultDto.setSuccess("fail");
+                return bookResultDto;
+            }
+            if(!childBookDisLikeRepository.existsByChild_ChildIdAndBook_BookId(ChildId, BookId))
+            {
+                ChildBookDislike childBookDislike = new ChildBookDislike();
+                childBookDislike.setChild(child1);
+                childBookDislike.setBook(book1);
+                childBookDisLikeRepository.save(childBookDislike);
+            }
+            else
+            {
+                bookResultDto.setSuccess("duplicate");
+                return bookResultDto;
+            }
+            mbti.setEiType(EI+mbti.getEiType());
+            mbti.setSnType(SN+mbti.getSnType());
+            mbti.setTfType(TF+mbti.getTfType());
+            mbti.setJpType(JP+mbti.getJpType());
+            mbtiRepository.save(mbti);
+            bookResultDto.setSuccess("success");
+            return bookResultDto;
+        }
+        catch(Exception e){
+            e.printStackTrace();
+            bookResultDto.setSuccess("fail");
+            return bookResultDto;
+        }
+    }
+
+    @Override
+    public BookResultDto DelChildBookLike(long BookId, long ChildId) {
+        BookResultDto bookResultDto=new BookResultDto();
+        try {
+            childBookLikeRepository.deleteByChildIdAndBookId(ChildId, BookId);
+            bookResultDto.setSuccess("success");
+            return bookResultDto;
+        }
+        catch(Exception e){
+            e.printStackTrace();
+            bookResultDto.setSuccess("fail");
+            return bookResultDto;
+        }
+
+    }
+
+    /*
+   JPA에서 delete 메서드를 호출하면, 존재하지 않는 엔티티에 대한 삭제 요청이 있을 때 특별한 예외를 발생시키지 않습니다.*/
+    @Override
+    public BookResultDto DelChildBookDisLike(long BookId, long ChildId) {
+        BookResultDto bookResultDto=new BookResultDto();
+        try {
+            childBookDisLikeRepository.deleteByChild_ChildIdAndBook_BookId(ChildId, BookId);
+            bookResultDto.setSuccess("success");
+            return bookResultDto;
+        }
+        catch(Exception e){
+            e.printStackTrace();
+            bookResultDto.setSuccess("fail");
+            return bookResultDto;
+        }
+
+    }
+
+    @Override
+    @Transactional
     public BookResultDto updateBook(BookDto bookDto) {
         return null;
     }
