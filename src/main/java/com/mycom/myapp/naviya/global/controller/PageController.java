@@ -6,12 +6,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 @Controller
 public class PageController {
 
-//    @GetMapping("/main")
-//    public String mainP() {
-//
-//        return "main";
-//    }
-
     @GetMapping("/login")
     public String loginP() {
 
@@ -23,6 +17,14 @@ public class PageController {
 
         return "signup";
     }
+
+    @GetMapping("/usermypage")
+    public String userP() {
+
+        return "userpage";
+    }
+
+
 
 
 

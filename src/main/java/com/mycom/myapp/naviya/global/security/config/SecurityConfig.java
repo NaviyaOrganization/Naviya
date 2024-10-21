@@ -20,13 +20,14 @@ public class SecurityConfig {
 
         http
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/login", "/signup", "/signupProc").permitAll()
+                        .requestMatchers("/", "/login", "/signup", "/signupProc",
+                        "/userpage", "/userpage/update").permitAll()
                         .anyRequest().authenticated()
                 )
                 .formLogin(auth -> auth
                         .loginPage("/login")
                         .loginProcessingUrl("/loginProc")
-                        .usernameParameter("email")  // 이메일을 사용자 이름으로 사용
+                        .usernameParameter("email")
                         .passwordParameter("password")
                         .defaultSuccessUrl("/", true)
                         .permitAll()
@@ -36,6 +37,13 @@ public class SecurityConfig {
                         .logoutSuccessUrl("/login")
                 )
                 .csrf(csrf -> csrf.disable());
+
+        http
+                // 다중 로그인
+                .sessionManagement((auth) -> auth
+                        .maximumSessions(5)
+                        .maxSessionsPreventsLogin(true)); // 초과시 새로운 로그인 차단
+
 
         return http.build();
     }

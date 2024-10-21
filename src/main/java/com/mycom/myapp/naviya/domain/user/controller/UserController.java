@@ -2,35 +2,36 @@ package com.mycom.myapp.naviya.domain.user.controller;
 
 import com.mycom.myapp.naviya.domain.user.dto.SignupRequestDto;
 import com.mycom.myapp.naviya.domain.user.dto.SignupResultDto;
+import com.mycom.myapp.naviya.domain.user.dto.UserDto;
+import com.mycom.myapp.naviya.domain.user.dto.UserResultDto;
+import com.mycom.myapp.naviya.domain.user.entity.User;
+import com.mycom.myapp.naviya.domain.user.repository.UserRepository;
 import com.mycom.myapp.naviya.domain.user.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collection;
 import java.util.Iterator;
 
-@RestController
+import static org.hibernate.sql.ast.SqlTreeCreationLogger.LOGGER;
+
+@Controller
 @RequestMapping
 @ResponseBody
 @RequiredArgsConstructor
 public class UserController {
     private final UserService userService;
+    private final UserRepository userRepository;
+    private final Logger LOGGER = LoggerFactory.getLogger(UserController.class);
 
-
-//    // 회원가입
-//    @PostMapping("/signupProc")
-//    public String signup(SignupRequestDto signupRequestDto) {
-//        System.out.println(signupRequestDto.getEmail());
-//
-//        userService.signup(signupRequestDto);
-//
-//        return "login" ;
-//    }
 
     // 회원가입 처리
     @PostMapping("/signupProc")
@@ -63,6 +64,42 @@ public class UserController {
         model.addAttribute("role", role);
 
         return "main";
+    }
+
+
+    // 유저페이지 정보 조회 (로그인한 사용자)
+    @GetMapping("/userpageProc")
+    public UserResultDto detailUserPage(){
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email = authentication.getName();  // 현재 로그인한 사용자의 이메일을 가져옴
+
+        if (authentication != null) {
+            LOGGER.info("User email: {}", authentication.getName());
+            LOGGER.info("Authorities: {}", authentication.getAuthorities());
+        } else {
+            LOGGER.error("No authenticated user found.");
+        }
+
+        UserResultDto userResultDto =  userService.detailUserPage(email);
+        // 사용자 정보를 Model에 추가하여 View로 전달
+//        model.addAttribute("userDto", userResultDto.getUserDto());
+
+        return userResultDto;
+    }
+
+
+    @PostMapping("/userpage/update")
+    public UserResultDto updateUserPage(@RequestBody UserDto userDto){
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email = authentication.getName();  // 현재 로그인한 사용자의 이메일을 가져옴
+
+        User user = userRepository.findByEmail(email);
+        userDto.setEmail(user.getEmail());
+
+        // 사용자 정보 수정
+        return userService.updateUserPage(userDto);
     }
 
 

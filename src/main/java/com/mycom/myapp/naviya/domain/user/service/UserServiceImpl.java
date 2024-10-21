@@ -1,9 +1,9 @@
 package com.mycom.myapp.naviya.domain.user.service;
 
-import com.mycom.myapp.naviya.domain.user.dto.LoginRequestDto;
-import com.mycom.myapp.naviya.domain.user.dto.LoginResultDto;
 import com.mycom.myapp.naviya.domain.user.dto.SignupRequestDto;
 import com.mycom.myapp.naviya.domain.user.dto.SignupResultDto;
+import com.mycom.myapp.naviya.domain.user.dto.UserDto;
+import com.mycom.myapp.naviya.domain.user.dto.UserResultDto;
 import com.mycom.myapp.naviya.domain.user.entity.User;
 import com.mycom.myapp.naviya.domain.user.repository.UserRepository;
 import com.mycom.myapp.naviya.global.config.CommonResponse;
@@ -15,6 +15,9 @@ import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -24,10 +27,7 @@ public class UserServiceImpl implements UserService {
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
 
-
-    /*
-    회원가입
-    */
+    // 회원가입
     @Override
     public SignupResultDto signup(SignupRequestDto signupRequestDto) {
         SignupResultDto signupResultDto = new SignupResultDto();
@@ -70,31 +70,65 @@ public class UserServiceImpl implements UserService {
         return signupResultDto;
     }
 
-
-    /*
-   로그인
-   */
+    // 유저페이지 회원 정보 조회
     @Override
-    public LoginResultDto login(LoginRequestDto loginRequestDto) {
-        return null;
+    public UserResultDto detailUserPage(String email) {
+        UserResultDto userResultDto = new UserResultDto();
+
+        User user = userRepository.findByEmail(email);
+
+        UserDto userDto = new UserDto();
+
+        userDto.setUserId(user.getUserId());
+        userDto.setName(user.getName());
+        userDto.setEmail(user.getEmail());
+        userDto.setPassword(user.getPassword());
+        userDto.setPhone(user.getPhone());
+
+        userResultDto.setUserDto(userDto);
+        userResultDto.setResult("success");
+
+        return userResultDto;
+    }
+
+    // 유저페이지 회원 정보 수정
+    @Override
+    public UserResultDto updateUserPage(UserDto userDto) {
+        UserResultDto userResultDto = new UserResultDto();
+
+        try {
+
+            Optional<User> optionalUser = userRepository.findById(userDto.getUserId());
+            if (optionalUser.isPresent()) {
+                User user = optionalUser.get();
+
+                // 비밀번호 , 전화번호 수정
+                if (userDto.getPassword() != null && !userDto.getPassword().isEmpty()) {
+                    String encodedPassword = bCryptPasswordEncoder.encode(userDto.getPassword());
+                    user.setPassword(encodedPassword);
+                }
+                user.setPhone(userDto.getPhone());
+
+                userRepository.save(user);
+                userResultDto.setResult("[UserUPDATE] success");
+
+            } else {
+                userResultDto.setResult("[UserUPDATE] fail");
+            }
+
+        }
+            catch (Exception e) {
+            e.printStackTrace();
+            userResultDto.setResult("[UserUPDATE] fail");
+        }
+
+
+
+        return userResultDto;
     }
 
 
 
 
 
-
-
-
-    private void setSuccessResult(SignupResultDto result) {
-        result.setSuccess(true);
-        result.setCode(CommonResponse.SUCCESS.getCode());
-        result.setMsg(CommonResponse.SUCCESS.getMsg());
-    }
-
-    private void setFailResult(SignupResultDto result) {
-        result.setSuccess(false);
-        result.setCode(CommonResponse.FAIL.getCode());
-        result.setMsg(CommonResponse.FAIL.getMsg());
-    }
 }
