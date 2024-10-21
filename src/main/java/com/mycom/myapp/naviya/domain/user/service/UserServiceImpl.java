@@ -53,6 +53,7 @@ public class UserServiceImpl implements UserService {
         user.setPhone(phone);
         user.setCreatedAt(Timestamp.valueOf(LocalDateTime.now())); // 회원가입 시각 자동 저장
         user.setUpdatedAt(Timestamp.valueOf(LocalDateTime.now()));
+        user.setRole("ROLE_USER");
 
        User savedUser = userRepository.save(user);
 

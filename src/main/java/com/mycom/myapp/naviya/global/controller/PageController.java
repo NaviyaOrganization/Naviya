@@ -1,4 +1,4 @@
-package com.mycom.myapp.naviya.global.security.controller;
+package com.mycom.myapp.naviya.global.controller;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -6,9 +6,25 @@ import org.springframework.web.bind.annotation.GetMapping;
 @Controller
 public class PageController {
 
+//    @GetMapping("/main")
+//    public String mainP() {
+//
+//        return "main";
+//    }
+
     @GetMapping("/login")
     public String loginP() {
 
         return "login";
     }
+
+    @GetMapping("/signup")
+    public String signupP() {
+
+        return "signup";
+    }
+
+
+
+
 }

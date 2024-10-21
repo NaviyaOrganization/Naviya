@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>회원가입</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .signup-container {
+            margin-top: 200px;
+            max-width: 400px;
+            margin: 50px auto;
+            padding: 30px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .signup-container h2 {
+            margin-bottom: 20px;
+        }
+        .btn-custom {
+            background-color: #75b9e7;
+            border: none;
+            color: white;
+            padding: 10px 0;
+            font-size: 16px;
+            border-radius: 5px;
+            width: 100%;
+        }
+        .btn-custom:hover {
+            background-color: #639fc7;
+            border-color: #639fc7;
+        }
+        .form-check2{
+            margin-top: 20px;
+        }
+        input[type="email"], input[type="password"], input[type="text"]{
+            height: 50px;
+            font-size: 16px;
+            margin-bottom: 0;
+            border-radius: 5px;
+        }
+        .error-message {
+            color: red;
+            font-size: 14px;
+            margin-top: 10px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+<div class="signup-container">
+    <h2 class="text-center"> 🦋 </h2>
+
+    <form id="signupForm">
+        <div class="mb-3">
+            <input type="email" class="form-control" name="email" id="email" placeholder="이메일" required>
+        </div>
+
+        <div class="mb-3">
+            <input type="password" class="form-control" name="password" id="password" placeholder="비밀번호" required>
+        </div>
+
+        <div class="mb-3">
+            <input type="password" class="form-control" name="password2" id="password2" placeholder="비밀번호 재입력" required>
+        </div>
+
+        <div id="passwordError" class="error-message">비밀번호가 일치하지 않습니다.</div>
+
+        <div class="mb-3">
+            <input type="text" class="form-control" name="name" id="name" placeholder="이름" required>
+        </div>
+
+        <div class="mb-3">
+            <input type="text" class="form-control" name="phone" id="phone" placeholder="휴대전화번호" required>
+        </div>
+
+        <div class="mb-3 form-check2">
+            <input type="checkbox" class="form-check-input" id="terms" required>
+            <label class="form-check-label" for="terms">인증 약관 전체동의</label>
+        </div>
+
+        <button type="submit" class="btn btn-custom">회원가입</button>
+    </form>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    document.getElementById("signupForm").addEventListener("submit", function(event) {
+        event.preventDefault(); // 폼의 기본 제출 동작 방지
+
+        var password = document.getElementById("password").value;
+        var password2 = document.getElementById("password2").value;
+
+        // 비밀번호 확인
+        if (password !== password2) {
+            document.getElementById("passwordError").style.display = "block";
+            return; // 비밀번호가 다르면 이후 진행하지 않음
+        } else {
+            document.getElementById("passwordError").style.display = "none";
+        }
+
+        // 회원가입 폼 데이터 수집
+        var formData = {
+            email: document.getElementById("email").value,
+            password: password,
+            name: document.getElementById("name").value,
+            phone: document.getElementById("phone").value
+        };
+
+        // 서버로 회원가입 요청
+        fetch("/signupProc", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(formData)
+        })
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(err => { throw new Error(err.status); });
+                }
+                return response.json();
+            })
+            .then(data => {
+                // 회원가입 성공 시
+                alert(data.status); // '회원가입 성공' 메시지
+                window.location.href = "/index.html"; // index.html로 이동
+            })
+            .catch(error => {
+                // 실패 시
+                alert(error.message); // '이메일 중복' 등 메시지 표시
+            });
+    });
+</script>
+
+</body>
+</html>

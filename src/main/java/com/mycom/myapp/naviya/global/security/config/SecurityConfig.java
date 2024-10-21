@@ -1,5 +1,4 @@
 package com.mycom.myapp.naviya.global.security.config;
-
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -13,33 +12,30 @@ public class SecurityConfig {
 
     @Bean
     public BCryptPasswordEncoder bCryptPasswordEncoder() {
-
         return new BCryptPasswordEncoder();
     }
 
-
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception{
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
         http
-                .authorizeHttpRequests((auth) -> auth
-                        .requestMatchers("/", "/login", "/loginProc").permitAll()
-                        .requestMatchers("/admin").hasRole("ADMIN")
-                        .requestMatchers("/my/**").hasAnyRole("ADMIN", "USER")
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/", "/login", "/signup", "/signupProc").permitAll()
                         .anyRequest().authenticated()
-                );
-
-
-        http
-                .formLogin((auth) -> auth.loginPage("/login")
+                )
+                .formLogin(auth -> auth
+                        .loginPage("/login")
                         .loginProcessingUrl("/loginProc")
+                        .usernameParameter("email")  // 이메일을 사용자 이름으로 사용
+                        .passwordParameter("password")
+                        .defaultSuccessUrl("/", true)
                         .permitAll()
-                );
-
-        //
-        http
-                .csrf((auth) -> auth.disable());
-
+                )
+                .logout(logout -> logout
+                        .logoutUrl("/logout")
+                        .logoutSuccessUrl("/login")
+                )
+                .csrf(csrf -> csrf.disable());
 
         return http.build();
     }
