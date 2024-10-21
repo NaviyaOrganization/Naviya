@@ -1,9 +1,7 @@
 package com.mycom.myapp.naviya.domain.child.controller;
 
-import com.mycom.myapp.naviya.domain.child.dto.ChildMbtiHistoryDto;
 import com.mycom.myapp.naviya.domain.child.dto.ChildWithMbtiHistoryDto;
 import com.mycom.myapp.naviya.domain.child.dto.MBTIScoresDto;
-import com.mycom.myapp.naviya.domain.child.entity.ChildMbtiHistory;
 import com.mycom.myapp.naviya.domain.child.service.ChildMbtiService;
 import com.mycom.myapp.naviya.global.response.ResponseCode;
 import com.mycom.myapp.naviya.global.response.ResponseForm;
@@ -11,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 
 
 @RestController
