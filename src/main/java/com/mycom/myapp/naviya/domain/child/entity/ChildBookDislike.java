@@ -2,8 +2,10 @@ package com.mycom.myapp.naviya.domain.child.entity;
 
 import com.mycom.myapp.naviya.domain.book.entity.Book;
 import jakarta.persistence.*;
+import lombok.Data;
 
 @Entity
+@Data
 @Table(name = "child_book_dislike")
 public class ChildBookDislike {
 
