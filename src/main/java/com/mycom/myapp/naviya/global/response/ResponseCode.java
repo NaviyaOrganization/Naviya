@@ -36,8 +36,11 @@ public enum ResponseCode {
     AUTH_LOGIN_SUCCESS(200, "A005", "로그인에 성공했습니다."),
     AUTH_LOGIN_FAIL(400, "A006", "로그인에 실패했습니다."),
     AUTH_LOGOUT_SUCCESS(200, "A007", "로그아웃에 성공했습니다."),
-    AUTH_LOGOUT_FAIL(400, "A008","로그아웃에 실패했습니다.")
+    AUTH_LOGOUT_FAIL(400, "A008","로그아웃에 실패했습니다."),
 
+    // MBTI 진단 관련 응답
+    MBTI_DIAGNOSIS_SUCCESS(200, "M001", "MBTI 진단이 성공적으로 완료되었습니다."),
+    MBTI_DIAGNOSIS_FAIL(400, "M002", "MBTI 진단에 실패했습니다.")
     ;
 
     // field

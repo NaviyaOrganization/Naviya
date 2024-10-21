@@ -4,10 +4,12 @@ import com.mycom.myapp.naviya.domain.book.entity.Book;
 import com.mycom.myapp.naviya.domain.book.entity.BookMbti;
 import com.mycom.myapp.naviya.domain.child.entity.ChildMbti;
 import jakarta.persistence.*;
+import lombok.Data;
 
 import java.util.List;
 
 @Entity
+@Data
 @Table(name = "Mbti")
 public class Mbti {
 

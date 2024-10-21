@@ -3,6 +3,8 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
+
 @Entity
 @Data
 @Table(name = "ChildMbtiHistory")
@@ -21,6 +23,9 @@ public class ChildMbtiHistory {
     @ManyToOne
     @JoinColumn(name = "child_id", nullable = false)
     private Child child;
+
+    @Column(name = "deleted_at")
+    private Timestamp deletedAt;
 
     // Getters and Setters
 }
