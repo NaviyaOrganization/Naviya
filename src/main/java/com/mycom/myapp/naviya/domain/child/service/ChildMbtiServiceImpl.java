@@ -1,5 +1,8 @@
 package com.mycom.myapp.naviya.domain.child.service;
 
+import com.mycom.myapp.naviya.domain.child.dto.ChildDto;
+import com.mycom.myapp.naviya.domain.child.dto.ChildMbtiHistoryDto;
+import com.mycom.myapp.naviya.domain.child.dto.ChildWithMbtiHistoryDto;
 import com.mycom.myapp.naviya.domain.child.dto.MBTIScoresDto;
 import com.mycom.myapp.naviya.domain.child.entity.Child;
 import com.mycom.myapp.naviya.domain.child.entity.ChildMbti;
@@ -190,31 +193,22 @@ public class ChildMbtiServiceImpl implements ChildMbtiService {
         return ei + sn + tf + jp; // ISTP, ENFP 등 MBTI 코드 생성
     }
 
-//    /**
-//     * ChildMbtiHistory에서 가장 최근의 MBTI를 조회하고 Child에 저장하는 메서드
-//     */
-//    @Transactional
-//    public void updateChildWithLatestMbti(String childId) {
-//        // Child 조회
-//        Child child = childRepository.findById(Long.valueOf(childId))
-//                .orElseThrow(() -> new RuntimeException("아이를 찾을 수 없습니다."));
-//
-//        // Child에 대한 가장 최근의 ChildMbtiHistory 조회
-//        ChildMbtiHistory latestMbtiHistory = childMbtiHistoryRepository.findLatestMbtiHistoryByChild(child);
-//
-//        if (latestMbtiHistory != null) {
-//            // 최신 MBTI 값을 Child의 codeMbti에 저장
-//            child.setCodeMbti(latestMbtiHistory.getCodeNewMbti());
-//
-//            // updatedAt 필드 갱신
-//            child.setUpdatedAt(Timestamp.valueOf(LocalDateTime.now()));
-//
-//            // Child 엔티티 저장
-//            childRepository.save(child);
-//        } else {
-//            throw new RuntimeException("해당 아이의 MBTI 기록이 없습니다.");
-//        }
-//    }
+
+    /**
+     * 특정 아이의 정보와 아이의 MBTI 히스토리를 한 번에 조회하여 반환하는 메서드
+     */
+    @Transactional(readOnly = true)
+    public ChildWithMbtiHistoryDto getChildMbtiHistory(Long childId) {
+        // 아이의 정보 조회
+        ChildDto childDto = childRepository.findChildDtoById(childId);
+
+        // MBTI 히스토리 조회
+        List<ChildMbtiHistoryDto> historyList = childMbtiHistoryRepository.findMbtiHistoryByChildId(childId);
+
+        // 결과 반환
+        return new ChildWithMbtiHistoryDto(childDto, historyList);
+    }
+
 
 
 }

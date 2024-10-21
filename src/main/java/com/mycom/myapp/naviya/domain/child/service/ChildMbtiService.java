@@ -1,8 +1,13 @@
 package com.mycom.myapp.naviya.domain.child.service;
 
+import com.mycom.myapp.naviya.domain.child.dto.ChildMbtiHistoryDto;
+import com.mycom.myapp.naviya.domain.child.dto.ChildWithMbtiHistoryDto;
 import com.mycom.myapp.naviya.domain.child.dto.MBTIScoresDto;
 import com.mycom.myapp.naviya.domain.child.entity.Child;
+import com.mycom.myapp.naviya.domain.child.entity.ChildMbtiHistory;
 import com.mycom.myapp.naviya.global.mbti.entity.Mbti;
+
+import java.util.List;
 
 public interface ChildMbtiService {
 
@@ -53,4 +58,15 @@ public interface ChildMbtiService {
      * @return MBTI 결과 문자열 (예: "ISTP", "ENFP" 등)
      */
     String calculateMBTI(Mbti mbti);
+
+    /**
+     * 자녀의 MBTI 히스토리 조회 메서드
+     *
+     * @param childId 자녀의 ID
+     * @return 자녀의 MBTI 변경 이력 리스트
+     */
+
+    ChildWithMbtiHistoryDto getChildMbtiHistory(Long childId);
+
+
 }

@@ -1,12 +1,17 @@
 package com.mycom.myapp.naviya.domain.child.controller;
 
+import com.mycom.myapp.naviya.domain.child.dto.ChildMbtiHistoryDto;
+import com.mycom.myapp.naviya.domain.child.dto.ChildWithMbtiHistoryDto;
 import com.mycom.myapp.naviya.domain.child.dto.MBTIScoresDto;
+import com.mycom.myapp.naviya.domain.child.entity.ChildMbtiHistory;
 import com.mycom.myapp.naviya.domain.child.service.ChildMbtiService;
 import com.mycom.myapp.naviya.global.response.ResponseCode;
 import com.mycom.myapp.naviya.global.response.ResponseForm;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 
 @RestController
@@ -35,4 +40,18 @@ public class ChildMbtiController {
             return ResponseEntity.badRequest().body(ResponseForm.of(ResponseCode.MBTI_DIAGNOSIS_FAIL, "MBTI 진단에 실패했습니다."));
         }
     }
+
+    /**
+     * 아이의 MBTI 히스토리 조회
+     */
+    @GetMapping("/history/{childId}")
+    public ResponseEntity<ResponseForm> getChildMbtiHistory(@PathVariable Long childId) {
+        try {
+            ChildWithMbtiHistoryDto result = childMbtiService.getChildMbtiHistory(childId);
+            return ResponseEntity.ok(ResponseForm.of(ResponseCode.MBTI_HISTORY_SUCCESS, result));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(ResponseForm.of(ResponseCode.MBTI_HISTORY_FAIL, e.getMessage()));
+        }
+    }
+
 }

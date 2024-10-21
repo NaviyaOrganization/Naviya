@@ -1,9 +1,13 @@
 package com.mycom.myapp.naviya.domain.child.dto;
 
 
-import lombok.Data;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
-@Data
+@Getter
+@AllArgsConstructor
+@NoArgsConstructor
 public class MBTIScoresDto {
     private String eiScore;  // "I" 또는 "E"
     private String snScore;  // "S" 또는 "N"

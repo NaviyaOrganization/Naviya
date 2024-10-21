@@ -40,7 +40,12 @@ public enum ResponseCode {
 
     // MBTI 진단 관련 응답
     MBTI_DIAGNOSIS_SUCCESS(200, "M001", "MBTI 진단이 성공적으로 완료되었습니다."),
-    MBTI_DIAGNOSIS_FAIL(400, "M002", "MBTI 진단에 실패했습니다.")
+    MBTI_DIAGNOSIS_FAIL(400, "M002", "MBTI 진단에 실패했습니다."),
+
+    // MBTI 히스토리 관련 응답
+    MBTI_HISTORY_SUCCESS(200, "M003", "MBTI 히스토리가 성공적으로 조회되었습니다."),
+    MBTI_HISTORY_FAIL(400, "M004", "MBTI 히스토리 조회에 실패했습니다.")
+
     ;
 
     // field
