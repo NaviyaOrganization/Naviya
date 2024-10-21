@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import java.util.List;
+
 @Controller
 @Slf4j
 @RequiredArgsConstructor
@@ -43,5 +45,13 @@ public class LotteryController {
         String resultMessage = lotteryService.submitLotteryEntry(request);
         model.addAttribute("resultMessage", resultMessage);
         return "lotteryResult";
+    }
+
+    // 어제의 응모 내역을 반환하는 엔드포인트
+    @GetMapping("/yesterday-entries")
+    @ResponseBody
+    public List<String> getYesterdayEntries() {
+        log.info("어제의 응모 내역을 조회합니다.");
+        return lotteryService.getCachedMaskedEntries();
     }
 }

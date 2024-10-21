@@ -10,7 +10,11 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -23,6 +27,9 @@ public class LotteryServiceImpl implements LotteryService {
 
     private static final String LOTTERY_COUNT_KEY = "lottery:count";
     private static final String LOTTERY_WINNERS_LIST = "lottery:winners";
+
+    // 캐시 변수: 마스킹된 응모 데이터를 저장
+    private List<String> cachedMaskedEntries = new ArrayList<>();
 
     @Override
     public String submitLotteryEntry(LotteryEntryRequest request) {
@@ -66,7 +73,7 @@ public class LotteryServiceImpl implements LotteryService {
 
     @Override
     @Transactional
-    @Scheduled(cron = "0 0 12 * * ?")
+    @Scheduled(cron = "0 55 12 * * ?")
     public void processLotteryResults() {
 
         log.info("응모 결과 처리 시작.");
@@ -103,5 +110,42 @@ public class LotteryServiceImpl implements LotteryService {
         redisTemplate.delete(LOTTERY_COUNT_KEY);
 
         log.info("응모 데이터가 MySQL로 이전되었습니다. 이벤트가 종료되었습니다.");
+    }
+
+    // 매일 오후 1시에 캐시 업데이트
+    // @Scheduled(cron = "0 0 13 * * ?") // 매일 오후 1시에 실행
+    @Scheduled(cron = "0 57 15 * * ?") // 매일 오후 3시 36분에 실행
+    public void updateMaskedEntriesCache() {
+        log.info("어제 오후 1시부터 오늘 오후 1시까지의 데이터를 캐시로 업데이트 중...");
+
+        // 어제 오후 1시부터 오늘 오후 1시까지의 시간 범위 설정
+        LocalDate today = LocalDate.now();
+        LocalDateTime startTime = today.minusDays(1).atTime(13, 0); // 어제 오후 1시
+        LocalDateTime endTime = today.atTime(13, 0); // 오늘 오후 1시
+
+        // 해당 시간 범위의 데이터를 조회
+        List<LotteryEntry> entries = lotteryRepository.findAllByCreatedAtBetween(startTime, endTime);
+
+        // 마스킹 처리된 데이터를 캐시에 저장
+        cachedMaskedEntries = entries.stream()
+                .map(entry -> entry.getName() + ": " + maskPhone(entry.getPhone()))
+                .collect(Collectors.toList());
+
+        log.info("캐시가 업데이트되었습니다. 총 {}개의 항목이 캐시에 저장되었습니다.", cachedMaskedEntries.size());
+    }
+
+    // 캐시된 마스킹된 응모 데이터를 반환 (캐시가 없으면 즉시 업데이트)
+    public List<String> getCachedMaskedEntries() {
+        // 캐시에 값이 없는 경우 실시간으로 업데이트
+        if (cachedMaskedEntries.isEmpty()) {
+            log.info("캐시에 데이터가 없어서 즉시 업데이트를 수행합니다.");
+            updateMaskedEntriesCache();
+        }
+        return new ArrayList<>(cachedMaskedEntries);
+    }
+
+    // 전화번호 마스킹 처리 함수
+    private String maskPhone(String phone) {
+        return phone.substring(0, 3) + "****" + phone.substring(phone.length() - 2);
     }
 }

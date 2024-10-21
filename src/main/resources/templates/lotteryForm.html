@@ -1,10 +1,11 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lottery Submission</title>
+    <title>응모 제출</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/heroicons@2.0.18/24/solid/esm/index.js"></script>
     <style>
         @keyframes fadeInUp {
             from { opacity: 0; transform: translateY(20px); }
@@ -13,32 +14,81 @@
         .animate-fadeInUp {
             animation: fadeInUp 0.5s ease-out;
         }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .animate-fadeIn {
+            animation: fadeIn 0.3s ease-out;
+        }
     </style>
 </head>
 <body class="min-h-screen bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center p-4">
 <div class="w-full max-w-md bg-white rounded-lg shadow-xl overflow-hidden animate-fadeInUp">
     <div class="p-8">
-        <h1 class="text-3xl font-bold text-gray-800 mb-6">Lottery Submission</h1>
+        <h1 class="text-3xl font-bold text-gray-800 mb-6">*응모 이벤트*</h1>
 
-        <!-- Lottery submission form -->
+        <!-- 응모 제출 폼 -->
         <form th:action="@{/lottery/submit-form}" th:object="${lotteryRequest}" method="post" class="space-y-6">
             <div>
-                <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Name</label>
+                <label for="name" class="block text-sm font-medium text-gray-700 mb-1">이름</label>
                 <input type="text" id="name" th:field="*{name}" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 ease-in-out" required>
             </div>
             <div>
-                <label for="phone" class="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
+                <label for="phone" class="block text-sm font-medium text-gray-700 mb-1">전화번호</label>
                 <input type="text" id="phone" th:field="*{phone}" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 ease-in-out" required>
             </div>
             <button type="submit" class="w-full bg-blue-600 text-white font-semibold py-3 rounded-md shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 ease-in-out">
-                Submit Entry
-                <svg xmlns="http://www.w3.org/2000/svg" class="inline-block ml-2" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="9 18 15 12 9 6"></polyline>
-                </svg>
+                Submit
             </button>
         </form>
 
+        <!-- 어제 응모 내역 토글 버튼 -->
+        <div class="mt-6">
+            <button onclick="toggleEntries()" id="toggleButton" class="w-full bg-gray-100 text-gray-800 font-semibold py-3 px-4 rounded-md shadow-sm hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-300 focus:ring-offset-2 transition-all duration-200 ease-in-out flex items-center justify-between">
+                <span>어제의 이벤트 당첨자! (1시마다 업데이트)</span>
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 transform transition-transform duration-200" id="toggleIcon">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                </svg>
+            </button>
+        </div>
+        <div id="entries" class="mt-4 hidden space-y-2 overflow-hidden">
+            <div id="entriesList" class="space-y-2"></div>
+        </div>
     </div>
 </div>
+
+<script>
+    function toggleEntries() {
+        const entriesDiv = document.getElementById("entries");
+        const toggleIcon = document.getElementById("toggleIcon");
+        const toggleButton = document.getElementById("toggleButton");
+
+        if (entriesDiv.classList.contains("hidden")) {
+            fetch('/lottery/yesterday-entries')
+                .then(response => response.json())
+                .then(data => {
+                    const entriesList = document.getElementById("entriesList");
+                    entriesList.innerHTML = '';
+                    data.forEach(entry => {
+                        const entryDiv = document.createElement("div");
+                        entryDiv.className = "bg-gray-50 p-3 rounded-md shadow-sm animate-fadeIn";
+                        entryDiv.textContent = entry;
+                        entriesList.appendChild(entryDiv);
+                    });
+                    entriesDiv.classList.remove("hidden");
+                    toggleIcon.classList.add("rotate-180");
+                    toggleButton.classList.remove("bg-gray-100", "text-gray-800");
+                    toggleButton.classList.add("bg-gray-700", "text-white");
+                })
+                .catch(error => console.error("응모 내역을 불러오는 중 오류가 발생했습니다:", error));
+        } else {
+            entriesDiv.classList.add("hidden");
+            toggleIcon.classList.remove("rotate-180");
+            toggleButton.classList.add("bg-gray-100", "text-gray-800");
+            toggleButton.classList.remove("bg-gray-700", "text-white");
+        }
+    }
+</script>
 </body>
 </html>
