@@ -110,7 +110,7 @@ public class UserServiceImpl implements UserService {
                 user.setPhone(userDto.getPhone());
 
                 userRepository.save(user);
-                userResultDto.setResult("[UserUPDATE] success");
+                userResultDto.setResult("success");
 
             } else {
                 userResultDto.setResult("[UserUPDATE] fail");
@@ -121,8 +121,6 @@ public class UserServiceImpl implements UserService {
             e.printStackTrace();
             userResultDto.setResult("[UserUPDATE] fail");
         }
-
-
 
         return userResultDto;
     }

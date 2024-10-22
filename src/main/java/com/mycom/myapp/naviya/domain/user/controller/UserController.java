@@ -25,12 +25,25 @@ import static org.hibernate.sql.ast.SqlTreeCreationLogger.LOGGER;
 
 @Controller
 @RequestMapping
-@ResponseBody
 @RequiredArgsConstructor
 public class UserController {
     private final UserService userService;
     private final UserRepository userRepository;
     private final Logger LOGGER = LoggerFactory.getLogger(UserController.class);
+
+    // 로그인 페이지 렌더링
+    @GetMapping("/login")
+    public String loginP() {
+
+        return "login";
+    }
+
+    // 회원가입 페이지 렌더링
+    @GetMapping("/signup")
+    public String signupP() {
+
+        return "signup";
+    }
 
 
     // 회원가입 처리
@@ -53,9 +66,6 @@ public class UserController {
     public String main(Model model) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String email = authentication.getName();
-        System.out.println("---------------------------------------");
-        System.out.println(email);
-        System.out.println("---------------------------------------");
 
         Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
         String role = authorities.stream().findFirst().map(GrantedAuthority::getAuthority).orElse("ROLE_USER");
@@ -68,8 +78,8 @@ public class UserController {
 
 
     // 유저페이지 정보 조회 (로그인한 사용자)
-    @GetMapping("/userpageProc")
-    public UserResultDto detailUserPage(){
+    @GetMapping("/userpage")
+    public String detailUserPage(Model model) {
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String email = authentication.getName();  // 현재 로그인한 사용자의 이메일을 가져옴
@@ -83,20 +93,25 @@ public class UserController {
 
         UserResultDto userResultDto =  userService.detailUserPage(email);
         // 사용자 정보를 Model에 추가하여 View로 전달
-//        model.addAttribute("userDto", userResultDto.getUserDto());
+        System.out.println("0--------------------------------");
+        System.out.println(userResultDto);
+        System.out.println("0--------------------------------");
 
-        return userResultDto;
+        model.addAttribute("userDto", userResultDto.getUserDto());
+
+        return "userpage";
     }
 
 
     @PostMapping("/userpage/update")
+    @ResponseBody
     public UserResultDto updateUserPage(@RequestBody UserDto userDto){
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String email = authentication.getName();  // 현재 로그인한 사용자의 이메일을 가져옴
 
         User user = userRepository.findByEmail(email);
-        userDto.setEmail(user.getEmail());
+        userDto.setUserId(user.getUserId());
 
         // 사용자 정보 수정
         return userService.updateUserPage(userDto);
