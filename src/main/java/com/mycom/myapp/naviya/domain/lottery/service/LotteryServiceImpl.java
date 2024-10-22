@@ -14,6 +14,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 
 
@@ -29,9 +30,10 @@ public class LotteryServiceImpl implements LotteryService {
     private static final String LOTTERY_WINNERS_LIST = "lottery:winners";
 
     // 캐시 변수: 마스킹된 응모 데이터를 저장
-    private List<String> cachedMaskedEntries = new ArrayList<>();
+    private List<String> cachedMaskedEntries = new CopyOnWriteArrayList<>();
 
     @Override
+    @Transactional
     public String submitLotteryEntry(LotteryEntryRequest request) {
 
         try {
