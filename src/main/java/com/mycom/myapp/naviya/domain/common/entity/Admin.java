@@ -29,5 +29,8 @@ public class Admin {
     @Column(name = "updated_at")
     private Timestamp updatedAt;
 
+    @Column(name = "role")
+    private String role;
+
     // Getters and Setters
 }
