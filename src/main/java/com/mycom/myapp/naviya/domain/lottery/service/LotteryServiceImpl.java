@@ -65,7 +65,7 @@ public class LotteryServiceImpl implements LotteryService {
             redisTemplate.opsForValue().increment(LOTTERY_COUNT_KEY);
 
             log.info("응모가 접수되었습니다 - 이름: {}, 전화번호: {}", name, phone);
-            return "응모가 접수되었습니다. 결과는 내일 오후 12시에 발표됩니다.";
+            return "응모가 접수되었습니다. 결과는 내일 오후 1시에 발표됩니다.";
 
         } catch (Exception e) {
             log.error("응모 처리 중 오류 발생 - 이름: {}, 전화번호: {} 오류{}", request.getPhone(), request.getPhone(), e.getMessage());

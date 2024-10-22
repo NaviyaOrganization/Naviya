@@ -52,6 +52,13 @@ dependencyManagement {
     }
 }
 
+dependencyManagement {
+    imports {
+        mavenBom "org.springframework.ai:spring-ai-bom:${springAiVersion}"
+        mavenBom "com.google.cloud:libraries-bom:26.14.0"
+    }
+}
+
 tasks.named('test') {
     useJUnitPlatform()
 
