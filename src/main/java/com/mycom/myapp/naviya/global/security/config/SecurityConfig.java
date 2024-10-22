@@ -21,7 +21,9 @@ public class SecurityConfig {
         http
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/", "/login", "/signup", "/signupProc",
-                                        "/static/**", "/css/**", "/js/**", "/images/**").permitAll()
+                                "/static/**", "/css/**", "/js/**", "/images/**").permitAll()
+                        .requestMatchers("/Book/**").permitAll() // API 요청에 대한 접근 허용
+
                         .anyRequest().authenticated()
                 )
                 .formLogin(auth -> auth
