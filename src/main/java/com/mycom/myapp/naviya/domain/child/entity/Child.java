@@ -37,8 +37,10 @@ public class Child {
 
     @Column(name = "child_image")
     private String childImage;
-
-    // Getters and Setters
     @OneToMany(mappedBy = "child")
     private List<ChildBookDislike> childBookDislikes;
+    @OneToMany(mappedBy = "child")
+    private List<ChildBookLike> chldBookLikes;
+    @OneToOne(mappedBy = "child")
+    private ChildMbti childMbti;
 }

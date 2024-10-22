@@ -10,7 +10,7 @@ import com.mycom.myapp.naviya.global.mbti.Dto.MbtiDto;
 import java.util.List;
 @Repository
 public interface BookRepository extends JpaRepository<Book, Long> {
-
+    Book findBybookId(Long bookId);
     @Query("SELECT new com.mycom.myapp.naviya.domain.book.dto.BookDto(b.bookId, " +
             "b.title, b.summary, b.recommendedAge, b.publisher, b.author, " +
             "b.createdAt, b.fullStory, b.bookImage, b.categoryCode, " +
@@ -23,8 +23,8 @@ public interface BookRepository extends JpaRepository<Book, Long> {
             "GROUP BY b.bookId, b.title, b.summary, b.recommendedAge, b.publisher, " +
             "b.author, b.createdAt, b.fullStory, b.bookImage, b.categoryCode, " +
             "m.mbtiId, m.eiType, m.snType, m.tfType, m.jpType,f.count")
-    List<BookDto> findAllBookDto();
-    Book findBybookId(Long bookId);
+    List<BookDto> findAllBookDto();//다 가져오기
+
 
     @Query("SELECT new com.mycom.myapp.naviya.domain.book.dto.BookDto(b.bookId, " +
             "b.title, b.summary, b.recommendedAge, b.publisher, b.author, " +
@@ -35,11 +35,15 @@ public interface BookRepository extends JpaRepository<Book, Long> {
             "LEFT JOIN b.bookMbti bm " +
             "LEFT JOIN bm.mbti m " +
             "LEFT JOIN BookFavorTotal f ON f.book.bookId = b.bookId " +
+            "LEFT JOIN ChildBookLike like ON like.book.bookId = b.bookId AND like.child.childId = :childId " +
+            "LEFT JOIN ChildBookDislike dislike ON dislike.book.bookId = b.bookId AND dislike.child.childId = :childId " +
+            "WHERE like.likeId IS NULL AND dislike.dislikeBookId IS NULL " +
             "GROUP BY b.bookId, b.title, b.summary, b.recommendedAge, b.publisher, " +
             "b.author, b.createdAt, b.fullStory, b.bookImage, b.categoryCode, " +
             "m.mbtiId, m.eiType, m.snType, m.tfType, m.jpType, f.count " +
-            "ORDER BY b.createdAt ASC")  // createdAt 기준 오름차순 정렬
-    List<BookDto> findBookDtoDescCreateDate();
+            "ORDER BY b.createdAt ASC")
+
+    List<BookDto> findBookDtoDescCreateDate(@Param("childId") long childId);//새로 생긴 책 추천
 
     @Query("SELECT new com.mycom.myapp.naviya.domain.book.dto.BookDto(b.bookId, " +
             "b.title, b.summary, b.recommendedAge, b.publisher, b.author, " +
@@ -50,11 +54,14 @@ public interface BookRepository extends JpaRepository<Book, Long> {
             "LEFT JOIN b.bookMbti bm " +
             "LEFT JOIN bm.mbti m " +
             "LEFT JOIN BookFavorTotal f ON f.book.bookId = b.bookId " +
+            "LEFT JOIN ChildBookLike like ON like.book.bookId = b.bookId AND like.child.childId = :childId " +
+            "LEFT JOIN ChildBookDislike dislike ON dislike.book.bookId = b.bookId AND dislike.child.childId = :childId " +
+            "WHERE like.likeId IS NULL AND dislike.dislikeBookId IS NULL " +
             "GROUP BY b.bookId, b.title, b.summary, b.recommendedAge, b.publisher, " +
             "b.author, b.createdAt, b.fullStory, b.bookImage, b.categoryCode, " +
             "m.mbtiId, m.eiType, m.snType, m.tfType, m.jpType, f.count " +
-            "ORDER BY f.count DESC")  // f.count 기준 내림차순 정렬
-    List<BookDto> findBookDescBookFavor();
+            "ORDER BY f.count DESC")
+    List<BookDto> findBookDescBookFavorCount(@Param("childId") long childId);//좋아요 카운트순
 
     @Query("SELECT new com.mycom.myapp.naviya.domain.book.dto.BookDto(b.bookId, " +
             "b.title, b.summary, b.recommendedAge, b.publisher, b.author, " +
@@ -72,8 +79,7 @@ public interface BookRepository extends JpaRepository<Book, Long> {
             "b.author, b.createdAt, b.fullStory, b.bookImage, b.categoryCode, " +
             "m.mbtiId, m.eiType, m.snType, m.tfType, m.jpType, f.count " +
             "ORDER BY b.createdAt DESC")
-
-    List<BookDto> findBooksByChildId(@Param("childId") Long childId);
+    List<BookDto> findBooksLikeByChildId(@Param("childId") Long childId);
 
     @Query("SELECT new com.mycom.myapp.naviya.domain.book.dto.BookDto(b.bookId, " +
             "b.title, b.summary, b.recommendedAge, b.publisher, b.author, " +
@@ -90,5 +96,5 @@ public interface BookRepository extends JpaRepository<Book, Long> {
             "b.author, b.createdAt, b.fullStory, b.bookImage, b.categoryCode, " +
             "m.mbtiId, m.eiType, m.snType, m.tfType, m.jpType, f.count " +
             "ORDER BY b.createdAt DESC")  // createdAt DESC로 정렬
-    List<BookDto> findBooksByChildIdOrderByCreatedAtDesc(@Param("childId") Long childId);
+    List<BookDto> findBooksByChildRecentRead(@Param("childId") Long childId);
 }

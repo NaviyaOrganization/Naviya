@@ -17,14 +17,14 @@ public class BookController {
         return bookServiceImpl.listBook();
     }
     @GetMapping("/ListOrderDate")
-    public BookResultDto ListOrderDate()
+    public BookResultDto ListOrderDate(@RequestParam  long childId)
     {
-        return bookServiceImpl.listbookOrderByCreateDate();
+        return bookServiceImpl.listbookOrderByCreateDate(childId);
     }
     @GetMapping("/ListBookFavorCount")
-    public BookResultDto ListBookFavorCount()
+    public BookResultDto ListBookFavorCount(@RequestParam  long childId)
     {
-        return bookServiceImpl.listBookFavorCount();
+        return bookServiceImpl.listBookFavorCount(childId);
     }
     @GetMapping("/ListBookChildFavor")
     public BookResultDto ListBookChildFavor(@RequestParam long childId)
@@ -45,5 +45,25 @@ public class BookController {
     public BookResultDto DetailBook(@RequestParam long bookId)
     {
         return bookServiceImpl.detailBook(bookId);
+    }
+    @GetMapping("/BookLike")
+    public BookResultDto BookLike(@RequestParam long bookId,@RequestParam long childId,@RequestParam String Type)
+    {
+        return bookServiceImpl.ChildBookLike(bookId,childId,Type);
+    }
+    @GetMapping("/BookDisLike")
+    public BookResultDto BookDisLike(@RequestParam long bookId,@RequestParam long childId ,@RequestParam String Type)
+    {
+        return bookServiceImpl.ChildBookDisLike(bookId,childId,Type);
+    }
+    @DeleteMapping("/DelBookLike")
+    public BookResultDto DelBookLike(@RequestParam long bookId,@RequestParam long childId)
+    {
+        return bookServiceImpl.DelChildBookLike(bookId,childId);
+    }
+    @DeleteMapping("/DelBookDisLike")
+    public BookResultDto DelBookDisLike(@RequestParam long bookId,@RequestParam long childId)
+    {
+        return bookServiceImpl.DelChildBookDisLike(bookId,childId);
     }
 }

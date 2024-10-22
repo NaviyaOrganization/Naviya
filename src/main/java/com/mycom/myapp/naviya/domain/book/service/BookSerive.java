@@ -9,8 +9,12 @@ public interface BookSerive {
     BookResultDto listBook();
     BookResultDto updateBook(BookDto bookDto);
     BookResultDto insertBook(BookDto bookDto);
-    BookResultDto listbookOrderByCreateDate();
+    BookResultDto listbookOrderByCreateDate(long childId);
     BookResultDto listBookChildFavor(long ChildId);
-    BookResultDto listBookFavorCount();
+    BookResultDto listBookFavorCount(long childId);
     BookResultDto listBookChildRecntRead(long ChildId);
+    BookResultDto ChildBookLike(long BookId,long ChildId,String Type);
+    BookResultDto ChildBookDisLike(long BookId,long ChildId,String Type);
+    BookResultDto DelChildBookLike(long BookId,long ChildId);
+    BookResultDto DelChildBookDisLike(long BookId,long ChildId);
 }
