@@ -101,11 +101,19 @@
                 <li class="nav-item">
                     <a class="nav-link" href="/">메인페이지</a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#">로그인</a>
+                <!-- 로그인 상태 확인 -->
+                <li class="nav-item" th:if="${user == null}">
+                    <a class="nav-link" href="/login">로그인</a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#">회원가입</a>
+                <li class="nav-item" th:if="${user == null}">
+                    <a class="nav-link" href="/signup">회원가입</a>
+                </li>
+                <!-- 로그인한 사용자 정보 -->
+                <li class="nav-item" th:if="${user != null}">
+                    <a class="nav-link" th:text="${user.name + '님'}"></a>
+                </li>
+                <li class="nav-item" th:if="${user != null}">
+                    <a class="nav-link" href="/logout">로그아웃</a>
                 </li>
             </ul>
         </div>
@@ -116,11 +124,11 @@
 <div id="sidebar">
     <a href="#">아이 프로필 변경</a>
     <a href="#">아이정보 보기</a>
-    <a href="#">계정보기</a>
+    <a href="/userpage">계정보기</a>
     <a href="#">최근 책 보기</a>
     <a href="/ChildFavorBookList.html">좋아요 누른 책 보기</a>
     <a href="#">카테고리 별 책보기</a>
-    <a href="#">선착순 이벤트</a>
+    <a href="/lottery/form">선착순 이벤트</a>
 </div>
 
 <!-- Main Content -->

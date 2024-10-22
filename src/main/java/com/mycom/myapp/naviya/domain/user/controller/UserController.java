@@ -31,20 +31,6 @@ public class UserController {
     private final UserRepository userRepository;
     private final Logger LOGGER = LoggerFactory.getLogger(UserController.class);
 
-    // 로그인 페이지 렌더링
-    @GetMapping("/login")
-    public String loginP() {
-
-        return "login";
-    }
-
-    // 회원가입 페이지 렌더링
-    @GetMapping("/signup")
-    public String signupP() {
-
-        return "signup";
-    }
-
 
     // 회원가입 처리
     @PostMapping("/signupProc")
@@ -59,21 +45,6 @@ public class UserController {
         } else {
             return ResponseEntity.status(500).body(signupResultDto); // 500 Internal Server Error for unexpected case
         }
-    }
-
-    // 메인 페이지
-    @GetMapping("/")
-    public String main(Model model) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String email = authentication.getName();
-
-        Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
-        String role = authorities.stream().findFirst().map(GrantedAuthority::getAuthority).orElse("ROLE_USER");
-
-        model.addAttribute("email", email);
-        model.addAttribute("role", role);
-
-        return "main";
     }
 
 
@@ -91,13 +62,11 @@ public class UserController {
             LOGGER.error("No authenticated user found.");
         }
 
+        User user = userRepository.findByEmail(email);
         UserResultDto userResultDto =  userService.detailUserPage(email);
         // 사용자 정보를 Model에 추가하여 View로 전달
-        System.out.println("0--------------------------------");
-        System.out.println(userResultDto);
-        System.out.println("0--------------------------------");
-
         model.addAttribute("userDto", userResultDto.getUserDto());
+        model.addAttribute("user", user);
 
         return "userpage";
     }
