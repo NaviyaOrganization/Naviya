@@ -24,7 +24,6 @@ public interface ChildBookLikeRepository extends JpaRepository<ChildBookLike, Lo
             "WHERE cbl.child.childId = :childId AND cbl.book.bookId = :bookId AND cbl.deletedAt IS NULL")
     boolean existsByChildIdAndBookIdAndDelDateIsNull(@Param("childId") Long childId, @Param("bookId") Long bookId);
 
-
     @Modifying
     @Transactional
     @Query("DELETE FROM ChildBookLike c " +
@@ -38,5 +37,8 @@ public interface ChildBookLikeRepository extends JpaRepository<ChildBookLike, Lo
     @Query("UPDATE ChildBookLike cbl SET cbl.deletedAt = :futureDate WHERE cbl.child = :child AND cbl.deletedAt IS NULL")
     void updateDeletedAtForChild(@Param("child") Child child, @Param("futureDate") LocalDateTime futureDate);
 
-
+    @Transactional
+    @Modifying
+    @Query("DELETE FROM ChildBookLike cbl WHERE cbl.child = :child AND cbl.deletedAt = :deleteAt")
+    void deleteByChildAndDeletedAt(Child child, LocalDateTime deleteAt);
 }

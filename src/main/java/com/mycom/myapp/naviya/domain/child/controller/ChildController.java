@@ -1,6 +1,8 @@
 package com.mycom.myapp.naviya.domain.child.controller;
 
+import com.mycom.myapp.naviya.domain.child.dto.ChildAddDto;
 import com.mycom.myapp.naviya.domain.child.dto.ChildDto;
+import com.mycom.myapp.naviya.domain.child.dto.ChildResultDto;
 import com.mycom.myapp.naviya.domain.child.dto.ChildWithMbtiHistoryDto;
 import com.mycom.myapp.naviya.domain.child.entity.Child;
 import com.mycom.myapp.naviya.domain.child.repository.ChildRepository;

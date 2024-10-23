@@ -19,4 +19,10 @@ public interface ChildFavorCategoryRepository extends JpaRepository<ChildFavorCa
     @Transactional
     @Query("UPDATE ChildFavorCategory cfc SET cfc.deletedAt = :futureDate WHERE cfc.child = :child AND cfc.deletedAt IS NULL")
     void updateDeletedAtForChild(@Param("child") Child child, @Param("futureDate") LocalDateTime futureDate);
+
+    @Transactional
+    @Modifying
+    @Query("DELETE FROM ChildFavorCategory cfc WHERE cfc.child = :child AND cfc.deletedAt = :deleteAt")
+    void deleteByChildAndDeletedAt(Child child, LocalDateTime deleteAt);
+
 }

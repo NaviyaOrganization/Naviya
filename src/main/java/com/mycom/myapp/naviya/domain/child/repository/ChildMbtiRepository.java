@@ -26,6 +26,10 @@ public interface ChildMbtiRepository extends JpaRepository<ChildMbti, Long> {
     @Query("UPDATE ChildMbti cm SET cm.deletedAt = :futureDate WHERE cm.child = :child AND cm.deletedAt IS NULL")
     void updateDeletedAtForChild(@Param("child") Child child, @Param("futureDate") LocalDateTime futureDate);
 
+    @Transactional
+    @Modifying
+    @Query("DELETE FROM ChildMbti c WHERE c.child = :child AND c.deletedAt = :deleteAt")
+    void deleteByChildAndDeletedAt(Child child, LocalDateTime deleteAt);
 
 
 }
