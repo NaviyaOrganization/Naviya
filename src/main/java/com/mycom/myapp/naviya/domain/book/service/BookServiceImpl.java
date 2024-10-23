@@ -171,6 +171,14 @@ public class BookServiceImpl implements BookSerive {
             return bookResultDto;
         }
     }
+    public int weightCal(int calWeight,int weight)
+    {
+        int baseAdjustment = calWeight;
+        int currentWeight = weight;
+        int dynamicAdjustment = (int) (baseAdjustment * (1.2 - Math.abs(currentWeight / 100)));
+        int newWeight = Math.max(-100, Math.min(100, currentWeight + dynamicAdjustment));
+        return newWeight;
+    }
     @Override
     @Transactional
     public BookResultDto ChildBookLike(long BookId, long ChildId,String Type) {
@@ -214,15 +222,21 @@ public class BookServiceImpl implements BookSerive {
             int JP;
             if (Type!=null &&Objects.equals(Type, "MBTI"))
             {
-                EI= (int) (book2Mbti.getEiType()*1.5);
-                SN= (int) (book2Mbti.getSnType()*1.5);
-                TF= (int) (book2Mbti.getTfType()*1.5);
-                JP= (int) (book2Mbti.getJpType()*1.5);
-            } else if (Type!=null &&Objects.equals(Type, "NOMAL")) {
-                EI= book2Mbti.getEiType();
-                SN= book2Mbti.getSnType();
-                TF= book2Mbti.getTfType();
-                JP= book2Mbti.getJpType();
+                EI =weightCal(book2Mbti.getEiType(),mbti.getEiType());
+                SN= weightCal(book2Mbti.getSnType(),mbti.getSnType());
+                TF= weightCal(book2Mbti.getTfType(),mbti.getTfType());
+                JP=weightCal(book2Mbti.getJpType(),mbti.getJpType());
+            } else if (Type!=null &&Objects.equals(Type, "REVERSE")) {
+                EI =weightCal((int)(book2Mbti.getEiType()*1.2),mbti.getEiType());
+                SN= weightCal((int)(book2Mbti.getSnType()*1.2),mbti.getSnType());
+                TF= weightCal((int)(book2Mbti.getTfType()*1.2),mbti.getTfType());
+                JP=weightCal((int)(book2Mbti.getJpType()*1.2),mbti.getJpType());
+            }
+            else if (Type!=null &&Objects.equals(Type, "NOMAL")) {
+                EI =weightCal((int)(book2Mbti.getEiType()*0.7),mbti.getEiType());
+                SN= weightCal((int)(book2Mbti.getSnType()*0.7),mbti.getSnType());
+                TF= weightCal((int)(book2Mbti.getTfType()*0.7),mbti.getTfType());
+                JP=weightCal((int)(book2Mbti.getJpType()*0.7),mbti.getJpType());
             }
             else
             {
@@ -236,10 +250,10 @@ public class BookServiceImpl implements BookSerive {
             childBookLike.setDelDate(null);
             childBookLikeRepository.save(childBookLike);
 
-            mbti.setEiType(EI+mbti.getEiType());
-            mbti.setSnType(SN+mbti.getSnType());
-            mbti.setTfType(TF+mbti.getTfType());
-            mbti.setJpType(JP+mbti.getJpType());
+            mbti.setEiType(EI);
+            mbti.setSnType(SN);
+            mbti.setTfType(TF);
+            mbti.setJpType(JP);
             mbtiRepository.save(mbti);
             bookResultDto.setSuccess("success");
             return bookResultDto;
