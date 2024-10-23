@@ -1,44 +1,38 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<html lang="ko">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Main Page with Sidebar</title>
+    <title>아이들나라</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
     <style>
         body {
             overflow-x: hidden;
         }
-
-        /* Navigation Bar styles */
         .navbar {
-            background-color: #47688d; /* 밝은 색으로 변경 (흰색) */
-            border-bottom: 1px solid #e0e0e0; /* 아래쪽에 얇은 테두리 추가 */
+            background-color: #47688d;
+            border-bottom: 1px solid #e0e0e0;
+            padding: 0.5rem 1rem;
         }
-
         .navbar-nav .nav-link {
-            color: white !important; /* 어두운 색으로 텍스트 변경 */
+            color: white !important;
         }
-
         .navbar-nav .nav-link:hover {
-            color: #c4d6e9 !important; /* 파란색으로 변경 (hover 시) */
+            color: #c4d6e9 !important;
         }
-
-        /* Sidebar styles */
         #sidebar {
             height: 100%;
             width: 250px;
             position: fixed;
             top: 0;
-            left: -250px; /* 사이드바는 기본적으로 숨김 */
-            background-color: #f7f7f7; /* 연한 회색으로 변경 */
+            left: -250px;
+            background-color: #f7f7f7;
             color: black;
-            transition: left 0.3s ease; /* 부드러운 전환 효과 */
+            transition: left 0.3s ease;
             padding-top: 20px;
             z-index: 1000;
         }
-
         #sidebar a {
             padding: 15px;
             text-decoration: none;
@@ -47,41 +41,30 @@
             display: block;
             transition: background-color 0.2s;
         }
-
         #sidebar a:hover {
-            background-color: #e0e0e0; /* hover 시 배경색을 밝은 회색으로 변경 */
+            background-color: #e0e0e0;
         }
-
         #sidebar a:first-child {
-            margin-top: 35px; /* 필요에 따라 조정 */
+            margin-top: 35px;
         }
-
-        /* Toggle Button styles */
         #toggleSidebar {
             font-size: 24px;
             cursor: pointer;
             position: fixed;
             top: 15px;
             left: 15px;
-            z-index: 1100; /* 다른 요소 위에 표시 */
-            transition: left 0.3s ease; /* 사이드바에 따라 버튼 이동 */
-            /* background-color: #343a40; 어두운 색으로 설정 */
-            color: white; /* 흰색 텍스트 */
-            padding: 10px; /* 클릭 영역을 위한 패딩 */
-            border-radius: 5px; /* 둥근 모서리 */
+            z-index: 1100;
+            transition: left 0.3s ease;
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
         }
-
-        /* 사이드바 활성 상태 */
         .sidebar-active {
-            left: 0; /* 사이드바를 표시 */
+            left: 0;
         }
-
-        /* 사이드바가 활성 상태일 때 토글 버튼 이동 */
         .toggle-active {
-            left: 265px; /* 사이드바와 정렬 */
+            left: 265px;
         }
-
-        /* 메인 컨텐츠 부분 시작 css */
         #main-content {
             transition: margin-left 0.3s ease;
             padding: 20px;
@@ -183,38 +166,20 @@
             max-width: 500px;
             margin: 20px auto;
         }
+
     </style>
-
-
 </head>
 <body>
 
 <!-- Navigation Bar -->
-<nav class="navbar navbar-expand-lg navbar">
+<nav class="navbar navbar-expand-lg">
     <div class="container-fluid">
-        <!-- Toggle Button -->
         <span id="toggleSidebar" class="navbar-toggler-icon"></span>
-
-        <!-- Right-Side Links -->
-        <div class="collapse navbar-collapse justify-content-end">
+        <div class="d-flex align-items-center ms-auto">
             <ul class="navbar-nav">
-                <li class="nav-item">
-                    <a class="nav-link" href="/">메인페이지</a>
-                </li>
-                <!-- 로그인 상태 확인 -->
-                <li class="nav-item" th:if="${user == null}">
-                    <a class="nav-link" href="/login">로그인</a>
-                </li>
-                <li class="nav-item" th:if="${user == null}">
-                    <a class="nav-link" href="/signup">회원가입</a>
-                </li>
-                <!-- 로그인한 사용자 정보 -->
-                <li class="nav-item" th:if="${user != null}">
-                    <a class="nav-link" th:text="${user.name + '님'}"></a>
-                </li>
-                <li class="nav-item" th:if="${user != null}">
-                    <a class="nav-link" href="/logout">로그아웃</a>
-                </li>
+                <li class="nav-item"><a class="nav-link" href="#">메인페이지</a></li>
+                <li class="nav-item"><a class="nav-link" href="#">로그인</a></li>
+                <li class="nav-item"><a class="nav-link" href="#">회원가입</a></li>
             </ul>
         </div>
     </div>
@@ -223,12 +188,12 @@
 <!-- Sidebar -->
 <div id="sidebar">
     <a href="#">아이 프로필 변경</a>
-    <a href="/children/">아이정보 보기</a>
-    <a href="/userpage">계정보기</a>
+    <a href="#">아이정보 보기</a>
+    <a href="#">계정보기</a>
     <a href="#">최근 책 보기</a>
-    <a href="/ChildFavorBookList.html">좋아요 누른 책 보기</a>
+    <a href="#">좋아요 누른 책 보기</a>
     <a href="#">카테고리 별 책보기</a>
-    <a href="/lottery/form">선착순 이벤트</a>
+    <a href="#">선착순 이벤트</a>
 </div>
 
 <!-- Main Content -->
@@ -285,67 +250,31 @@
     </div>
 </div>
 
-<!-- JavaScript for sidebar toggle -->
 <script>
-    const baseUrl = '/Book';
+    // 사이드바 토글 기능
+    document.getElementById('toggleSidebar').addEventListener('click', function() {
+        const sidebar = document.getElementById('sidebar');
+        const toggleBtn = document.getElementById('toggleSidebar');
+        const mainContent = document.getElementById('main-content');
 
-    // 모든 책 목록 가져오기
-    function fetchAllBooks() {
-        fetch(`${baseUrl}/List`)
-            .then(response => response.json())
-            .then(data => console.log('모든 책 목록:', data))
-            .catch(error => console.error('에러 발생:', error));
-    }
-
-    // 생성일 순서로 책 목록 가져오기
-    function fetchBooksOrderedByDate() {
-        fetch(`${baseUrl}/ListOrderDate`)
-            .then(response => response.json())
-            .then(data => console.log('생성일 순서로 정렬된 책 목록:', data))
-            .catch(error => console.error('에러 발생:', error));
-    }
-
-    // 책 추천 수 목록 가져오기
-    function fetchBookFavorCount() {
-        fetch(`${baseUrl}/ListBookFavorCount`)
-            .then(response => response.json())
-            .then(data => console.log('책 추천 수 목록:', data))
-            .catch(error => console.error('에러 발생:', error));
-    }
-
-    // 아이의 추천 책 목록 가져오기
-    function fetchChildFavorBooks() {
-        const childId = prompt('아이의 ID를 입력하세요:');
-        if (childId) {
-            fetch(`${baseUrl}/ListBookChildFavor?childId=${childId}`)
-                .then(response => response.json())
-                .then(data => console.log('아이의 추천 책 목록:', data))
-                .catch(error => console.error('에러 발생:', error));
+        if (sidebar.style.left === '0px') {
+            sidebar.style.left = '-250px';
+            toggleBtn.classList.remove('toggle-active');
+            mainContent.style.marginLeft = '150px'; // 콘텐츠를 중앙으로 이동
+        } else {
+            sidebar.style.left = '0px';
+            toggleBtn.classList.add('toggle-active');
+            mainContent.style.marginLeft = '250px';
         }
-    }
+    });
 
-    // 책 삭제하기
-    /*function deleteBook() {
-        const bookId = prompt('삭제할 책의 ID를 입력하세요:');
-        if (bookId) {
-            fetch(`${baseUrl}/BookDel?bookId=${bookId}`, {
-                method: 'DELETE'
-            })
-                .then(response => response.json())
-                .then(data => console.log('책 삭제 결과:', data))
-                .catch(error => console.error('에러 발생:', error));
-        }
-    }*/
+    // 페이지 로드 시 추천 도서 가져오기
+    window.addEventListener('load', () => {
+        // 여기에 실제 childId를 넣어주세요. 예를 들어:
+        const childId = '123'; // 이 부분은 실제 구현에 맞게 수정해야 합니다.
+        fetchRecommendedBooks(1);
 
-    // 페이지가 로드될 때 API 호출
-    window.onload = () => {
-        fetchAllBooks();
-        fetchBooksOrderedByDate();
-        fetchBookFavorCount();
-        fetchChildFavorBooks();
-        //deleteBook();
-    };
-
+    });
 
     // 책 슬라이드 기능
     const sliderStates = {
@@ -362,7 +291,6 @@
         // 슬라이드의 개수 설정
         const booksPerSlide = 3; // 한 슬라이드에 보여줄 책 개수
         const totalSlides = Math.ceil(books.length / booksPerSlide);
-
         // 책이 없을 경우 메시지 표시
         if (books.length === 0) {
             const messageDiv = document.createElement('div');
@@ -432,38 +360,79 @@
     ];
 
     // 책 데이터 예시
-    const popularBookss = [
-        { title: "책 제목 1", author: "저자 1", image: "https://via.placeholder.com/150" },
-    ];
+    let recommendedBooks = [];
 
     // 책 데이터 예시
     const popularBooksss = [];
 
-    renderBooks(popularBooks, 'popularBooks');
-    renderBooks(popularBookss, 'recommendedBooks');
-    renderBooks(popularBooksss, 'oppositeBooks');
-    renderBooks(popularBooks, 'newBooks');
+    // 새로운 fetchRecommendedBooks 함수 추가
+    async function fetchRecommendedBooks(childId) {
+        try {
+            const response = await fetch(`/Book/recommend?childId=${childId}`);
+            const data = await response.json();
 
-
-    // 사이드바 토글 기능
-    document.getElementById('toggleSidebar').addEventListener('click', function() {
-        const sidebar = document.getElementById('sidebar');
-        const toggleBtn = document.getElementById('toggleSidebar');
-        const mainContent = document.getElementById('main-content');
-
-        // 사이드바 가시성 전환
-        if (sidebar.style.left === '0px') {
-            sidebar.style.left = '-250px'; // 사이드바 숨기기
-            toggleBtn.classList.remove('toggle-active'); // 버튼 원래대로
-            mainContent.style.marginLeft = '150px'; // 콘텐츠를 중앙으로 이동
-        } else {
-            sidebar.style.left = '0px'; // 사이드바 보이기
-            toggleBtn.classList.add('toggle-active'); // 버튼 함께 이동
-            mainContent.style.marginLeft = '250px';
+            if (response.ok && data.code === "E001") {
+                recommendedBooks = data.data; // 받은 책 데이터를 recommendedBooks에 할당
+                bookSections['recommendedBooks'] = recommendedBooks; // bookSections 업데이트
+                displayBooks('recommendedBooks');
+                console.log(recommendedBooks);
+            } else {
+                console.error('Failed to fetch recommended books:', data.message);
+            }
+        } catch (error) {
+            console.error('Error fetching recommended books:', error);
         }
-    });
-</script>
+    }
 
+    // 생성일 순서로 책 목록 가져오기
+    async function fetchBooksOrderedByDate(childId) {
+        try {
+            const response = await fetch(`/Book/ListOrderDate?childId=${childId}`);
+            const data = await response.json();
+
+            if (data.success === "success") {
+                recommendedBooks = data.data; // 받은 책 데이터를 recommendedBooks에 할당
+                bookSections['recommendedBooks'] = recommendedBooks; // bookSections 업데이트
+                displayBooks('recommendedBooks');
+                console.log(recommendedBooks);
+            } else {
+                console.error('Failed to fetch recommended books:', data.message);
+            }
+        } catch (error) {
+            console.error('Error fetching recommended books:', error);
+        }
+    }
+
+    // 책 추천 수 목록 가져오기
+    function fetchBookFavorCount() {
+        fetch(`${baseUrl}/ListBookFavorCount`)
+            .then(response => response.json())
+            .then(data => console.log('책 추천 수 목록:', data))
+            .catch(error => console.error('에러 발생:', error));
+    }
+
+    // bookSections 객체 추가
+    const bookSections = {
+        popularBooks: popularBooks,
+        recommendedBooks: recommendedBooks,
+        oppositeBooks: popularBooksss,
+        newBooks: popularBooks
+    };
+
+    // displayBooks 함수 수정
+    function displayBooks(sectionId) {
+        const books = bookSections[sectionId];
+        console.log(books, sectionId)
+        renderBooks(books, sectionId);
+    }
+
+    // 기존의 renderBooks 호출을 displayBooks 호출로 변경
+    displayBooks('popularBooks');
+
+    displayBooks('oppositeBooks');
+    displayBooks('newBooks');
+
+</script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
