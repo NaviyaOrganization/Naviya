@@ -27,6 +27,14 @@ public class UserServiceImpl implements UserService {
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
 
+    @Override
+    public Long getUserId(String email) {
+        User user = userRepository.findByEmail(email);
+        Long userId = user.getUserId();
+        return userId;
+
+    }
+
     // 회원가입
     @Override
     public SignupResultDto signup(SignupRequestDto signupRequestDto) {

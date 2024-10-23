@@ -5,6 +5,8 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -24,23 +26,36 @@ public class Child {
     private String childName;
 
     @Column(name = "child_age")
-    private String childAge;
+    private int childAge;
+
+    @Column(name = "child_gender")
+    private Character childGender;
 
     @Column(name = "created_at")
-    private Timestamp createdAt;
+    private LocalDateTime createdAt;
 
     @Column(name = "updated_at")
-    private Timestamp updatedAt;
+    private LocalDateTime updatedAt;
 
     @Column(name = "code_mbti")
     private String codeMbti;
 
     @Column(name = "child_image")
     private String childImage;
+
+    @Column(name="child_age_range")
+    private String ChildAgeRange;
+
     @OneToMany(mappedBy = "child")
     private List<ChildBookDislike> childBookDislikes;
+
     @OneToMany(mappedBy = "child")
     private List<ChildBookLike> chldBookLikes;
+
     @OneToOne(mappedBy = "child")
     private ChildMbti childMbti;
+
+    @OneToMany(mappedBy = "child")
+    private List<ChildFavorCategory> childFavorCategories = new ArrayList<>();
+
 }

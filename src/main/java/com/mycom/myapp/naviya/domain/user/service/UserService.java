@@ -7,6 +7,7 @@ import com.mycom.myapp.naviya.domain.user.dto.UserResultDto;
 
 public interface UserService {
 
+    public Long getUserId(String email);
     public SignupResultDto signup(SignupRequestDto signupRequestDto);
     public UserResultDto detailUserPage(String email);
     public UserResultDto updateUserPage(UserDto userDto);
