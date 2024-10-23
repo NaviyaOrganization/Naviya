@@ -15,7 +15,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-public class BookDto {
+public class BookDetailDto {
     private Long bookId;
     private String title;
     private String summary;
@@ -28,5 +28,6 @@ public class BookDto {
     private String category;
     private MbtiDto bookMbti;
     private BookFavorTotalDto booktotalfavor;
-
+    private boolean isLiked;    // 좋아요 존재 여부
+    private boolean isDisliked; // 싫어요 존재 여부
 }
