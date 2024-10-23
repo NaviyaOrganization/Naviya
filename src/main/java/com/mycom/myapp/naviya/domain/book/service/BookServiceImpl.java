@@ -408,4 +408,8 @@ public class BookServiceImpl implements BookSerive {
 
     }
 
+    @Override
+    public List<BookDto> searchBooks(String searchType, String keyword) {
+        return bookRepository.searchBooks(searchType, keyword);
+    }
 }

@@ -106,7 +106,7 @@ public interface BookRepository extends JpaRepository<Book, Long> {
     List<BookDto> findBooksByChildRecentRead(@Param("childId") Long childId);
 
 
-    @Query("SELECT new com.mycom.myapp.naviya.domain.book.dto.BookDetailDto(b.bookId, " +
+        @Query("SELECT new com.mycom.myapp.naviya.domain.book.dto.BookDetailDto(b.bookId, " +
             "b.title, b.summary, b.recommendedAge, b.publisher, b.author, " +
             "b.createdAt, b.fullStory, b.bookImage, b.categoryCode, " +
             "new com.mycom.myapp.naviya.global.mbti.Dto.MbtiDto(m.mbtiId, m.eiType, m.snType, m.tfType, m.jpType), " +
@@ -119,6 +119,22 @@ public interface BookRepository extends JpaRepository<Book, Long> {
             "LEFT JOIN BookFavorTotal f ON f.book.bookId = b.bookId " +
             "WHERE b.bookId = :bookId")
     BookDetailDto findBookDetailDtoByBookId(@Param("bookId") Long bookId, @Param("childId") Long childId);
-
-
+  
+    @Query("SELECT new com.mycom.myapp.naviya.domain.book.dto.BookDto(b.bookId, " +
+            "b.title, b.summary, b.recommendedAge, b.publisher, b.author, " +
+            "b.createdAt, b.fullStory, b.bookImage, b.categoryCode, " +
+            "new com.mycom.myapp.naviya.global.mbti.Dto.MbtiDto(m.mbtiId, m.eiType, m.snType, m.tfType, m.jpType), " +
+            "new com.mycom.myapp.naviya.domain.book.dto.BookFavorTotalDto(f.count)) " +
+            "FROM Book b " +
+            "LEFT JOIN b.bookMbti bm " +
+            "LEFT JOIN bm.mbti m " +
+            "LEFT JOIN BookFavorTotal f ON f.book.bookId = b.bookId " +
+            "WHERE (:searchType = 'title' AND LOWER(b.title) LIKE LOWER(CONCAT('%', :keyword, '%'))) OR " +
+            "(:searchType = 'author' AND LOWER(b.author) LIKE LOWER(CONCAT('%', :keyword, '%'))) OR " +
+            "(:searchType = 'publisher' AND LOWER(b.publisher) LIKE LOWER(CONCAT('%', :keyword, '%'))) " +
+            "GROUP BY b.bookId, b.title, b.summary, b.recommendedAge, b.publisher, " +
+            "b.author, b.createdAt, b.fullStory, b.bookImage, b.categoryCode, " +
+            "m.mbtiId, m.eiType, m.snType, m.tfType, m.jpType, f.count")
+    List<BookDto> searchBooks(@Param("searchType") String searchType, @Param("keyword") String keyword);
+  
 }
