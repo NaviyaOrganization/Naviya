@@ -171,6 +171,16 @@ public class BookServiceImpl implements BookSerive {
             return bookResultDto;
         }
     }
+    public int weightCal(int calWeight,int weight,int sign)
+    {
+        Double baseAdjustment = (double) calWeight;
+        Double currentWeight = (double) weight;
+        //절대값이라 현재 mbti 가중치가 음수여도 상관 없음
+        int dynamicAdjustment = (int) (baseAdjustment * (1.2 - Math.abs(currentWeight / 100)));
+        int newWeight = Math.max(-100, Math.min(100, (int)(currentWeight + (dynamicAdjustment*sign))));
+        return newWeight;
+    }
+
     @Override
     @Transactional
     public BookResultDto ChildBookLike(long BookId, long ChildId,String Type) {
@@ -183,7 +193,7 @@ public class BookServiceImpl implements BookSerive {
             }
             else
             {
-                bookResultDto.setSuccess("fail");
+                bookResultDto.setSuccess("fail1");
                 return bookResultDto;
             }
             Optional book=bookRepository.findById(BookId);
@@ -193,16 +203,27 @@ public class BookServiceImpl implements BookSerive {
             }
             else
             {
-                bookResultDto.setSuccess("fail");
+                bookResultDto.setSuccess("fail2");
                 return bookResultDto;
             }
             ChildMbti childMbti = child1.getChildMbti();
             if (childMbti == null) {
-                bookResultDto.setSuccess("fail");
+                bookResultDto.setSuccess("fail3");
                 return bookResultDto;
             }
-            if (childBookDisLikeRepository.existsByChild_ChildIdAndBook_BookId(ChildId, BookId)) {
-                childBookDisLikeRepository.deleteByChild_ChildIdAndBook_BookId(ChildId, BookId);
+            //상대편에 싫어요 있으면 빼주기
+            childBookDisLikeRepository.deleteByChild_ChildIdAndBook_BookId(ChildId, BookId);
+            //일대다여서 확인해야함
+            //좋아요 토탈 카운트 올려주기 && 이미 deldate없는 좋아요는 올려주지 않기
+            if(!childBookLikeRepository.existsByChildIdAndBookIdAndDelDateIsNull(ChildId, BookId))
+            {
+                bookFavorTotalRepository.incrementCountByBookId(BookId);
+            }
+            else
+            {
+                bookResultDto.setSuccess("duplicate");
+                return bookResultDto;
+                //이미 있음
             }
             BookMbti bookMbti = book1.getBookMbti();
             Mbti book2Mbti=new Mbti();
@@ -214,19 +235,25 @@ public class BookServiceImpl implements BookSerive {
             int JP;
             if (Type!=null &&Objects.equals(Type, "MBTI"))
             {
-                EI= (int) (book2Mbti.getEiType()*1.5);
-                SN= (int) (book2Mbti.getSnType()*1.5);
-                TF= (int) (book2Mbti.getTfType()*1.5);
-                JP= (int) (book2Mbti.getJpType()*1.5);
-            } else if (Type!=null &&Objects.equals(Type, "NOMAL")) {
-                EI= book2Mbti.getEiType();
-                SN= book2Mbti.getSnType();
-                TF= book2Mbti.getTfType();
-                JP= book2Mbti.getJpType();
+                EI =weightCal(book2Mbti.getEiType(),mbti.getEiType(),1);
+                SN= weightCal(book2Mbti.getSnType(),mbti.getSnType(),1);
+                TF= weightCal(book2Mbti.getTfType(),mbti.getTfType(),1);
+                JP=weightCal(book2Mbti.getJpType(),mbti.getJpType(),1);
+            } else if (Type!=null &&Objects.equals(Type, "REVERSE")) {
+                EI =weightCal((int)(book2Mbti.getEiType()*1.2),mbti.getEiType(),1);
+                SN= weightCal((int)(book2Mbti.getSnType()*1.2),mbti.getSnType(),1);
+                TF= weightCal((int)(book2Mbti.getTfType()*1.2),mbti.getTfType(),1);
+                JP=weightCal((int)(book2Mbti.getJpType()*1.2),mbti.getJpType(),1);
+            }
+            else if (Type!=null &&Objects.equals(Type, "NOMAL")) {
+                EI =weightCal((int)(book2Mbti.getEiType()*0.7),mbti.getEiType(),1);
+                SN= weightCal((int)(book2Mbti.getSnType()*0.7),mbti.getSnType(),1);
+                TF= weightCal((int)(book2Mbti.getTfType()*0.7),mbti.getTfType(),1);
+                JP=weightCal((int)(book2Mbti.getJpType()*0.7),mbti.getJpType(),1);
             }
             else
             {
-                bookResultDto.setSuccess("fail");
+                bookResultDto.setSuccess("fail5");
                 return bookResultDto;
             }
 
@@ -236,22 +263,27 @@ public class BookServiceImpl implements BookSerive {
             childBookLike.setDeletedAt(null);
             childBookLikeRepository.save(childBookLike);
 
-            mbti.setEiType(EI+mbti.getEiType());
-            mbti.setSnType(SN+mbti.getSnType());
-            mbti.setTfType(TF+mbti.getTfType());
-            mbti.setJpType(JP+mbti.getJpType());
+            mbti.setEiType(EI);
+            mbti.setSnType(SN);
+            mbti.setTfType(TF);
+            mbti.setJpType(JP);
             mbtiRepository.save(mbti);
             bookResultDto.setSuccess("success");
             return bookResultDto;
         }
         catch(Exception e){
             e.printStackTrace();
-            bookResultDto.setSuccess("fail");
+            bookResultDto.setSuccess("fail4");
             return bookResultDto;
         }
     }
     @Override
     @Transactional
+    /*
+    모두 동적 조정법 적용
+*     <a> mbti 별 추천은 그냥 현재 가중치로 한다.
+    <b> 일반책은 0.7곱해서 더해준다
+    <c>mbti 반대별 좋아요는 의미가 있는거니 1.2 곱해서 더해준다.*/
     public BookResultDto ChildBookDisLike(long BookId, long ChildId,String Type) {
         BookResultDto bookResultDto=new BookResultDto();
         try{
@@ -262,7 +294,7 @@ public class BookServiceImpl implements BookSerive {
             }
             else
             {
-                bookResultDto.setSuccess("fail");
+                bookResultDto.setSuccess("fail1");
                 return bookResultDto;
             }
             Optional book=bookRepository.findById(BookId);
@@ -272,68 +304,74 @@ public class BookServiceImpl implements BookSerive {
             }
             else
             {
-                bookResultDto.setSuccess("fail");
+                bookResultDto.setSuccess("fail2");
                 return bookResultDto;
             }
             ChildMbti childMbti = child1.getChildMbti();
             if (childMbti == null) {
-                bookResultDto.setSuccess("fail");
+                bookResultDto.setSuccess("fail3");
                 return bookResultDto;
             }
-            if (childBookLikeRepository.existsByChildIdAndBookIdAndDelDateIsNull(ChildId, BookId)) {
-                childBookLikeRepository.deleteByChildIdAndBookId(ChildId, BookId);
-            }
-            BookMbti bookMbti = bookMbtiRepository.findByBook_BookId(BookId);
+            //상대편에 좋아요 있으면 빼주기
+            childBookLikeRepository.deleteByChildIdAndBookIdAndDelDateIsNull(ChildId, BookId);
+            //상대편 토탈 좋아요 카운트 내려야함
+            bookFavorTotalRepository.decrementCountByBookId(BookId);
+            BookMbti bookMbti = book1.getBookMbti();
             Mbti book2Mbti=new Mbti();
             book2Mbti=bookMbti.getMbti();
             Mbti mbti = childMbti.getMbti();
-            int EI=0;
-            int SN=0;
-            int TF=0;
-            int JP=0;
-            //비율부터 정한다음
-            //mbti <-동적 가중치
-            //mbti 반대 <-많이 줌
-
+            int EI;
+            int SN;
+            int TF;
+            int JP;
             if (Type!=null &&Objects.equals(Type, "MBTI"))
             {
-                EI= (int) (book2Mbti.getEiType()*1.5);
-                SN= (int) (book2Mbti.getSnType()*1.5);
-                TF= (int) (book2Mbti.getTfType()*1.5);
-                JP= (int) (book2Mbti.getJpType()*1.5);
-            } else if (Type!=null &&Objects.equals(Type, "NOMAL")) {
-                EI= book2Mbti.getEiType();
-                SN= book2Mbti.getSnType();
-                TF= book2Mbti.getTfType();
-                JP= book2Mbti.getJpType();
+                EI =weightCal(book2Mbti.getEiType(),mbti.getEiType(),-1);
+                SN= weightCal(book2Mbti.getSnType(),mbti.getSnType(),-1);
+                TF= weightCal(book2Mbti.getTfType(),mbti.getTfType(),-1);
+                JP=weightCal(book2Mbti.getJpType(),mbti.getJpType(),-1);
+            } else if (Type!=null &&Objects.equals(Type, "REVERSE")) {
+                EI =weightCal((int)(book2Mbti.getEiType()*1.2),mbti.getEiType(),-1);
+                SN= weightCal((int)(book2Mbti.getSnType()*1.2),mbti.getSnType(),-1);
+                TF= weightCal((int)(book2Mbti.getTfType()*1.2),mbti.getTfType(),-1);
+                JP=weightCal((int)(book2Mbti.getJpType()*1.2),mbti.getJpType(),-1);
             }
-
-            if(!childBookDisLikeRepository.existsByChild_ChildIdAndBook_BookId(ChildId, BookId))
-            {
-                ChildBookDislike childBookDislike = new ChildBookDislike();
-                childBookDislike.setChild(child1);
-                childBookDislike.setBook(book1);
-                childBookDisLikeRepository.save(childBookDislike);
+            else if (Type!=null &&Objects.equals(Type, "NOMAL")) {
+                EI =weightCal((int)(book2Mbti.getEiType()*0.7),mbti.getEiType(),-1);
+                SN= weightCal((int)(book2Mbti.getSnType()*0.7),mbti.getSnType(),-1);
+                TF= weightCal((int)(book2Mbti.getTfType()*0.7),mbti.getTfType(),-1);
+                JP=weightCal((int)(book2Mbti.getJpType()*0.7),mbti.getJpType(),-1);
             }
             else
             {
-                bookResultDto.setSuccess("duplicate");
+                bookResultDto.setSuccess("fail5");
                 return bookResultDto;
             }
-            mbti.setEiType(mbti.getEiType()-EI);
-            mbti.setSnType(mbti.getSnType()-SN);
-            mbti.setTfType(mbti.getTfType()-TF);
-            mbti.setJpType(mbti.getJpType()-JP);
+
+            ChildBookDislike childBookDislike = new ChildBookDislike();
+            childBookDislike.setChild(child1);
+            childBookDislike.setBook(book1);
+            childBookDisLikeRepository.save(childBookDislike);
+
+            mbti.setEiType(EI);
+            mbti.setSnType(SN);
+            mbti.setTfType(TF);
+            mbti.setJpType(JP);
             mbtiRepository.save(mbti);
             bookResultDto.setSuccess("success");
             return bookResultDto;
         }
         catch(Exception e){
             e.printStackTrace();
-            bookResultDto.setSuccess("fail");
+            bookResultDto.setSuccess("fail4");
             return bookResultDto;
         }
     }
+    /*
+    모두 가중치 동적 조정법 적용
+    <a> mbti 별 추천에 대한 싫어요는 가중치를 1.2를 곱해서 크게 빼준다.
+    <b> 일반책은 0.7곱해서 나눠서 빼준다.
+    <c>mbti 반대별 싫어요는 당연한거니 0.5 곱해서 빼준다.*/
     @Override
     public BookResultDto DelChildBookLike(long BookId, long ChildId) {
         BookResultDto bookResultDto=new BookResultDto();
