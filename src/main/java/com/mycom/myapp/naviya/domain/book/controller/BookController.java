@@ -50,17 +50,17 @@ public class BookController {
         return bookServiceImpl.delBook(bookId);
     }
     @GetMapping("/BookDetail")
-    public BookResultDto DetailBook(@RequestParam long bookId)
+    public BookResultDto DetailBook(@RequestParam long bookId ,@RequestParam long childId)
     {
-        return bookServiceImpl.detailBook(bookId);
+        return bookServiceImpl.detailBook(bookId,childId);
     }
     @GetMapping("/BookLike")
-    public BookResultDto BookLike(@RequestParam long bookId,@RequestParam long childId,@RequestParam String Type)
+    public BookResultDto BookLike(@RequestParam long bookId,@RequestParam long childId,String Type)
     {
         return bookServiceImpl.ChildBookLike(bookId,childId,Type);
     }
     @GetMapping("/BookDisLike")
-    public BookResultDto BookDisLike(@RequestParam long bookId,@RequestParam long childId ,@RequestParam String Type)
+    public BookResultDto BookDisLike(@RequestParam long bookId,@RequestParam long childId , String Type)
     {
         return bookServiceImpl.ChildBookDisLike(bookId,childId,Type);
     }
@@ -68,6 +68,12 @@ public class BookController {
     public BookResultDto DelBookLike(@RequestParam long bookId,@RequestParam long childId)
     {
         return bookServiceImpl.DelChildBookLike(bookId,childId);
+    }
+    //얘가 현재 deletedate 저장하는 하는애
+    @DeleteMapping("/DelBookLikeLogical")
+    public BookResultDto DelBookLikeLogical(@RequestParam long bookId,@RequestParam long childId)
+    {
+        return bookServiceImpl.LogicDelChildBookLike(bookId,childId);
     }
     @DeleteMapping("/DelBookDisLike")
     public BookResultDto DelBookDisLike(@RequestParam long bookId,@RequestParam long childId)
@@ -86,4 +92,5 @@ public class BookController {
         List<BookDto> books = bookServiceImpl.searchBooks(searchType, keyword);
         return ResponseForm.of(EXAMPLE_SUCCESS, books);
     }
+
 }

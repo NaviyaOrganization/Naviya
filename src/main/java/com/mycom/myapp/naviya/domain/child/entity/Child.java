@@ -43,4 +43,6 @@ public class Child {
     private List<ChildBookLike> chldBookLikes;
     @OneToOne(mappedBy = "child")
     private ChildMbti childMbti;
+    @Column(name="child_age_range")
+    private String ChildAgeRange;
 }

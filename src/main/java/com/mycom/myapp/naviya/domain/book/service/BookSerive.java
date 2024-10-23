@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface BookSerive {
     BookResultDto delBook(Long bookId);
-    BookResultDto detailBook(Long bookId);
+    BookResultDto detailBook(Long bookId,Long childId);
     BookResultDto listBook();
     BookResultDto updateBook(BookDto bookDto);
     BookResultDto insertBook(BookDto bookDto);
@@ -15,9 +15,11 @@ public interface BookSerive {
     BookResultDto listBookChildFavor(long ChildId);
     BookResultDto listBookFavorCount(long childId);
     BookResultDto listBookChildRecntRead(long ChildId);
-    BookResultDto ChildBookLike(long BookId,long ChildId,String Type);
-    BookResultDto ChildBookDisLike(long BookId,long ChildId,String Type);
-    BookResultDto DelChildBookLike(long BookId,long ChildId);
-    BookResultDto DelChildBookDisLike(long BookId,long ChildId);
+    BookResultDto ChildBookLike(long BookId, long ChildId,String Type);
+    BookResultDto DelChildBookLike(long BookId, long ChildId);
+    BookResultDto DelChildBookDisLike(long BookId, long ChildId);
+    BookResultDto LogicDelChildBookLike(long BookId, long ChildId);
+    BookResultDto ChildBookDisLike(long BookId, long ChildId,String Type);
     List<BookDto> searchBooks(String searchType, String keyword);
+
 }
