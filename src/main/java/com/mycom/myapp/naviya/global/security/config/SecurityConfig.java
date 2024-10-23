@@ -20,9 +20,8 @@ public class SecurityConfig {
 
         http
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/login", "/signup", "/signupProc",
-                                        "/static/**", "/css/**", "/js/**", "/images/**").permitAll()
-                        .requestMatchers("/Book/**").permitAll() // API 요청에 대한 접근 허용
+                        .requestMatchers("/", "/login", "/signup", "/signupProc", "/children/**",
+                                        "/static/**","/static/assets/img/**", "/css/**", "/js/**", "/images/**", "/Book/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .formLogin(auth -> auth
@@ -30,7 +29,8 @@ public class SecurityConfig {
                         .loginProcessingUrl("/loginProc")
                         .usernameParameter("email")
                         .passwordParameter("password")
-                        .defaultSuccessUrl("/", true)
+//                        .defaultSuccessUrl("/", true)
+                        .successHandler(new CustomLoginSuccessHandler())
                         .permitAll()
                 )
                 .logout(logout -> logout

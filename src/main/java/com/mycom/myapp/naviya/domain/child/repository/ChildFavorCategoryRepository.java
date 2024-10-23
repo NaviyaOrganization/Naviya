@@ -12,6 +12,9 @@ import java.time.LocalDateTime;
 
 public interface ChildFavorCategoryRepository extends JpaRepository<ChildFavorCategory, Long> {
 
+    @Query("DELETE FROM ChildFavorCategory fc WHERE fc.child.childId = :childId")
+    void deleteCategoryByChildId(Long childId);
+
     @Modifying
     @Transactional
     @Query("UPDATE ChildFavorCategory cfc SET cfc.deletedAt = :futureDate WHERE cfc.child = :child AND cfc.deletedAt IS NULL")

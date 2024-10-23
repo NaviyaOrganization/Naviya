@@ -4,6 +4,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.*;
 import lombok.Data;
 import org.springframework.data.annotation.CreatedDate;
+import lombok.ToString;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
@@ -38,6 +39,10 @@ public class User {
 
     @Column(name = "role")
     private String role;
+
+    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
+    @ToString.Exclude
+    private List<Child> childList;
 
     // Getters and Setters
 }

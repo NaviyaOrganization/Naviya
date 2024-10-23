@@ -1,15 +1,19 @@
 package com.mycom.myapp.naviya.domain.child.dto;
 
 import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Getter
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class ChildDto {
+
     private Long childId;
+    private Long userId;
     private String childName;
-    private String childAge;
+    private int childAge;
+    private Character childGender;
     private String codeMbti;
+    private String childImage;
 }

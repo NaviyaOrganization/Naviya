@@ -8,6 +8,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "child_favor_category")
+@Data
 public class ChildFavorCategory {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
