@@ -1,16 +1,24 @@
 package com.mycom.myapp.naviya.domain.book.controller;
 
+import com.mycom.myapp.naviya.domain.book.dto.BookDto;
 import com.mycom.myapp.naviya.domain.book.dto.BookResultDto;
 //import com.mycom.myapp.naviya.domain.book.service.BookServiceImpl;
 import com.mycom.myapp.naviya.domain.book.service.BookServiceImpl;
+import com.mycom.myapp.naviya.domain.book.service.MbtiRecommendServiceImpl;
+import com.mycom.myapp.naviya.global.response.ResponseForm;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+import static com.mycom.myapp.naviya.global.response.ResponseCode.EXAMPLE_SUCCESS;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/Book")
 public class BookController {
     private final BookServiceImpl bookServiceImpl;
+    private final MbtiRecommendServiceImpl mbtiRecommendService;
     @GetMapping("/List")
     public BookResultDto AllBookList()
     {
@@ -65,5 +73,17 @@ public class BookController {
     public BookResultDto DelBookDisLike(@RequestParam long bookId,@RequestParam long childId)
     {
         return bookServiceImpl.DelChildBookDisLike(bookId,childId);
+    }
+
+    @GetMapping("/recommend")
+    public ResponseForm recommendBook(@RequestParam Long childId) {
+        List<BookDto> books = mbtiRecommendService.recommendBooks(childId);
+        return ResponseForm.of(EXAMPLE_SUCCESS, books);
+    }
+
+    @GetMapping("/search")
+    public ResponseForm searchBooks(@RequestParam String searchType, String keyword) {
+        List<BookDto> books = bookServiceImpl.searchBooks(searchType, keyword);
+        return ResponseForm.of(EXAMPLE_SUCCESS, books);
     }
 }

@@ -405,4 +405,8 @@ public class BookServiceImpl implements BookSerive {
         return null;
     }
 
+    @Override
+    public List<BookDto> searchBooks(String searchType, String keyword) {
+        return bookRepository.searchBooks(searchType, keyword);
+    }
 }

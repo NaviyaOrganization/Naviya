@@ -3,6 +3,8 @@ package com.mycom.myapp.naviya.domain.book.service;
 import com.mycom.myapp.naviya.domain.book.dto.BookDto;
 import com.mycom.myapp.naviya.domain.book.dto.BookResultDto;
 
+import java.util.List;
+
 public interface BookSerive {
     BookResultDto delBook(Long bookId);
     BookResultDto detailBook(Long bookId);
@@ -17,4 +19,5 @@ public interface BookSerive {
     BookResultDto ChildBookDisLike(long BookId,long ChildId,String Type);
     BookResultDto DelChildBookLike(long BookId,long ChildId);
     BookResultDto DelChildBookDisLike(long BookId,long ChildId);
+    List<BookDto> searchBooks(String searchType, String keyword);
 }
