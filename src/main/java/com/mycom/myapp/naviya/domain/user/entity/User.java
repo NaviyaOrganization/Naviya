@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.List;
 @Entity
 @Data
@@ -15,7 +16,7 @@ public class User {
     @Column(name = "user_id")
     private Long userId;
 
-    @Column(name = "email")
+    @Column(name = "email", unique = true, nullable = false)
     private String email;
 
     @Column(name = "password")
@@ -32,6 +33,9 @@ public class User {
 
     @Column(name = "updated_at")
     private Timestamp updatedAt;
+
+    @Column(name = "role")
+    private String role;
 
     // Getters and Setters
 }
