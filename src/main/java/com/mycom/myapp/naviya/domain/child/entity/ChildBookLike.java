@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.Data;
 import java.sql.Timestamp;
 import java.sql.Timestamp;
+import java.util.List;
+
 @Data
 @Entity
 @Table(name = "child_book_like")
@@ -17,7 +19,7 @@ public class ChildBookLike {
     @JoinColumn(name = "child_id", nullable = false)
     private Child child;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "book_id", nullable = false)
     private Book book;
 

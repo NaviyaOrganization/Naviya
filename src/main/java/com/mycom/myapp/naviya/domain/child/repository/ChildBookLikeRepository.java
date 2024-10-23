@@ -7,11 +7,18 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
-public interface ChildBookLikeRepository extends JpaRepository<ChildBookLike, Long> {
-    boolean existsByChild_ChildIdAndBook_BookId(Long childId, Long bookId);
+import java.util.List;
 
+public interface ChildBookLikeRepository extends JpaRepository<ChildBookLike, Long> {
     @Modifying
     @Transactional
     @Query("DELETE FROM ChildBookLike cbl WHERE cbl.child.childId = :childId AND cbl.book.bookId = :bookId")
     void deleteByChildIdAndBookId(@Param("childId") Long childId, @Param("bookId") Long bookId);
+    @Query("SELECT cbl FROM ChildBookLike cbl WHERE cbl.book.bookId = :bookId AND cbl.child.childId = :childId AND cbl.DelDate IS NULL")
+    List<ChildBookLike> findByBookIdAndChildId(@Param("bookId") long bookId, @Param("childId") long childId);
+
+    @Query("SELECT CASE WHEN COUNT(cbl) > 0 THEN true ELSE false END FROM ChildBookLike cbl " +
+            "WHERE cbl.child.childId = :childId AND cbl.book.bookId = :bookId AND cbl.DelDate IS NULL")
+    boolean existsByChildIdAndBookIdAndDelDateIsNull(@Param("childId") Long childId, @Param("bookId") Long bookId);
+
 }

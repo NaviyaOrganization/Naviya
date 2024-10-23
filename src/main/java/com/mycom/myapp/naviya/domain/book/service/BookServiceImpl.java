@@ -1,4 +1,5 @@
 package com.mycom.myapp.naviya.domain.book.service;
+import com.mycom.myapp.naviya.domain.book.dto.BookDetailDto;
 import com.mycom.myapp.naviya.domain.book.dto.BookFavorTotalDto;
 import com.mycom.myapp.naviya.domain.book.entity.Book;
 import com.mycom.myapp.naviya.domain.book.dto.BookDto;
@@ -24,10 +25,8 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.sql.Timestamp;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -54,7 +53,8 @@ public class BookServiceImpl implements BookSerive {
     @Transactional
     public BookResultDto delBook(Long bookId) {
         BookResultDto bookResultDto = new BookResultDto();
-        try {bookRepository.deleteById(bookId);
+        try {
+            bookRepository.deleteById(bookId);
             bookResultDto.setSuccess("success");
         }catch(Exception e) {
             e.printStackTrace();
@@ -63,36 +63,19 @@ public class BookServiceImpl implements BookSerive {
         return bookResultDto;
     }
     @Override
-    public BookResultDto detailBook(Long bookId) {
+    public BookResultDto detailBook(Long bookId,Long childId) {
         // BookRepository의 findAll() 메서드를 통해 모든 Book을 가져옴
 
         BookResultDto bookResultDto = new BookResultDto();
         try {
-            Book book =bookRepository.findBybookId(bookId);
-            BookDto bookDto =new BookDto();
-            bookDto.setBookId(book.getBookId());
-            bookDto.setTitle(book.getTitle());
-            bookDto.setAuthor(book.getAuthor());
-            bookDto.setBookImage(book.getBookImage());
-            bookDto.setPublisher(book.getPublisher());
-            bookDto.setSummary(book.getSummary());
-            bookDto.setRecommendedAge(book.getRecommendedAge());
-            bookDto.setCategory(book.getCategoryCode());
-            bookDto.setFullStory(book.getFullStory());
-            List<BookDto>tempDto = new ArrayList<>();
-            tempDto.add(bookDto);
-            bookResultDto.setBooks(tempDto);  // Book 리스트를 BookResultDto에 설정
+            BookDetailDto bookDetailDto=bookRepository.findBookDetailDtoByBookId(bookId,childId);
+            bookResultDto.setBookDetail(bookDetailDto);
             bookResultDto.setSuccess("success");
             return bookResultDto;
 
         } catch (EntityNotFoundException e) {
             bookResultDto.setSuccess("fail");
             System.err.println(e.getMessage());
-            return bookResultDto;
-        } catch (Exception e) {
-            // 다른 예외 처리 로직
-            bookResultDto.setSuccess("fail");
-            System.err.println("An unexpected error book detail 발생: " + e.getMessage());
             return bookResultDto;
         }
     }
@@ -115,6 +98,16 @@ public class BookServiceImpl implements BookSerive {
             bookResultDto.setSuccess("fail");
             return bookResultDto;
         }
+    }
+
+    @Override
+    public BookResultDto updateBook(BookDto bookDto) {
+        return null;
+    }
+
+    @Override
+    public BookResultDto insertBook(BookDto bookDto) {
+        return null;
     }
 
     @Override
@@ -178,14 +171,8 @@ public class BookServiceImpl implements BookSerive {
             return bookResultDto;
         }
     }
-    @Transactional
     @Override
-    //1.좋아요 테이블에 책을 넣기
-    //2.mbti 성향테이블에 반영
-    //유효성 검사를 위한 쿼리가 너무 많아 수정 필요
-    // <-----------------임시--------------------->
-    //Type이 노멀이면 그냥 작은 가중치만 반영
-    //Type이 mbti면 현재 가중치의 1.5배
+    @Transactional
     public BookResultDto ChildBookLike(long BookId, long ChildId,String Type) {
         BookResultDto bookResultDto=new BookResultDto();
         try{
@@ -209,7 +196,7 @@ public class BookServiceImpl implements BookSerive {
                 bookResultDto.setSuccess("fail");
                 return bookResultDto;
             }
-            ChildMbti childMbti = childMbtiRepository.findByChild_ChildId(ChildId);
+            ChildMbti childMbti = child1.getChildMbti();
             if (childMbti == null) {
                 bookResultDto.setSuccess("fail");
                 return bookResultDto;
@@ -217,7 +204,7 @@ public class BookServiceImpl implements BookSerive {
             if (childBookDisLikeRepository.existsByChild_ChildIdAndBook_BookId(ChildId, BookId)) {
                 childBookDisLikeRepository.deleteByChild_ChildIdAndBook_BookId(ChildId, BookId);
             }
-            BookMbti bookMbti = bookMbtiRepository.findByBook_BookId(BookId);
+            BookMbti bookMbti = book1.getBookMbti();
             Mbti book2Mbti=new Mbti();
             book2Mbti=bookMbti.getMbti();
             Mbti mbti = childMbti.getMbti();
@@ -231,7 +218,6 @@ public class BookServiceImpl implements BookSerive {
                 SN= (int) (book2Mbti.getSnType()*1.5);
                 TF= (int) (book2Mbti.getTfType()*1.5);
                 JP= (int) (book2Mbti.getJpType()*1.5);
-
             } else if (Type!=null &&Objects.equals(Type, "NOMAL")) {
                 EI= book2Mbti.getEiType();
                 SN= book2Mbti.getSnType();
@@ -242,20 +228,13 @@ public class BookServiceImpl implements BookSerive {
             {
                 bookResultDto.setSuccess("fail");
                 return bookResultDto;
-            }if (!childBookLikeRepository.existsByChild_ChildIdAndBook_BookId(ChildId, BookId))
-            {
-                ChildBookLike childBookLike = new ChildBookLike();
-                childBookLike.setChild(child1);
-                childBookLike.setBook(book1);
-                childBookLike.setDelDate(null);
-                childBookLikeRepository.save(childBookLike);
+            }
 
-            }
-            else
-            {
-                bookResultDto.setSuccess("duplicate");
-                return bookResultDto;
-            }
+            ChildBookLike childBookLike = new ChildBookLike();
+            childBookLike.setChild(child1);
+            childBookLike.setBook(book1);
+            childBookLike.setDelDate(null);
+            childBookLikeRepository.save(childBookLike);
 
             mbti.setEiType(EI+mbti.getEiType());
             mbti.setSnType(SN+mbti.getSnType());
@@ -263,7 +242,6 @@ public class BookServiceImpl implements BookSerive {
             mbti.setJpType(JP+mbti.getJpType());
             mbtiRepository.save(mbti);
             bookResultDto.setSuccess("success");
-
             return bookResultDto;
         }
         catch(Exception e){
@@ -272,13 +250,11 @@ public class BookServiceImpl implements BookSerive {
             return bookResultDto;
         }
     }
-
     @Override
     @Transactional
     public BookResultDto ChildBookDisLike(long BookId, long ChildId,String Type) {
         BookResultDto bookResultDto=new BookResultDto();
         try{
-
             Optional child=childRepository.findById(ChildId);
             Child child1=new Child();
             if(child.isPresent()){
@@ -299,40 +275,39 @@ public class BookServiceImpl implements BookSerive {
                 bookResultDto.setSuccess("fail");
                 return bookResultDto;
             }
-            ChildMbti childMbti = childMbtiRepository.findByChild_ChildId(ChildId);
+            ChildMbti childMbti = child1.getChildMbti();
             if (childMbti == null) {
                 bookResultDto.setSuccess("fail");
                 return bookResultDto;
             }
-            if (childBookLikeRepository.existsByChild_ChildIdAndBook_BookId(ChildId, BookId)) {
+            if (childBookLikeRepository.existsByChildIdAndBookIdAndDelDateIsNull(ChildId, BookId)) {
                 childBookLikeRepository.deleteByChildIdAndBookId(ChildId, BookId);
             }
             BookMbti bookMbti = bookMbtiRepository.findByBook_BookId(BookId);
             Mbti book2Mbti=new Mbti();
             book2Mbti=bookMbti.getMbti();
             Mbti mbti = childMbti.getMbti();
-            int EI;
-            int SN;
-            int TF;
-            int JP;
+            int EI=0;
+            int SN=0;
+            int TF=0;
+            int JP=0;
+            //비율부터 정한다음
+            //mbti <-동적 가중치
+            //mbti 반대 <-많이 줌
+
             if (Type!=null &&Objects.equals(Type, "MBTI"))
             {
                 EI= (int) (book2Mbti.getEiType()*1.5);
                 SN= (int) (book2Mbti.getSnType()*1.5);
                 TF= (int) (book2Mbti.getTfType()*1.5);
                 JP= (int) (book2Mbti.getJpType()*1.5);
-
             } else if (Type!=null &&Objects.equals(Type, "NOMAL")) {
                 EI= book2Mbti.getEiType();
                 SN= book2Mbti.getSnType();
                 TF= book2Mbti.getTfType();
                 JP= book2Mbti.getJpType();
             }
-            else
-            {
-                bookResultDto.setSuccess("fail");
-                return bookResultDto;
-            }
+
             if(!childBookDisLikeRepository.existsByChild_ChildIdAndBook_BookId(ChildId, BookId))
             {
                 ChildBookDislike childBookDislike = new ChildBookDislike();
@@ -345,10 +320,10 @@ public class BookServiceImpl implements BookSerive {
                 bookResultDto.setSuccess("duplicate");
                 return bookResultDto;
             }
-            mbti.setEiType(EI+mbti.getEiType());
-            mbti.setSnType(SN+mbti.getSnType());
-            mbti.setTfType(TF+mbti.getTfType());
-            mbti.setJpType(JP+mbti.getJpType());
+            mbti.setEiType(mbti.getEiType()-EI);
+            mbti.setSnType(mbti.getSnType()-SN);
+            mbti.setTfType(mbti.getTfType()-TF);
+            mbti.setJpType(mbti.getJpType()-JP);
             mbtiRepository.save(mbti);
             bookResultDto.setSuccess("success");
             return bookResultDto;
@@ -359,7 +334,6 @@ public class BookServiceImpl implements BookSerive {
             return bookResultDto;
         }
     }
-
     @Override
     public BookResultDto DelChildBookLike(long BookId, long ChildId) {
         BookResultDto bookResultDto=new BookResultDto();
@@ -373,9 +347,7 @@ public class BookServiceImpl implements BookSerive {
             bookResultDto.setSuccess("fail");
             return bookResultDto;
         }
-
     }
-
     /*
    JPA에서 delete 메서드를 호출하면, 존재하지 않는 엔티티에 대한 삭제 요청이 있을 때 특별한 예외를 발생시키지 않습니다.*/
     @Override
@@ -391,18 +363,35 @@ public class BookServiceImpl implements BookSerive {
             bookResultDto.setSuccess("fail");
             return bookResultDto;
         }
-
     }
-
-    @Override
     @Transactional
-    public BookResultDto updateBook(BookDto bookDto) {
-        return null;
-    }
-
     @Override
-    public BookResultDto insertBook(BookDto bookDto) {
-        return null;
+    public BookResultDto LogicDelChildBookLike(long BookId, long ChildId) {
+        BookResultDto bookResultDto=new BookResultDto();
+        try {
+            List<ChildBookLike> childBookLikes=childBookLikeRepository.findByBookIdAndChildId(ChildId, BookId);
+            if (!childBookLikes.isEmpty()) {
+                ChildBookLike childBookLike=childBookLikes.get(0);
+                Calendar calendar = Calendar.getInstance();
+                calendar.add(Calendar.DAY_OF_YEAR, 30); // 현재 날짜에 30일 추가
+                Timestamp futureDate = new Timestamp(calendar.getTimeInMillis());
+                childBookLike.setDelDate(futureDate);
+                childBookLikeRepository.save(childBookLike);
+                bookResultDto.setSuccess("success");
+                return bookResultDto;
+            }
+            else
+            {
+                bookResultDto.setSuccess("fail");
+                return bookResultDto;
+            }
+        }
+        catch(Exception e){
+            e.printStackTrace();
+            bookResultDto.setSuccess("fail");
+            return bookResultDto;
+        }
+
     }
 
 }
