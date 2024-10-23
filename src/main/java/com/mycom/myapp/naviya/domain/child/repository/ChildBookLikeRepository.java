@@ -21,4 +21,12 @@ public interface ChildBookLikeRepository extends JpaRepository<ChildBookLike, Lo
             "WHERE cbl.child.childId = :childId AND cbl.book.bookId = :bookId AND cbl.DelDate IS NULL")
     boolean existsByChildIdAndBookIdAndDelDateIsNull(@Param("childId") Long childId, @Param("bookId") Long bookId);
 
+
+    @Modifying
+    @Transactional
+    @Query("DELETE FROM ChildBookLike c " +
+            "WHERE c.child.childId = :childId " +
+            "AND c.book.bookId = :bookId " +
+            "AND c.DelDate IS NULL")
+    void deleteByChildIdAndBookIdAndDelDateIsNull(@Param("childId") Long childId, @Param("bookId") Long bookId);
 }
