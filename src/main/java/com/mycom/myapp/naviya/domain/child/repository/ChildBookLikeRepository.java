@@ -1,17 +1,24 @@
 package com.mycom.myapp.naviya.domain.child.repository;
 
-import com.mycom.myapp.naviya.domain.book.entity.Book;
 import com.mycom.myapp.naviya.domain.child.entity.ChildBookLike;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.stereotype.Repository;
+import org.springframework.data.repository.query.Param;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.util.List;
 
-@Repository
 public interface ChildBookLikeRepository extends JpaRepository<ChildBookLike, Long> {
+    @Modifying
+    @Transactional
+    @Query("DELETE FROM ChildBookLike cbl WHERE cbl.child.childId = :childId AND cbl.book.bookId = :bookId")
+    void deleteByChildIdAndBookId(@Param("childId") Long childId, @Param("bookId") Long bookId);
+    @Query("SELECT cbl FROM ChildBookLike cbl WHERE cbl.book.bookId = :bookId AND cbl.child.childId = :childId AND cbl.DelDate IS NULL")
+    List<ChildBookLike> findByBookIdAndChildId(@Param("bookId") long bookId, @Param("childId") long childId);
 
-    // JPQL 쿼리 사용
-    //@Query("SELECT cbl.book FROM ChildBookLike cbl WHERE cbl.child.childId = :childId ORDER BY cbl.createdate DESC ")
-    //List<Book> findBooksByChildId(long childId);
+    @Query("SELECT CASE WHEN COUNT(cbl) > 0 THEN true ELSE false END FROM ChildBookLike cbl " +
+            "WHERE cbl.child.childId = :childId AND cbl.book.bookId = :bookId AND cbl.DelDate IS NULL")
+    boolean existsByChildIdAndBookIdAndDelDateIsNull(@Param("childId") Long childId, @Param("bookId") Long bookId);
 
 }

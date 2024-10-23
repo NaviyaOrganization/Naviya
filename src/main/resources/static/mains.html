@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>아이들나라</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            overflow-x: hidden;
+        }
+        .navbar {
+            background-color: #47688d;
+            border-bottom: 1px solid #e0e0e0;
+            padding: 0.5rem 1rem;
+        }
+        .navbar-nav .nav-link {
+            color: white !important;
+        }
+        .navbar-nav .nav-link:hover {
+            color: #c4d6e9 !important;
+        }
+        #sidebar {
+            height: 100%;
+            width: 250px;
+            position: fixed;
+            top: 0;
+            left: -250px;
+            background-color: #f7f7f7;
+            color: black;
+            transition: left 0.3s ease;
+            padding-top: 20px;
+            z-index: 1000;
+        }
+        #sidebar a {
+            padding: 15px;
+            text-decoration: none;
+            font-size: 18px;
+            color: black;
+            display: block;
+            transition: background-color 0.2s;
+        }
+        #sidebar a:hover {
+            background-color: #e0e0e0;
+        }
+        #sidebar a:first-child {
+            margin-top: 35px;
+        }
+        #toggleSidebar {
+            font-size: 24px;
+            cursor: pointer;
+            position: fixed;
+            top: 15px;
+            left: 15px;
+            z-index: 1100;
+            transition: left 0.3s ease;
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .sidebar-active {
+            left: 0;
+        }
+        .toggle-active {
+            left: 265px;
+        }
+        #main-content {
+            transition: margin-left 0.3s ease;
+            padding: 20px;
+            text-align: center;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .book-section {
+            margin-bottom: 50px;
+            position: relative;
+        }
+        .book-container {
+            position: relative;
+            overflow: hidden;
+            width: 100%;
+            height: 400px; /* 높이를 400px로 증가 */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .book-slider {
+            display: flex;
+            transition: transform 0.5s ease;
+            height: 100%;
+            width: 100%;
+        }
+        .no-books-message {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 1.5em;
+            color: #555;
+            text-align: center;
+            width: 100%;
+        }
+        .slide {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-width: 100%;
+            height: 100%;
+        }
+        .book-item {
+            border: 1px solid #ddd;
+            padding: 15px;
+            text-align: center;
+            width: 220px;
+            background-color: #fff;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            margin: 0 10px;
+        }
+        .book-item {
+            border: 1px solid #ddd;
+            padding: 15px;
+            text-align: center;
+            width: 250px; /* 너비를 250px로 증가 */
+            height: 350px; /* 높이를 350px로 증가 */
+            background-color: #fff;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            margin: 0 10px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .book-item img {
+            max-width: 100%;
+            height: auto;
+            margin-bottom: 10px;
+        }
+        .book-item h3 {
+            font-size: 1.1rem;
+            margin-bottom: 5px;
+        }
+        .book-item p {
+            font-size: 0.9rem;
+            color: #666;
+        }
+        .nav-button {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            width: 30px;           /* 너비를 30px로 설정 */
+            height: 40px;          /* 높이를 40px로 설정 */
+            font-size: 30px;       /* 버튼 아이콘의 크기 조정 */
+            color: #47688d;
+            cursor: pointer;
+            z-index: 10;
+        }
+        .nav-button.prev {
+            left: 10px;
+        }
+        .nav-button.next {
+            right: 10px;
+        }
+        .search-form {
+            max-width: 500px;
+            margin: 20px auto;
+        }
+
+    </style>
+</head>
+<body>
+
+<!-- Navigation Bar -->
+<nav class="navbar navbar-expand-lg">
+    <div class="container-fluid">
+        <span id="toggleSidebar" class="navbar-toggler-icon"></span>
+        <div class="d-flex align-items-center ms-auto">
+            <ul class="navbar-nav">
+                <li class="nav-item"><a class="nav-link" href="#">메인페이지</a></li>
+                <li class="nav-item"><a class="nav-link" href="#">로그인</a></li>
+                <li class="nav-item"><a class="nav-link" href="#">회원가입</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<!-- Sidebar -->
+<div id="sidebar">
+    <a href="#">아이 프로필 변경</a>
+    <a href="#">아이정보 보기</a>
+    <a href="#">계정보기</a>
+    <a href="#">최근 책 보기</a>
+    <a href="#">좋아요 누른 책 보기</a>
+    <a href="#">카테고리 별 책보기</a>
+    <a href="#">선착순 이벤트</a>
+</div>
+
+<!-- Main Content -->
+<div id="main-content">
+    <h1 class="mb-4">아이들나라</h1>
+
+    <!-- Updated Search Form -->
+    <form class="search-form mb-5" action="search.html" method="get">
+        <div class="input-group">
+            <select class="form-select" id="searchType" name="searchType" style="max-width: 120px;">
+                <option value="title">제목</option>
+                <option value="author">저자</option>
+                <option value="publisher">출판사</option>
+            </select>
+            <input class="form-control" type="search" name="keyword" placeholder="검색" aria-label="Search">
+            <button class="btn btn-primary" type="submit">검색</button>
+        </div>
+    </form>
+
+    <div class="book-section">
+        <h2 class="mb-4">이달의 인기 도서</h2>
+        <div class="book-container">
+            <div id="popularBooks" class="book-slider"></div>
+            <button class="nav-button prev" onclick="navigateBooks('popularBooks', -1)"><i class="fas fa-chevron-left"></i></button>
+            <button class="nav-button next" onclick="navigateBooks('popularBooks', 1)"><i class="fas fa-chevron-right"></i></button>
+        </div>
+    </div>
+
+    <div class="book-section">
+        <h2 class="mb-4">자녀의 성향에 맞는 추천 도서</h2>
+        <div class="book-container">
+            <div id="recommendedBooks" class="book-slider"></div>
+            <button class="nav-button prev" onclick="navigateBooks('recommendedBooks', -1)"><i class="fas fa-chevron-left"></i></button>
+            <button class="nav-button next" onclick="navigateBooks('recommendedBooks', 1)"><i class="fas fa-chevron-right"></i></button>
+        </div>
+    </div>
+
+    <div class="book-section">
+        <h2 class="mb-4">자녀의 성향과 반대되는 추천 도서</h2>
+        <div class="book-container">
+            <div id="oppositeBooks" class="book-slider"></div>
+            <button class="nav-button prev" onclick="navigateBooks('oppositeBooks', -1)"><i class="fas fa-chevron-left"></i></button>
+            <button class="nav-button next" onclick="navigateBooks('oppositeBooks', 1)"><i class="fas fa-chevron-right"></i></button>
+        </div>
+    </div>
+
+    <div class="book-section">
+        <h2 class="mb-4">이달의 신작 도서</h2>
+        <div class="book-container">
+            <div id="newBooks" class="book-slider"></div>
+            <button class="nav-button prev" onclick="navigateBooks('newBooks', -1)"><i class="fas fa-chevron-left"></i></button>
+            <button class="nav-button next" onclick="navigateBooks('newBooks', 1)"><i class="fas fa-chevron-right"></i></button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // 사이드바 토글 기능
+    document.getElementById('toggleSidebar').addEventListener('click', function() {
+        const sidebar = document.getElementById('sidebar');
+        const toggleBtn = document.getElementById('toggleSidebar');
+        const mainContent = document.getElementById('main-content');
+
+        if (sidebar.style.left === '0px') {
+            sidebar.style.left = '-250px';
+            toggleBtn.classList.remove('toggle-active');
+            mainContent.style.marginLeft = '150px'; // 콘텐츠를 중앙으로 이동
+        } else {
+            sidebar.style.left = '0px';
+            toggleBtn.classList.add('toggle-active');
+            mainContent.style.marginLeft = '250px';
+        }
+    });
+
+    // 페이지 로드 시 추천 도서 가져오기
+    window.addEventListener('load', () => {
+        // 여기에 실제 childId를 넣어주세요. 예를 들어:
+        const childId = '123'; // 이 부분은 실제 구현에 맞게 수정해야 합니다.
+        fetchRecommendedBooks(1);
+
+    });
+
+    // 책 슬라이드 기능
+    const sliderStates = {
+        popularBooks: { currentIndex: 0 },
+        recommendedBooks: { currentIndex: 0 },
+        oppositeBooks: { currentIndex: 0 },
+        newBooks: { currentIndex: 0 }
+    };
+
+    function renderBooks(books, containerId) {
+        const container = document.getElementById(containerId);
+        container.innerHTML = ''; // 기존 내용 제거
+
+        // 슬라이드의 개수 설정
+        const booksPerSlide = 3; // 한 슬라이드에 보여줄 책 개수
+        const totalSlides = Math.ceil(books.length / booksPerSlide);
+        // 책이 없을 경우 메시지 표시
+        if (books.length === 0) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'no-books-message';
+            messageDiv.innerHTML = '<h3>추천할 책이 없습니다.</h3>';
+            container.parentElement.appendChild(messageDiv);
+            return; // 함수 종료
+        }
+        for (let i = 0; i < totalSlides; i++) {
+            const slideDiv = document.createElement('div');
+            slideDiv.classList.add('slide');
+
+            // 슬라이드에 책 추가
+            for (let j = 0; j < booksPerSlide; j++) {
+                const bookIndex = i * booksPerSlide + j;
+                if (bookIndex >= books.length) break; // 책이 없으면 종료
+
+                const book = books[bookIndex];
+                const bookItem = `
+                    <div class="book-item">
+                        <img src=/img.png alt="${book.title}">
+                        <h3>${book.title}</h3>
+                        <p>${book.author}</p>
+                        <a href="#" class="btn btn-primary btn-sm" onclick="showBookDetails('${book.id}')">자세히 보기</a>
+                    </div>
+                `;
+                slideDiv.innerHTML += bookItem;
+            }
+
+            container.appendChild(slideDiv);
+        }
+
+    }
+
+    function navigateBooks(containerId, direction) {
+        const container = document.getElementById(containerId);
+        const slides = container.getElementsByClassName('slide');
+        const state = sliderStates[containerId];
+
+        state.currentIndex += direction;
+
+        if (state.currentIndex < 0) {
+            state.currentIndex = slides.length - 1; // 마지막 슬라이드로 이동
+        } else if (state.currentIndex >= slides.length) {
+            state.currentIndex = 0; // 첫 슬라이드로 이동
+        }
+
+        const offset = -state.currentIndex * 100; // 슬라이드 이동
+        container.style.transform = `translateX(${offset}%)`;
+    }
+
+    function showBookDetails(bookId) {
+        // 여기에 책 상세 페이지로 이동하는 로직을 구현합니다.
+        // 예를 들어, 다음과 같이 URL을 구성할 수 있습니다:
+        window.location.href = `book-details.html?id=${bookId}`;
+    }
+
+    // 책 데이터 예시
+    const popularBooks = [
+        { title: "책 제목 1", author: "저자 1", image: "https://via.placeholder.com/150" },
+        { title: "책 제목 2", author: "저자 2", image: "https://via.placeholder.com/150" },
+        { title: "책 제목 3", author: "저자 3", image: "https://via.placeholder.com/150" },
+        { title: "책 제목 4", author: "저자 4", image: "https://via.placeholder.com/150" },
+        { title: "책 제목 5", author: "저자 5", image: "https://via.placeholder.com/150" },
+        { title: "책 제목 6", author: "저자 6", image: "https://via.placeholder.com/150" },
+        { title: "책 제목 7", author: "저자 7", image: "https://via.placeholder.com/150" }
+    ];
+
+    // 책 데이터 예시
+    let recommendedBooks = [];
+
+    // 책 데이터 예시
+    const popularBooksss = [];
+
+    // 새로운 fetchRecommendedBooks 함수 추가
+    async function fetchRecommendedBooks(childId) {
+        try {
+            const response = await fetch(`/Book/recommend?childId=${childId}`);
+            const data = await response.json();
+
+            if (response.ok && data.code === "E001") {
+                recommendedBooks = data.data; // 받은 책 데이터를 recommendedBooks에 할당
+                bookSections['recommendedBooks'] = recommendedBooks; // bookSections 업데이트
+                displayBooks('recommendedBooks');
+                console.log(recommendedBooks);
+            } else {
+                console.error('Failed to fetch recommended books:', data.message);
+            }
+        } catch (error) {
+            console.error('Error fetching recommended books:', error);
+        }
+    }
+
+    // 생성일 순서로 책 목록 가져오기
+    async function fetchBooksOrderedByDate(childId) {
+        try {
+            const response = await fetch(`/Book/ListOrderDate?childId=${childId}`);
+            const data = await response.json();
+
+            if (data.success === "success") {
+                recommendedBooks = data.data; // 받은 책 데이터를 recommendedBooks에 할당
+                bookSections['recommendedBooks'] = recommendedBooks; // bookSections 업데이트
+                displayBooks('recommendedBooks');
+                console.log(recommendedBooks);
+            } else {
+                console.error('Failed to fetch recommended books:', data.message);
+            }
+        } catch (error) {
+            console.error('Error fetching recommended books:', error);
+        }
+    }
+
+    // 책 추천 수 목록 가져오기
+    function fetchBookFavorCount() {
+        fetch(`${baseUrl}/ListBookFavorCount`)
+            .then(response => response.json())
+            .then(data => console.log('책 추천 수 목록:', data))
+            .catch(error => console.error('에러 발생:', error));
+    }
+
+    // bookSections 객체 추가
+    const bookSections = {
+        popularBooks: popularBooks,
+        recommendedBooks: recommendedBooks,
+        oppositeBooks: popularBooksss,
+        newBooks: popularBooks
+    };
+
+    // displayBooks 함수 수정
+    function displayBooks(sectionId) {
+        const books = bookSections[sectionId];
+        console.log(books, sectionId)
+        renderBooks(books, sectionId);
+    }
+
+    // 기존의 renderBooks 호출을 displayBooks 호출로 변경
+    displayBooks('popularBooks');
+
+    displayBooks('oppositeBooks');
+    displayBooks('newBooks');
+
+</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

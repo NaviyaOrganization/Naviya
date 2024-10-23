@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ChildMbtiRepository extends JpaRepository<ChildMbti, Long> {
+    // child_id로 ChildMbti 엔티티를 찾기 위한 메서드
+    ChildMbti findByChild_ChildId(Long childId);
 
     // Child와 연관된 ChildMbti와 Mbti를 함께 조회하는 JPQL 쿼리
     @Query("SELECT cm FROM ChildMbti cm JOIN FETCH cm.mbti WHERE cm.child = :child")
