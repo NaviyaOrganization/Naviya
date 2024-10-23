@@ -81,7 +81,7 @@ public interface BookRepository extends JpaRepository<Book, Long> {
             "LEFT JOIN bm.mbti m " +
             "LEFT JOIN BookFavorTotal f ON f.book.bookId = b.bookId " +
             "WHERE cbl.child.childId = :childId " +
-            "AND cbl.DelDate IS NULL " +
+            "AND cbl.deletedAt  IS NULL " +
             "GROUP BY b.bookId, b.title, b.summary, b.recommendedAge, b.publisher, " +
             "b.author, b.createdAt, b.fullStory, b.bookImage, b.categoryCode, " +
             "m.mbtiId, m.eiType, m.snType, m.tfType, m.jpType, f.count " +
@@ -119,7 +119,26 @@ public interface BookRepository extends JpaRepository<Book, Long> {
             "LEFT JOIN BookFavorTotal f ON f.book.bookId = b.bookId " +
             "WHERE b.bookId = :bookId")
     BookDetailDto findBookDetailDtoByBookId(@Param("bookId") Long bookId, @Param("childId") Long childId);
-  
+
+    @Query("SELECT new com.mycom.myapp.naviya.domain.book.dto.BookDto(b.bookId, " +
+            "b.title, b.summary, b.recommendedAge, b.publisher, b.author, " +
+            "b.createdAt, b.fullStory, b.bookImage, b.categoryCode, " +
+            "new com.mycom.myapp.naviya.global.mbti.Dto.MbtiDto(m.mbtiId, m.eiType, m.snType, m.tfType, m.jpType), " +
+            "new com.mycom.myapp.naviya.domain.book.dto.BookFavorTotalDto(f.count)) " +
+            "FROM ChildBookLike cbl " +
+            "JOIN cbl.book b " +
+            "LEFT JOIN b.bookMbti bm " +
+            "LEFT JOIN bm.mbti m " +
+            "LEFT JOIN BookFavorTotal f ON f.book.bookId = b.bookId " +
+            "WHERE cbl.child.childId = :childId " +
+            "AND cbl.deletedAt  IS NULL " +
+            "GROUP BY b.bookId, b.title, b.summary, b.recommendedAge, b.publisher, " +
+            "b.author, b.createdAt, b.fullStory, b.bookImage, b.categoryCode, " +
+            "m.mbtiId, m.eiType, m.snType, m.tfType, m.jpType, f.count " +
+            "ORDER BY b.createdAt DESC")
+
+    List<BookDto> findBooksByChildId(@Param("childId") Long childId);
+
     @Query("SELECT new com.mycom.myapp.naviya.domain.book.dto.BookDto(b.bookId, " +
             "b.title, b.summary, b.recommendedAge, b.publisher, b.author, " +
             "b.createdAt, b.fullStory, b.bookImage, b.categoryCode, " +
@@ -136,5 +155,5 @@ public interface BookRepository extends JpaRepository<Book, Long> {
             "b.author, b.createdAt, b.fullStory, b.bookImage, b.categoryCode, " +
             "m.mbtiId, m.eiType, m.snType, m.tfType, m.jpType, f.count")
     List<BookDto> searchBooks(@Param("searchType") String searchType, @Param("keyword") String keyword);
-  
+
 }

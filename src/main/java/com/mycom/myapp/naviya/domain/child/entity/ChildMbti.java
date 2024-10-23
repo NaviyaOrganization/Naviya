@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 @Data
 @Entity
@@ -16,7 +17,7 @@ public class ChildMbti {
     @Column(name = "MbtiId")
     private Long mbtiId;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "child_id", nullable = false)
     private Child child;
 
@@ -25,5 +26,5 @@ public class ChildMbti {
     private Mbti mbti;
 
     @Column(name = "deleted_at")
-    private Timestamp deletedAt; // 논리적 삭제를 위한 컬럼 추가
+    private LocalDateTime deletedAt; // 논리적 삭제를 위한 컬럼 추가
 }

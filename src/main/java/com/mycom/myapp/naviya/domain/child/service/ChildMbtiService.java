@@ -14,13 +14,13 @@ public interface ChildMbtiService {
     /**
      * 자녀의 MBTI 성향을 진단하고 저장하는 메서드 (ChildMbti 엔티티에 저장).
      *
-     * @param childId 자녀의 ID (String 형식)
+     * @param childId 자녀의 ID (Long 형식)
      * @param scores  자녀의 MBTI 점수 데이터를 담은 MBTIScoresDto 객체
      *
      * 예외:
      * @throws RuntimeException 자녀를 찾을 수 없거나, 저장 과정에서 오류가 발생할 경우 예외 발생
      */
-    void createChildMbti(String childId, MBTIScoresDto scores);
+    void createChildMbti(Long childId, MBTIScoresDto scores);
 
     /**
      * 자녀의 MBTI 진단 정보를 바탕으로 ChildMbtiHistory에 히스토리를 생성하는 메서드.
@@ -67,6 +67,15 @@ public interface ChildMbtiService {
      */
 
     ChildWithMbtiHistoryDto getChildMbtiHistory(Long childId);
+
+    /**
+     * 자녀의 MBTI 히스토리 삭제 메서드
+     *
+     * @param childId 자녀의 ID
+     * @return 자녀의 MBTI 변경 이력 리스트
+     */
+    void softdelete(Long childId);
+
 
 
 }

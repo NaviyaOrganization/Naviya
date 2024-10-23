@@ -7,9 +7,7 @@ import com.mycom.myapp.naviya.domain.child.dto.MBTIScoresDto;
 import com.mycom.myapp.naviya.domain.child.entity.Child;
 import com.mycom.myapp.naviya.domain.child.entity.ChildMbti;
 import com.mycom.myapp.naviya.domain.child.entity.ChildMbtiHistory;
-import com.mycom.myapp.naviya.domain.child.repository.ChildMbtiHistoryRepository;
-import com.mycom.myapp.naviya.domain.child.repository.ChildMbtiRepository;
-import com.mycom.myapp.naviya.domain.child.repository.ChildRepository;
+import com.mycom.myapp.naviya.domain.child.repository.*;
 import com.mycom.myapp.naviya.global.mbti.entity.Mbti;
 import com.mycom.myapp.naviya.global.mbti.repository.MbtiRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +30,12 @@ public class ChildMbtiServiceImpl implements ChildMbtiService {
     private MbtiRepository mbtiRepository;
     @Autowired
     private ChildMbtiHistoryRepository childMbtiHistoryRepository;
+    @Autowired
+    private ChildBookLikeRepository childBookLikeRepository;
+    @Autowired
+    private ChildBookDisLikeRepository childBookDislikeRepository;
+    @Autowired
+    private ChildFavorCategoryRepository childFavorCategoryRepository;
 
     /**
      * 자녀의 MBTI 성향을 진단하고 저장하는 메서드 (ChildMbti와 ChildMbtiHistory에 저장).
@@ -40,9 +44,9 @@ public class ChildMbtiServiceImpl implements ChildMbtiService {
      * @param scores  자녀의 MBTI 점수 데이터를 담은 MBTIScoresDto 객체
      */
     @Transactional
-    public void createChildMbti(String childId, MBTIScoresDto scores) {
+    public void createChildMbti(Long childId, MBTIScoresDto scores) {
         // Child 조회
-        Child child = childRepository.findById(Long.valueOf(childId))
+        Child child = childRepository.findById(childId)
                 .orElseThrow(() -> new RuntimeException("아이를 찾을 수 없습니다."));
 
         // 기존 데이터 처리: ChildMbti와 ChildMbtiHistory의 deletedAt 필드 업데이트(논리적 삭제)
@@ -61,23 +65,25 @@ public class ChildMbtiServiceImpl implements ChildMbtiService {
      *
      * @param child 자녀 엔티티
      */
-    private void updateDeletedAtForExistingRecords(Child child) {
+    @Transactional
+    public void updateDeletedAtForExistingRecords(Child child) {
         // 현재 시간 기준으로 30일 뒤 시간 설정
-        Timestamp futureTimestamp = Timestamp.valueOf(LocalDateTime.now().plusDays(30));
+        LocalDateTime futureLocalDateTime = LocalDateTime.now().plusDays(30);
 
-        // ChildMbti와 Mbti를 함께 조회하여 삭제 처리
-        List<ChildMbti> existingChildMbtis = childMbtiRepository.findByChildAndDeletedAtIsNull(child);
-        for (ChildMbti existingChildMbti : existingChildMbtis) {
-            existingChildMbti.setDeletedAt(futureTimestamp);
-            childMbtiRepository.save(existingChildMbti);
-        }
+        // ChildMbti의 deletedAt 업데이트
+        childMbtiRepository.updateDeletedAtForChild(child, futureLocalDateTime);
 
-        // ChildMbtiHistory의 deletedAt을 업데이트
-        List<ChildMbtiHistory> existingHistories = childMbtiHistoryRepository.findByChildAndDeletedAtIsNull(child);
-        for (ChildMbtiHistory history : existingHistories) {
-            history.setDeletedAt(futureTimestamp);
-            childMbtiHistoryRepository.save(history);
-        }
+        // ChildMbtiHistory의 deletedAt 업데이트
+        childMbtiHistoryRepository.updateDeletedAtForChild(child, futureLocalDateTime);
+
+        // ChildBookLike의 deletedAt 업데이트
+        childBookLikeRepository.updateDeletedAtForChild(child, futureLocalDateTime);
+
+        // ChildBookDislike의 deletedAt 업데이트
+        childBookDislikeRepository.updateDeletedAtForChild(child, futureLocalDateTime);
+
+        // ChildFavorCategory의 deletedAt 업데이트
+        childFavorCategoryRepository.updateDeletedAtForChild(child, futureLocalDateTime);
     }
 
 
@@ -127,7 +133,7 @@ public class ChildMbtiServiceImpl implements ChildMbtiService {
         // 연관 관계 설정
         childMbtiHistory.setChild(child);
         childMbtiHistory.setCodeNewMbti(calculateMBTI(scores));
-        childMbtiHistory.setUpdatedAt(Timestamp.valueOf(LocalDateTime.now()));
+        childMbtiHistory.setUpdatedAt(LocalDateTime.now());
 
         // 새로운 히스토리 저장
         childMbtiHistoryRepository.save(childMbtiHistory);
@@ -166,7 +172,7 @@ public class ChildMbtiServiceImpl implements ChildMbtiService {
         childMbtiHistory.setCodeNewMbti(newMbtiCode);
 
         // updatedAt 시간 저장
-        childMbtiHistory.setUpdatedAt(Timestamp.valueOf(LocalDateTime.now()));
+        childMbtiHistory.setUpdatedAt(LocalDateTime.now());
 
         // ChildMbtiHistory 저장
         childMbtiHistoryRepository.save(childMbtiHistory);
@@ -202,14 +208,21 @@ public class ChildMbtiServiceImpl implements ChildMbtiService {
         // 아이의 정보 조회
         ChildDto childDto = childRepository.findChildDtoById(childId);
 
-        // MBTI 히스토리 조회
+        // deletedAt이 null인 MBTI 히스토리 조회
         List<ChildMbtiHistoryDto> historyList = childMbtiHistoryRepository.findMbtiHistoryByChildId(childId);
 
         // 결과 반환
         return new ChildWithMbtiHistoryDto(childDto, historyList);
     }
 
+    @Transactional
+    public void softdelete(Long childId){
+        // Child 조회
+        Child child = childRepository.findById(childId)
+                .orElseThrow(() -> new RuntimeException("아이를 찾을 수 없습니다."));
 
+        updateDeletedAtForExistingRecords(child);
+    }
 
 }
 

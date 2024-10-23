@@ -26,7 +26,7 @@ public class ChildMbtiController {
      * @return 자녀의 진단 결과를 JSON 형태로 반환
      */
     @PostMapping("/diagnose/{childId}")
-    public ResponseEntity<ResponseForm> diagnoseChildMbti(@PathVariable String childId, @RequestBody MBTIScoresDto mbtiScoresDto) {
+    public ResponseEntity<ResponseForm> diagnoseChildMbti(@PathVariable Long childId, @RequestBody MBTIScoresDto mbtiScoresDto) {
         try {
             // MBTI 진단 및 저장
             childMbtiService.createChildMbti(childId, mbtiScoresDto);
@@ -48,6 +48,17 @@ public class ChildMbtiController {
             return ResponseEntity.ok(ResponseForm.of(ResponseCode.MBTI_HISTORY_SUCCESS, result));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(ResponseForm.of(ResponseCode.MBTI_HISTORY_FAIL, e.getMessage()));
+        }
+    }
+
+    @GetMapping("delete/{childId}")
+    public ResponseEntity<ResponseForm> deleteChildMbti(@PathVariable Long childId){
+        childMbtiService.softdelete(childId);
+        try {
+            childMbtiService.softdelete(childId);
+            return ResponseEntity.ok(ResponseForm.of(ResponseCode.MBTI_DELETE_SUCCESS));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(ResponseForm.of(ResponseCode.MBTI_DELETE_FAIL));
         }
     }
 
