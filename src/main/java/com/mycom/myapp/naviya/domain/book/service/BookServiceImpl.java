@@ -260,7 +260,7 @@ public class BookServiceImpl implements BookSerive {
             ChildBookLike childBookLike = new ChildBookLike();
             childBookLike.setChild(child1);
             childBookLike.setBook(book1);
-            childBookLike.setDelDate(null);
+            childBookLike.setDeletedAt(null);
             childBookLikeRepository.save(childBookLike);
 
             mbti.setEiType(EI);
@@ -413,7 +413,7 @@ public class BookServiceImpl implements BookSerive {
                 Calendar calendar = Calendar.getInstance();
                 calendar.add(Calendar.DAY_OF_YEAR, 30); // 현재 날짜에 30일 추가
                 Timestamp futureDate = new Timestamp(calendar.getTimeInMillis());
-                childBookLike.setDelDate(futureDate);
+                childBookLike.setDeletedAt(futureDate.toLocalDateTime());
                 childBookLikeRepository.save(childBookLike);
                 bookResultDto.setSuccess("success");
                 return bookResultDto;

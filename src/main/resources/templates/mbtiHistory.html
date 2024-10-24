@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>아이 성향 히스토리</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+  <style>
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-fadeInUp {
+      animation: fadeInUp 0.5s ease-out;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    .animate-fadeIn {
+      animation: fadeIn 0.3s ease-out;
+    }
+  </style>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center p-4">
+<div class="w-full max-w-4xl bg-white rounded-lg shadow-3xl overflow-hidden animate-fadeInUp"
+     x-data="{ expanded: false, showDeleteConfirm: false }">
+  <div class="p-8">
+    <h1 class="text-3xl font-bold text-gray-800 mb-6">아이 성향 히스토리</h1>
+
+    <div class="flex flex-wrap -mx-2">
+      <div class="w-full lg:w-1/3 px-2 mb-4 mt-15">
+        <div class="bg-gray-50 rounded-lg shadow-3xl p-4 flex flex-col"> <!-- 더 강한 그림자 효과 추가 -->
+          <div class="flex-grow mt-4">
+            <div class="bg-purple-50 p-4 rounded-lg shadow-xl mt-4">
+              <div>
+                <img src="https://via.placeholder.com/128" alt="아이 사진" class="w-24 h-24 rounded-full mx-auto mb-3 mt-6 object-cover">
+                <h2 class="text-xl font-semibold text-center mb-4 text-gray-800" th:text="${childWithMbtiHistory.child.childName}"></h2>
+              </div>
+              <div>
+                <h3 class="font-semibold text-purple-800 text-lg mb-1">최근 성향 변화</h3>
+                <div class="flex items-center">
+                  <span class="text-gray-600 font-medium">이전: </span>
+                  <span class="ml-2 px-3 py-1 bg-gray-300 text-gray-800 rounded-lg"
+                        th:text="${#lists.size(childWithMbtiHistory.mbtiHistory) > 1 ? childWithMbtiHistory.mbtiHistory[1].codeNewMbti : '없음'}">
+                  </span>
+                </div>
+                <div class="flex items-center mt-2">
+                  <span class="text-purple-800 font-medium">현재: </span>
+                  <span class="ml-2 px-3 py-1 bg-purple-300 text-purple-900 rounded-lg"
+                        th:text="${#lists.isEmpty(childWithMbtiHistory.mbtiHistory) ? '없음' : childWithMbtiHistory.mbtiHistory[0].codeNewMbti}">
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- 프로필 버튼 추가 -->
+          <button class="mt-4 bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">
+            프로필
+          </button>
+          <!-- 삭제 버튼 추가 -->
+          <button @click="showDeleteConfirm = true" class="mt-4 bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded">
+            삭제
+          </button>
+        </div>
+      </div>
+
+      <div class="w-full lg:w-2/3 px-2">
+        <div class="bg-white rounded-lg shadow-md p-4 mb-4">
+          <h3 class="text-xl font-semibold mb-3 text-gray-800">MBTI 성향 변화 타임라인</h3>
+          <div class="space-y-8">
+            <template x-for="(history, index) in $store.mbtiHistory" :key="index">
+              <div x-show="index < 4 || expanded" class="flex animate-fadeIn">
+                <div class="flex flex-col items-center mr-4">
+                  <div class="flex items-center justify-center w-8 h-8 bg-blue-500 rounded-full">
+                    <span class="text-lg text-white" x-text="$store.mbtiHistory.length - index"></span>
+                  </div>
+                  <div x-show="index !== $store.mbtiHistory.length - 1" class="w-px h-full bg-blue-300"></div>
+                </div>
+                <div class="pb-8">
+                  <div class="flex items-center mb-1">
+                    <div class="bg-blue-100 text-blue-800 text-sm font-medium mr-2 px-2.5 py-0.5 rounded" x-text="history.codeNewMbti"></div>
+                    <time class="block mb-2 text-sm font-normal leading-none text-gray-400" x-text="new Date(history.updatedAt).toLocaleString('ko-KR')"></time>
+                  </div>
+                  <p class="text-base font-normal text-gray-500">
+                    MBTI 성향이
+                    <span x-text="index < $store.mbtiHistory.length - 1 ? $store.mbtiHistory[index + 1].codeNewMbti : '이전 성향'"></span>에서
+                    <span x-text="history.codeNewMbti"></span>로 변경되었습니다.
+                  </p>
+                </div>
+              </div>
+            </template>
+          </div>
+          <button x-show="$store.mbtiHistory.length > 4"
+                  @click="expanded = !expanded"
+                  class="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+                  x-text="expanded ? '접기' : '더 보기'">
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 삭제 확인 모달 -->
+  <div x-show="showDeleteConfirm" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full" x-cloak>
+    <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+      <div class="mt-3 text-center">
+        <h3 class="text-lg leading-6 font-medium text-gray-900">정말 삭제하시겠습니까?</h3>
+        <div class="mt-2 px-7 py-3">
+          <p class="text-sm text-gray-500">
+            이 작업은 되돌릴 수 없습니다. 아이의 모든 MBTI 히스토리가 삭제됩니다.
+          </p>
+        </div>
+        <div class="items-center px-4 py-3">
+          <button id="deleteButton" @click="showDeleteConfirm = false" class="px-4 py-2 bg-red-500 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-300">
+            삭제
+          </button>
+          <button @click="showDeleteConfirm = false" class="mt-3 px-4 py-2 bg-gray-300 text-gray-800 text-base font-medium rounded-md w-full shadow-sm hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-300">
+            취소
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script th:inline="javascript">
+  /*<![CDATA[*/
+  document.addEventListener('alpine:init', () => {
+    Alpine.store('mbtiHistory', /*[[${childWithMbtiHistory.mbtiHistory}]]*/ []);
+  });
+
+  // 삭제 기능 구현 (서버 요청 필요)
+  document.getElementById('deleteButton').addEventListener('click', function() {
+    // 여기에 삭제 API 호출 로직 구현
+    console.log('삭제 요청 보냄');
+    // 삭제 후 리다이렉트 또는 페이지 새로고침
+  });
+  /*]]>*/
+</script>
+</body>
+</html>

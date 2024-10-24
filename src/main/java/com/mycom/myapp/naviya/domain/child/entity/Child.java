@@ -1,10 +1,9 @@
 package com.mycom.myapp.naviya.domain.child.entity;
-import com.mycom.myapp.naviya.domain.book.entity.UserRecentBooks;
 import com.mycom.myapp.naviya.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.Data;
+import org.springframework.data.annotation.CreatedDate;
 
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,7 +30,8 @@ public class Child {
     @Column(name = "child_gender")
     private Character childGender;
 
-    @Column(name = "created_at")
+    @Column(name = "created_at", nullable = false, updatable = false)
+    @CreatedDate
     private LocalDateTime createdAt;
 
     @Column(name = "updated_at")
@@ -43,9 +43,6 @@ public class Child {
     @Column(name = "child_image")
     private String childImage;
 
-    @Column(name="child_age_range")
-    private String ChildAgeRange;
-
     @OneToMany(mappedBy = "child")
     private List<ChildBookDislike> childBookDislikes;
 
@@ -54,6 +51,9 @@ public class Child {
 
     @OneToOne(mappedBy = "child")
     private ChildMbti childMbti;
+
+    @Column(name="child_age_range")
+    private String ChildAgeRange;
 
     @OneToMany(mappedBy = "child")
     private List<ChildFavorCategory> childFavorCategories = new ArrayList<>();
