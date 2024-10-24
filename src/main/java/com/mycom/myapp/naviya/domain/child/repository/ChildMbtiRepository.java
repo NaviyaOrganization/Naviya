@@ -28,8 +28,9 @@ public interface ChildMbtiRepository extends JpaRepository<ChildMbti, Long> {
 
     @Transactional
     @Modifying
-    @Query("DELETE FROM ChildMbti c WHERE c.child = :child AND c.deletedAt = :deleteAt")
-    void deleteByChildAndDeletedAt(Child child, LocalDateTime deleteAt);
+    @Query("DELETE FROM ChildMbti c WHERE c.child.childId = :childId AND c.deletedAt = :deleteAt")
+    void deleteByChildIdAndDeletedAt(Long childId, LocalDateTime deleteAt);
+
 
 
 }
