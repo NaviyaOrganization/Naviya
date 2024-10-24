@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
+
 @Entity
 @Table(name = "child_favor_category")
 @Data
@@ -23,8 +25,8 @@ public class ChildFavorCategory {
     @Column(name="category_code")
     private String categoryCode;
 
-    @Column(name="del_date")
-    private Timestamp DEL_DATE;
+    @Column(name = "deleted_at")
+    private LocalDateTime deletedAt; // 논리적 삭제를 위한 컬럼 추가
 
     // Getters and Setters
 }

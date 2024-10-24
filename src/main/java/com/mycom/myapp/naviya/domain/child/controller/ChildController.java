@@ -3,9 +3,10 @@ package com.mycom.myapp.naviya.domain.child.controller;
 import com.mycom.myapp.naviya.domain.child.dto.ChildAddDto;
 import com.mycom.myapp.naviya.domain.child.dto.ChildDto;
 import com.mycom.myapp.naviya.domain.child.dto.ChildResultDto;
+import com.mycom.myapp.naviya.domain.child.dto.ChildWithMbtiHistoryDto;
 import com.mycom.myapp.naviya.domain.child.entity.Child;
 import com.mycom.myapp.naviya.domain.child.repository.ChildRepository;
-import com.mycom.myapp.naviya.domain.child.service.ChildService;
+import com.mycom.myapp.naviya.domain.child.service.ChildMbtiService;
 import com.mycom.myapp.naviya.domain.user.entity.User;
 import com.mycom.myapp.naviya.domain.user.repository.UserRepository;
 import jakarta.servlet.http.HttpSession;
@@ -14,18 +15,56 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import com.mycom.myapp.naviya.domain.child.service.ChildService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-
 @Controller
 @RequestMapping("/children")
 @RequiredArgsConstructor
 public class ChildController {
+
+    private final ChildMbtiService childMbtiService;
     private final ChildRepository childRepository;
     private final ChildService childService;
     private final Logger LOGGER = LoggerFactory.getLogger(ChildController.class);
     private final UserRepository userRepository;
+
+    @GetMapping("/{childId}/mbti-history")
+    public String getChildMbtiHistory(@PathVariable Long childId, Model model) {
+        ChildWithMbtiHistoryDto childWithMbtiHistory = childMbtiService.getChildMbtiHistory(childId);
+        model.addAttribute("childWithMbtiHistory", childWithMbtiHistory);
+        model.addAttribute("expanded", false);
+        return "mbtiHistory"; // 반환하는 뷰 이름 (예: childMbtiHistory.html)
+    }
+
+
+    @GetMapping("/{childId}/diagnosisForm")
+    public String getDiagnosisForm(@PathVariable Long childId, Model model) {
+        model.addAttribute("childId", childId);
+        return "diagnosisForm";
+    }
+
+    // 테스트 용도
+    @GetMapping("/history")
+    public String getChildMbtiHistory2(HttpSession session, Model model) {
+        Long selectedChildId = (Long) session.getAttribute("selectedChildId");
+        ChildWithMbtiHistoryDto childWithMbtiHistory = childMbtiService.getChildMbtiHistory(selectedChildId);
+
+        model.addAttribute("expanded", false);
+        model.addAttribute("childWithMbtiHistory", childWithMbtiHistory);
+
+        return "mbtiHistory"; // 반환하는 뷰 이름 (예: childMbtiHistory.html)
+    }
+
+    // 테스트 용도
+    @GetMapping("/diagnosisForm")
+    public String getDiagnosisForm() {
+        return "diagnosisForm";
+    }
 
     @GetMapping("/select")
     public String selectChildPage(HttpSession session, Model model) {
@@ -92,7 +131,7 @@ public class ChildController {
     }
 
 
-//     자녀 인적사항 조회
+    //     자녀 인적사항 조회
     @GetMapping("/detailPage")
     public String getChildDetail(@RequestParam("childId") Long childId, Model model, HttpSession session) {
         String email = (String) session.getAttribute("userEmail");
@@ -136,6 +175,4 @@ public class ChildController {
     public ChildResultDto updateChild(@RequestBody ChildDto childDto, @RequestBody List<String> categoryCodeList, HttpSession session) {
         return childService.updateChildWithCategories(childDto, categoryCodeList);
     }
-
-
 }

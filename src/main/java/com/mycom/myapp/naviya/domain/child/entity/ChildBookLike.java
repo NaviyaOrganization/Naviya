@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 import java.sql.Timestamp;
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
@@ -23,7 +24,7 @@ public class ChildBookLike {
     @JoinColumn(name = "book_id", nullable = false)
     private Book book;
 
-    @Column(name = "del_date")
-    private Timestamp DelDate;
+    @Column(name = "deleted_at")
+    private LocalDateTime deletedAt; // 논리적 삭제를 위한 컬럼 추가
     // Getters and Setters
 }

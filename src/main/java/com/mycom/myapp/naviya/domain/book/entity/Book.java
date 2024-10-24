@@ -44,6 +44,7 @@ public class Book {
 
     @OneToOne(cascade =CascadeType.ALL ,mappedBy = "book")
     private UserRecentBooks userRecentBooks;
+
     @OneToMany(cascade = CascadeType.ALL,mappedBy = "book")
     private List<ChildBookLike> childBookLike;
 
