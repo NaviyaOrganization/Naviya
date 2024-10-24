@@ -15,4 +15,5 @@ public interface ChildRepository extends JpaRepository<Child, Long> {
     ChildDto findChildDtoById(Long childId);
 
     List<Child> findByUser_UserId(Long userId);
+    Child findByChildId(Long childId);
 }

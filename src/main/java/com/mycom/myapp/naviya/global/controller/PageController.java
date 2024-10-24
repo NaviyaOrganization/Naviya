@@ -1,5 +1,7 @@
 package com.mycom.myapp.naviya.global.controller;
 
+import com.mycom.myapp.naviya.domain.child.entity.Child;
+import com.mycom.myapp.naviya.domain.child.repository.ChildRepository;
 import com.mycom.myapp.naviya.domain.user.entity.User;
 import com.mycom.myapp.naviya.domain.user.repository.UserRepository;
 import jakarta.servlet.http.HttpSession;
@@ -15,6 +17,7 @@ import java.util.List;
 public class PageController {
 
     private final UserRepository userRepository;
+    private final ChildRepository childRepository;
 
     @GetMapping("/login")
     public String loginPage() {
@@ -38,14 +41,21 @@ public class PageController {
         System.out.println(selectedChildId);
         System.out.println("---------------------------");
 
-        if (email != null) {  // 세션에 저장된 이메일이 있을 경우
-            User user = userRepository.findByEmail(email);  // 이메일로 사용자 정보 조회
-            model.addAttribute("user", user);
+        if (selectedChildId != null) { // 세션에 저장된 자녀 ID가 있을 경우
+            Child child = childRepository.findByChildId(selectedChildId);
+            model.addAttribute("child", child);
         } else {
-            model.addAttribute("user", null);  // 세션에 값이 없으면 비로그인 상태로 처리
+            model.addAttribute("child", null);
         }
 
-        return "index"; // templates 안 index.html 렌더링
+        if (email != null) {  // 세션에 저장된 이메일이 있을 경우
+            User user = userRepository.findByEmail(email);
+            model.addAttribute("user", user);
+        } else {
+            model.addAttribute("user", null);
+        }
+
+        return "index";
     }
 
     @GetMapping("/children/addPage")
@@ -53,10 +63,10 @@ public class PageController {
         // 세션에서 사용자 이메일을 가져옴
         String email = (String) session.getAttribute("userEmail");
 
-        User user = userRepository.findByEmail(email);  // 이메일로 사용자 정보 조회
+        User user = userRepository.findByEmail(email);
         model.addAttribute("user", user);
 
-        return "childAdd"; // templates 안 childAdd.html 렌더링
+        return "childAdd";
     }
 
 }
