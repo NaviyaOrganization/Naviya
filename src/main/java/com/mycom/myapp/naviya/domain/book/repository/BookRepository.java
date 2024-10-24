@@ -9,6 +9,8 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import com.mycom.myapp.naviya.global.mbti.Dto.MbtiDto;
 import java.util.List;
+import java.util.Optional;
+
 @Repository
 //현재 최신순 및 총 좋아요 많은 두개만 나이대 별로 가져오기 적용 다른 애들 아이가 좋아요,최근본책은 굳이 필요 없음
 public interface BookRepository extends JpaRepository<Book, Long> {
@@ -155,5 +157,7 @@ public interface BookRepository extends JpaRepository<Book, Long> {
             "b.author, b.createdAt, b.fullStory, b.bookImage, b.categoryCode, " +
             "m.mbtiId, m.eiType, m.snType, m.tfType, m.jpType, f.count")
     List<BookDto> searchBooks(@Param("searchType") String searchType, @Param("keyword") String keyword);
+
+
 
 }

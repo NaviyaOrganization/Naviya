@@ -25,4 +25,6 @@ public interface ChildFavorCategoryRepository extends JpaRepository<ChildFavorCa
     @Query("DELETE FROM ChildFavorCategory cfc WHERE cfc.child = :child AND cfc.deletedAt = :deleteAt")
     void deleteByChildAndDeletedAt(Child child, LocalDateTime deleteAt);
 
+
+
 }

@@ -24,6 +24,7 @@ import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 
 import java.sql.Timestamp;
 import java.util.*;
@@ -182,7 +183,7 @@ public class BookServiceImpl implements BookSerive {
     }
 
     @Override
-    @Transactional
+   @Transactional
     public BookResultDto ChildBookLike(long BookId, long ChildId,String Type) {
         BookResultDto bookResultDto=new BookResultDto();
         try{
@@ -211,12 +212,14 @@ public class BookServiceImpl implements BookSerive {
                 bookResultDto.setSuccess("fail3");
                 return bookResultDto;
             }
+            //bookFavorTotalRepository.incrementCountIfNotLiked(ChildId, BookId);
+
+            //원본
             //상대편에 싫어요 있으면 빼주기
             childBookDisLikeRepository.deleteByChild_ChildIdAndBook_BookId(ChildId, BookId);
             //일대다여서 확인해야함
             //좋아요 토탈 카운트 올려주기 && 이미 deldate없는 좋아요는 올려주지 않기
-            if(!childBookLikeRepository.existsByChildIdAndBookIdAndDelDateIsNull(ChildId, BookId))
-            {
+            if(!childBookLikeRepository.existsByChildIdAndBookIdAndDelDateIsNull(ChildId, BookId)) {
                 bookFavorTotalRepository.incrementCountByBookId(BookId);
             }
             else
@@ -225,6 +228,7 @@ public class BookServiceImpl implements BookSerive {
                 return bookResultDto;
                 //이미 있음
             }
+
             BookMbti bookMbti = book1.getBookMbti();
             Mbti book2Mbti=new Mbti();
             book2Mbti=bookMbti.getMbti();
@@ -261,13 +265,14 @@ public class BookServiceImpl implements BookSerive {
             childBookLike.setChild(child1);
             childBookLike.setBook(book1);
             childBookLike.setDeletedAt(null);
-            childBookLikeRepository.save(childBookLike);
+            childBookLikeRepository.save(childBookLike); // ChildBookLike만 명시적으로 저장
 
+            // mbti는 이미 조회된 상태에서 변경되었으므로, save 없이도 트랜잭션이 끝나면 자동 반영
             mbti.setEiType(EI);
             mbti.setSnType(SN);
             mbti.setTfType(TF);
             mbti.setJpType(JP);
-            mbtiRepository.save(mbti);
+
             bookResultDto.setSuccess("success");
             return bookResultDto;
         }

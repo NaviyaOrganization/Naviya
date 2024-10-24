@@ -41,4 +41,7 @@ public interface ChildBookLikeRepository extends JpaRepository<ChildBookLike, Lo
     @Modifying
     @Query("DELETE FROM ChildBookLike cbl WHERE cbl.child = :child AND cbl.deletedAt = :deleteAt")
     void deleteByChildAndDeletedAt(Child child, LocalDateTime deleteAt);
+
+
+
 }
