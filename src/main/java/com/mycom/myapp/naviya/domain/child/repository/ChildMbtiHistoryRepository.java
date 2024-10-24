@@ -28,6 +28,7 @@ public interface ChildMbtiHistoryRepository extends JpaRepository<ChildMbtiHisto
 
     @Transactional
     @Modifying
-    @Query("DELETE FROM ChildMbtiHistory h WHERE h.child = :child AND h.deletedAt = :deleteAt")
-    void deleteByChildAndDeletedAt(Child child, LocalDateTime deleteAt);
+    @Query("DELETE FROM ChildMbtiHistory h WHERE h.child.childId = :childId AND h.deletedAt = :deleteAt")
+    void deleteByChildIdAndDeletedAt(Long childId, LocalDateTime deleteAt);
+
 }
