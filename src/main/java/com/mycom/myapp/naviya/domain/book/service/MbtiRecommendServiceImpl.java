@@ -1,5 +1,6 @@
 package com.mycom.myapp.naviya.domain.book.service;
 
+import com.mycom.myapp.naviya.domain.book.dto.BookFavorTotalDto;
 import com.mycom.myapp.naviya.domain.book.dto.BookResultDto;
 import com.mycom.myapp.naviya.domain.book.dto.BookDto;
 import com.mycom.myapp.naviya.domain.book.repository.BookRepository;
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -65,11 +67,11 @@ public class MbtiRecommendServiceImpl implements MbtiRecommendService {
     // 메인페이지에서 뿌려지는게 맞나 ???
     // mbti만 쓰기에는 너무 단순하다.
 
-//    @Transactional(readOnly = true)
+    //    @Transactional(readOnly = true)
 //    @Cacheable(value = "recommendedBooks", key = "#childId")
     public List<BookDto> recommendBooks(Long childId) {
         Child child = childRepository.findById(childId)
-                .orElseThrow(() -> new IllegalArgumentException());
+                .orElseThrow(() -> new IllegalArgumentException("자식을 찾을 수 없습니다."));
         List<BookDto> books = bookRepository.findAllBookDto();  // 좋아요, 싫어요, 자녀 연령 필터링해서 가져오기
 
         // 책 리스트를 유사성 점수 차이에 따라 정렬
@@ -84,11 +86,75 @@ public class MbtiRecommendServiceImpl implements MbtiRecommendService {
 
         for (BookDto bookDto : books) {
             int weightScore = calculateWeightedScore(child, bookDto);
-            bookDto.setCategory(String.valueOf(weightScore)); // 임의 설정
-
+            bookDto.setBooktotalfavor(new BookFavorTotalDto((long) weightScore)); // 임의 설정
         }
 
         return books;
     }
 
+    public Map<String,Object> SNFTRecommendBooks(Long childId) {
+        Child child = childRepository.findById(childId)
+                .orElseThrow(() -> new IllegalArgumentException("자식을 찾을 수 없습니다."));
+
+        List<BookDto> books = bookRepository.findAllBookDto();  // 자녀 연령 필터링 및 좋아요/싫어요 고려하여 가져오기
+        List<BookDto> SNrecommendedBooks = new ArrayList<>();
+        List<BookDto> FTrecommendedBooks = new ArrayList<>();
+
+        int childSnType = child.getChildMbti().getMbti().getSnType();  // S/N 성향
+        int childTfType = child.getChildMbti().getMbti().getTfType();  // T/F 성향
+
+        for (BookDto bookDto : books) {
+            int bookSnType = bookDto.getBookMbti().getSnType();  // 책의 S/N 성향
+            int bookTfType = bookDto.getBookMbti().getTfType();  // 책의 T/F 성향
+
+            // S 성향 아이에게 N 성향의 책 추천 (자녀의 S 성향이 -100에 가까울수록 N 성향의 책 추천)
+            if (childSnType < 0 && bookSnType >= 0) {
+                SNrecommendedBooks.add(bookDto);
+            }
+            // N 성향 아이에게 S 성향의 책 추천 (자녀의 N 성향이 100에 가까울수록 S 성향의 책 추천)
+            else if (childSnType >= 0 && bookSnType < 0) {
+                SNrecommendedBooks.add(bookDto);
+            }
+
+            // F 성향 아이에게 T 성향의 책 추천 (자녀의 F 성향이 100에 가까울수록 T 성향의 책 추천)
+            if (childTfType >= 0 && bookTfType < 0) {
+                FTrecommendedBooks.add(bookDto);
+            }
+            // T 성향 아이에게 F 성향의 책 추천 (자녀의 T 성향이 -100에 가까울수록 F 성향의 책 추천)
+            else if (childTfType < 0 && bookTfType >= 0) {
+                FTrecommendedBooks.add(bookDto);
+            }
+        }
+
+        // 추천 및 반대 성향 책 리스트 정렬
+        List<BookDto> SnRecommendedBooks = sortAndSetScores(SNrecommendedBooks, child);
+        List<BookDto> FtRecommendedBooks = sortAndSetScores(FTrecommendedBooks, child);
+
+        // 자녀의 MBTI 성향(S/N, T/F)을 문자열로 변환
+        String snTypeString = (childSnType < 0) ? "S" : "N";
+        String tfTypeString = (childTfType < 0) ? "T" : "F";
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("SNrecommendedBooks", SnRecommendedBooks);
+        result.put("FTrecommendedBooks", FtRecommendedBooks);
+        result.put("childSnType", snTypeString);  // 자녀의 S/N 성향
+        result.put("childTfType", tfTypeString);  // 자녀의 T/F 성향
+
+        return result;
+    }
+
+    // 추천 및 반대 성향 책 리스트 정렬 및 점수 계산
+    private List<BookDto> sortAndSetScores(List<BookDto> books, Child child) {
+        return books.stream()
+                .peek(book -> {
+                    int score = calculateWeightedScore(child, book);
+                    book.setBooktotalfavor(new BookFavorTotalDto((long) score)); // 점수 설정
+                })
+                .sorted((b1, b2) -> {
+                    int score1 = calculateWeightedScore(child, b1);
+                    int score2 = calculateWeightedScore(child, b2);
+                    return Integer.compare(score2, score1); // 정렬 방향
+                })
+                .collect(Collectors.toList());
+    }
 }

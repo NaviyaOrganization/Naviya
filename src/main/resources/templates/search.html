@@ -109,19 +109,30 @@
 <body>
 
 <!-- Navigation Bar -->
-<nav class="navbar navbar-expand-lg">
+<nav class="navbar navbar-expand-lg navbar">
   <div class="container-fluid">
+    <!-- Toggle Button -->
     <span id="toggleSidebar" class="navbar-toggler-icon"></span>
-    <div class="d-flex align-items-center ms-auto">
+
+    <!-- Right-Side Links -->
+    <div class="collapse navbar-collapse justify-content-end">
       <ul class="navbar-nav">
         <li class="nav-item">
-          <a class="nav-link" href="index.html">메인페이지</a>
+          <a class="nav-link" href="/">메인페이지</a>
         </li>
-        <li class="nav-item">
-          <a class="nav-link" href="#">로그인</a>
+        <!-- 로그인 상태 확인 -->
+        <li class="nav-item" th:if="${user == null}">
+          <a class="nav-link" href="/login">로그인</a>
         </li>
-        <li class="nav-item">
-          <a class="nav-link" href="#">회원가입</a>
+        <li class="nav-item" th:if="${user == null}">
+          <a class="nav-link" href="/signup">회원가입</a>
+        </li>
+        <!-- 로그인한 사용자 정보 -->
+        <li class="nav-item" th:if="${user != null}">
+          <a class="nav-link" th:text="${user.name + '님'}"></a>
+        </li>
+        <li class="nav-item" th:if="${user != null}">
+          <a class="nav-link" href="/logout">로그아웃</a>
         </li>
       </ul>
     </div>
@@ -252,7 +263,7 @@
       cardPublisher.textContent = `출판사: ${book.publisher}`;
 
       const cardLink = document.createElement('a');
-      cardLink.href = '#'; // Add actual link when available
+      cardLink.href = `book-details.html?id=${book.bookId}`; // Use bookId in the link
       cardLink.className = 'btn btn-primary mt-auto'; // Push button to bottom
       cardLink.textContent = '자세히 보기';
 
