@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 import static com.mycom.myapp.naviya.global.response.ResponseCode.EXAMPLE_SUCCESS;
 
@@ -84,6 +85,12 @@ public class BookController {
     @GetMapping("/recommend")
     public ResponseForm recommendBook(@RequestParam Long childId) {
         List<BookDto> books = mbtiRecommendService.recommendBooks(childId);
+        return ResponseForm.of(EXAMPLE_SUCCESS, books);
+    }
+
+    @GetMapping("/snftrecommend")
+    public ResponseForm SNFTRecommendBooks(@RequestParam Long childId) {
+        Map<String, Object> books = mbtiRecommendService.SNFTRecommendBooks(childId);
         return ResponseForm.of(EXAMPLE_SUCCESS, books);
     }
 

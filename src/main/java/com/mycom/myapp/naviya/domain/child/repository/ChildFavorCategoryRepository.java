@@ -24,8 +24,9 @@ public interface ChildFavorCategoryRepository extends JpaRepository<ChildFavorCa
 
     @Transactional
     @Modifying
-    @Query("DELETE FROM ChildFavorCategory cfc WHERE cfc.child = :child AND cfc.deletedAt = :deleteAt")
-    void deleteByChildAndDeletedAt(Child child, LocalDateTime deleteAt);
+    @Query("DELETE FROM ChildFavorCategory cfc WHERE cfc.child.childId = :childId AND cfc.deletedAt = :deleteAt")
+    void deleteByChildIdAndDeletedAt(Long childId, LocalDateTime deleteAt);
+
 
     @Query("SELECT new com.mycom.myapp.naviya.domain.child.dto.ChildFavCategoryDto(c.childId, cfc.categoryCode, cfc.childFavorCategoryWeight) " +
             "FROM ChildFavorCategory cfc " +
