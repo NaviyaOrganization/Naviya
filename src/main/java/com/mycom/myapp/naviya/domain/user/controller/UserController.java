@@ -7,21 +7,16 @@ import com.mycom.myapp.naviya.domain.user.dto.UserResultDto;
 import com.mycom.myapp.naviya.domain.user.entity.User;
 import com.mycom.myapp.naviya.domain.user.repository.UserRepository;
 import com.mycom.myapp.naviya.domain.user.service.UserService;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Collection;
-import java.util.Iterator;
-
-import static org.hibernate.sql.ast.SqlTreeCreationLogger.LOGGER;
 
 @Controller
 @RequestMapping
@@ -50,14 +45,13 @@ public class UserController {
 
     // 유저페이지 정보 조회 (로그인한 사용자)
     @GetMapping("/userpage")
-    public String detailUserPage(Model model) {
+    public String detailUserPage(HttpSession session, Model model) {
 
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String email = authentication.getName();  // 현재 로그인한 사용자의 이메일을 가져옴
+        // 세션에서 사용자 이메일을 가져옴
+        String email = (String) session.getAttribute("userEmail");
 
-        if (authentication != null) {
-            LOGGER.info("User email: {}", authentication.getName());
-            LOGGER.info("Authorities: {}", authentication.getAuthorities());
+        if (email != null) {
+            LOGGER.info("User email: {}", email);
         } else {
             LOGGER.error("No authenticated user found.");
         }
@@ -68,16 +62,15 @@ public class UserController {
         model.addAttribute("userDto", userResultDto.getUserDto());
         model.addAttribute("user", user);
 
-        return "userpage";
+        return "userPage";
     }
 
 
     @PostMapping("/userpage/update")
     @ResponseBody
-    public UserResultDto updateUserPage(@RequestBody UserDto userDto){
+    public UserResultDto updateUserPage(@RequestBody UserDto userDto, HttpSession session){
 
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String email = authentication.getName();  // 현재 로그인한 사용자의 이메일을 가져옴
+        String email = (String) session.getAttribute("userEmail");
 
         User user = userRepository.findByEmail(email);
         userDto.setUserId(user.getUserId());
