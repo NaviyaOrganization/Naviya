@@ -92,5 +92,18 @@ public class BookController {
         List<BookDto> books = bookServiceImpl.searchBooks(searchType, keyword);
         return ResponseForm.of(EXAMPLE_SUCCESS, books);
     }
+    @GetMapping("/CategoryLike")
+    public BookResultDto BookCategoryLike(@RequestParam long bookId, @RequestParam long childId, @RequestParam String Ctegory) {
+        return bookServiceImpl.ChildBookLike(bookId,childId,Ctegory);
+    }
+    @GetMapping("/CategoryDisLike")
+    public BookResultDto BookCategoryDisLike(@RequestParam long bookId,@RequestParam long childId,@RequestParam String Ctegory) {
+        return bookServiceImpl.ChildBookLike(bookId,childId,Ctegory);
+    }
+    @GetMapping("/CategoryList")
+    public BookResultDto BookCategoryDisLike(@RequestParam long childId) {
+        return bookServiceImpl.CategoryList(childId);
+    }
+
 
 }

@@ -158,6 +158,21 @@ public interface BookRepository extends JpaRepository<Book, Long> {
             "m.mbtiId, m.eiType, m.snType, m.tfType, m.jpType, f.count")
     List<BookDto> searchBooks(@Param("searchType") String searchType, @Param("keyword") String keyword);
 
-
+    @Query("SELECT new com.mycom.myapp.naviya.domain.book.dto.BookDto(b.bookId, " +
+            "b.title, b.summary, b.recommendedAge, b.publisher, b.author, " +
+            "b.createdAt, b.fullStory, b.bookImage, b.categoryCode, " +
+            "new com.mycom.myapp.naviya.global.mbti.Dto.MbtiDto(m.mbtiId, m.eiType, m.snType, m.tfType, m.jpType), " +
+            "new com.mycom.myapp.naviya.domain.book.dto.BookFavorTotalDto(f.count)) " +
+            "FROM Book b " +
+            "LEFT JOIN b.bookMbti bm " +
+            "LEFT JOIN bm.mbti m " +
+            "LEFT JOIN BookFavorTotal f ON f.book.bookId = b.bookId " +
+            "LEFT JOIN Child c ON c.childId = :childId " +
+            "WHERE b.categoryCode IN :categoryCodes " +
+            "AND b.recommendedAge = c.ChildAgeRange " +
+            "GROUP BY b.bookId, b.title, b.summary, b.recommendedAge, b.publisher, " +
+            "b.author, b.createdAt, b.fullStory, b.bookImage, b.categoryCode, " +
+            "m.mbtiId, m.eiType, m.snType, m.tfType, m.jpType, f.count")
+    List<BookDto> findAllBookDtoByCategoryCodes(@Param("categoryCodes") List<String> categoryCodes,@Param("childId") long childId);
 
 }

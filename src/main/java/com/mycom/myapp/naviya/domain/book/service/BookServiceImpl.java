@@ -1,33 +1,28 @@
 package com.mycom.myapp.naviya.domain.book.service;
 import com.mycom.myapp.naviya.domain.book.dto.BookDetailDto;
-import com.mycom.myapp.naviya.domain.book.dto.BookFavorTotalDto;
 import com.mycom.myapp.naviya.domain.book.entity.Book;
 import com.mycom.myapp.naviya.domain.book.dto.BookDto;
 import com.mycom.myapp.naviya.domain.book.dto.BookResultDto;
-import com.mycom.myapp.naviya.domain.book.entity.BookFavorTotal;
 import com.mycom.myapp.naviya.domain.book.entity.BookMbti;
 import com.mycom.myapp.naviya.domain.book.repository.BookFavorTotalRepository;
 import com.mycom.myapp.naviya.domain.book.repository.BookMbtiRepository;
 import com.mycom.myapp.naviya.domain.book.repository.BookRepository;
-import com.mycom.myapp.naviya.domain.child.entity.Child;
-import com.mycom.myapp.naviya.domain.child.entity.ChildBookDislike;
-import com.mycom.myapp.naviya.domain.child.entity.ChildBookLike;
-import com.mycom.myapp.naviya.domain.child.entity.ChildMbti;
-import com.mycom.myapp.naviya.domain.child.repository.ChildBookDisLikeRepository;
-import com.mycom.myapp.naviya.domain.child.repository.ChildBookLikeRepository;
-import com.mycom.myapp.naviya.domain.child.repository.ChildMbtiRepository;
-import com.mycom.myapp.naviya.domain.child.repository.ChildRepository;
-import com.mycom.myapp.naviya.global.mbti.Dto.MbtiDto;
+import com.mycom.myapp.naviya.domain.child.dto.ChildDto;
+import com.mycom.myapp.naviya.domain.child.dto.ChildFavCategoryDto;
+import com.mycom.myapp.naviya.domain.child.entity.*;
+import com.mycom.myapp.naviya.domain.child.repository.*;
 import com.mycom.myapp.naviya.global.mbti.entity.Mbti;
 import com.mycom.myapp.naviya.global.mbti.repository.MbtiRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 
 import java.sql.Timestamp;
 import java.util.*;
+import java.util.stream.Collectors;
+
+import static java.lang.constant.ConstantDescs.NULL;
 
 @Service
 @RequiredArgsConstructor
@@ -40,6 +35,7 @@ public class BookServiceImpl implements BookSerive {
     private final BookFavorTotalRepository bookFavorTotalRepository;
     private final BookMbtiRepository bookMbtiRepository;
     private final ChildRepository childRepository;
+    private final ChildFavorCategoryRepository childFavorCategoryRepository;
     private final ChildMbtiRepository childMbtiRepository;
     /*삭제순서 to 유성,정슈선
     연관관계 수정으로 book->bookmbti->mbti 한 방에 삭제
@@ -441,4 +437,81 @@ public class BookServiceImpl implements BookSerive {
     public List<BookDto> searchBooks(String searchType, String keyword) {
         return bookRepository.searchBooks(searchType, keyword);
     }
+
+    @Override
+    //카테고리 추천
+    //나이대별로 들고와야함
+    public BookResultDto CategoryList(long childId) {
+        BookResultDto bookResultDto=new BookResultDto();
+        try {
+
+            //비로그인들 걍 랜덤으로 보내버림
+            if(childId==0)
+            {
+                List<BookDto> BookDtoList=bookRepository.findAllBookDto();
+                bookResultDto.setBooks(BookDtoList);
+                bookResultDto.setSuccess("success");
+                return bookResultDto;
+            }
+
+            List<ChildFavCategoryDto> childFavorCategory = childFavorCategoryRepository.findFavCategoriesByChildId(childId);
+            //쿼리 위해 존재
+            List<String> categoryCodes = childFavorCategory.stream()
+                    .map(ChildFavCategoryDto::getCategoryCode)
+                    .collect(Collectors.toList());
+            List<BookDto> booksInCategory = bookRepository.findAllBookDtoByCategoryCodes(categoryCodes,childId);
+            double totalWeight = 0;
+
+            // 가중치 합산
+            for (ChildFavCategoryDto category : childFavorCategory) {
+                Long weight = category.getChildFavorCategoryWeight();
+                totalWeight += weight;
+            }
+
+            // 각 카테고리별 책 개수 계산
+            Map<String, Integer> categoryBookCounts = new HashMap<>();
+            int totalBooks = 10; // 총 가져올 책의 개수
+
+            Map<String, Integer> currentCounts = new HashMap<>();
+            for (ChildFavCategoryDto category : childFavorCategory) {
+                String categoryCode = category.getCategoryCode();
+                Long weight = category.getChildFavorCategoryWeight();
+                // 비율 계산
+                double ratio = (weight / totalWeight) * totalBooks;
+                // 비율을 반영한 책 개수 저장 (반올림)
+                currentCounts.put(categoryCode, (int) Math.round(ratio));
+                System.out.println( (int) Math.round(ratio));
+            }
+
+
+            int totalBooksCnt = 10;
+            List<BookDto> selectedBooks = new ArrayList<>();
+
+            for (BookDto book : booksInCategory) {
+                String categoryCode = book.getCategory();
+                Integer count = currentCounts.get(categoryCode);
+
+                if (count != null && count >= 1) {
+                    selectedBooks.add(book);
+                    count--; // 책 개수 감소
+                    currentCounts.put(categoryCode, count); // 감소된 개수 다시 저장
+                }
+
+                if (selectedBooks.size() >= totalBooks) {
+                    break; // 원하는 총 책 개수에 도달하면 종료
+                }
+            }
+            bookResultDto.setSuccess("fail");
+            bookResultDto.setBooks(selectedBooks);
+            return bookResultDto;
+
+        }
+        catch(Exception e){
+            e.printStackTrace();
+            bookResultDto.setSuccess("fail");
+            return bookResultDto;
+        }
+    }
+    // Collections.sort()를 사용하여 내림차순 정렬
+
 }
