@@ -71,12 +71,14 @@ public class ChildController {
         // 세션에서 사용자 이메일 가져오기
         String email = (String) session.getAttribute("userEmail");
 
+
         if (email != null) {
             // 이메일로 사용자 정보를 조회
             User user = userRepository.findByEmail(email);
             // 사용자에게 등록된 자녀 목록 가져오기
             List<Child> children = childRepository.findByUser_UserId(user.getUserId());
             model.addAttribute("children", children);
+            model.addAttribute("user", user);
         }
         return "childSelectPage"; // 자녀 선택 페이지 렌더링
     }
