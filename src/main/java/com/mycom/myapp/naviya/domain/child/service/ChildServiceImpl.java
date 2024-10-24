@@ -183,7 +183,7 @@ public class ChildServiceImpl implements ChildService {
                         ChildFavorCategory favorCategory = new ChildFavorCategory();
                         favorCategory.setChild(child);
                         favorCategory.setCategoryCode(categoryCode);
-                        favorCategory.setChildFavorCategoryWeight(10L); // 초기 가중치 설정
+                        favorCategory.setChildFavorCategoryWeight(50L); // 초기 가중치 설정
                         return favorCategory;
                     })
                     .collect(Collectors.toList());

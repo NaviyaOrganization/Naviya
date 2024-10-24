@@ -57,16 +57,4 @@ public class PageController {
 
         return "index";
     }
-
-    @GetMapping("/children/addPage")
-    public String childAddPage(HttpSession session, Model model) {
-        // 세션에서 사용자 이메일을 가져옴
-        String email = (String) session.getAttribute("userEmail");
-
-        User user = userRepository.findByEmail(email);
-        model.addAttribute("user", user);
-
-        return "childAdd";
-    }
-
 }

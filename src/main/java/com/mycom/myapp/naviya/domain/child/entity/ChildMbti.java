@@ -17,7 +17,7 @@ public class ChildMbti {
     @Column(name = "MbtiId")
     private Long mbtiId;
 
-    @ManyToOne
+    @OneToOne
     @JoinColumn(name = "child_id", nullable = false)
     private Child child;
 

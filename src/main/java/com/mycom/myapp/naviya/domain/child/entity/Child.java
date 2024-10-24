@@ -43,6 +43,9 @@ public class Child {
     @Column(name = "child_image")
     private String childImage;
 
+    @Column(name="child_age_range")
+    private String ChildAgeRange;
+
     @OneToMany(mappedBy = "child")
     private List<ChildBookDislike> childBookDislikes;
 
@@ -51,9 +54,6 @@ public class Child {
 
     @OneToOne(mappedBy = "child")
     private ChildMbti childMbti;
-
-    @Column(name="child_age_range")
-    private String ChildAgeRange;
 
     @OneToMany(mappedBy = "child")
     private List<ChildFavorCategory> childFavorCategories = new ArrayList<>();

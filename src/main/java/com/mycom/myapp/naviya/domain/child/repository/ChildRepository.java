@@ -1,9 +1,12 @@
 package com.mycom.myapp.naviya.domain.child.repository;
 
 import com.mycom.myapp.naviya.domain.child.dto.ChildDto;
+import com.mycom.myapp.naviya.domain.child.dto.ChildSelectDto;
 import com.mycom.myapp.naviya.domain.child.entity.Child;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
@@ -15,5 +18,12 @@ public interface ChildRepository extends JpaRepository<Child, Long> {
     ChildDto findChildDtoById(Long childId);
 
     List<Child> findByUser_UserId(Long userId);
+
+    @Query("SELECT new com.mycom.myapp.naviya.domain.child.dto.ChildSelectDto(c.childId, c.childName, c.childImage) " +
+            "FROM Child c left JOIN c.user u " +
+            "WHERE u.userId = :userId")
+    List<ChildSelectDto> findChildSelectDtoListByUserId(@Param("userId") Long userId);
+
+
     Child findByChildId(Long childId);
 }
