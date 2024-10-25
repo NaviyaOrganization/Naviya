@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 public interface ChildFavorCategoryRepository extends JpaRepository<ChildFavorCategory, Long> {
 
@@ -33,4 +34,6 @@ public interface ChildFavorCategoryRepository extends JpaRepository<ChildFavorCa
             "JOIN cfc.child c " +
             "WHERE c.childId = :childId")
     List<ChildFavCategoryDto> findFavCategoriesByChildId(@Param("childId") Long childId);
+    Optional<ChildFavorCategory> findByChild_ChildIdAndCategoryCode(Long childId, String categoryCode);
+
 }

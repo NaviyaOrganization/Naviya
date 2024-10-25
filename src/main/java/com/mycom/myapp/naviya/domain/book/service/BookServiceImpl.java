@@ -441,6 +441,7 @@ public class BookServiceImpl implements BookSerive {
     @Override
     //카테고리 추천
     //나이대별로 들고와야함
+    @Transactional
     public BookResultDto CategoryList(long childId) {
         BookResultDto bookResultDto=new BookResultDto();
         try {
@@ -471,7 +472,8 @@ public class BookServiceImpl implements BookSerive {
             // 각 카테고리별 책 개수 계산
             Map<String, Integer> categoryBookCounts = new HashMap<>();
             int totalBooks = 10; // 총 가져올 책의 개수
-
+            int sumOfBooks = 0;
+            String lastCategory = null;
             Map<String, Integer> currentCounts = new HashMap<>();
             for (ChildFavCategoryDto category : childFavorCategory) {
                 String categoryCode = category.getCategoryCode();
@@ -479,10 +481,16 @@ public class BookServiceImpl implements BookSerive {
                 // 비율 계산
                 double ratio = (weight / totalWeight) * totalBooks;
                 // 비율을 반영한 책 개수 저장 (반올림)
-                currentCounts.put(categoryCode, (int) Math.round(ratio));
-                System.out.println( (int) Math.round(ratio));
+                int bookCount = (int) Math.round(ratio);
+                currentCounts.put(categoryCode, bookCount);
+                sumOfBooks += bookCount;
+                lastCategory = categoryCode;
             }
-
+            //30 30 30 이럴때 3 3 4로 맞추기 위해
+            if (sumOfBooks != totalBooks && lastCategory != null) {
+                int difference = totalBooks - sumOfBooks;
+                currentCounts.put(lastCategory, currentCounts.get(lastCategory) + difference);
+            }
 
             int totalBooksCnt = 10;
             List<BookDto> selectedBooks = new ArrayList<>();
@@ -496,10 +504,12 @@ public class BookServiceImpl implements BookSerive {
                     count--; // 책 개수 감소
                     currentCounts.put(categoryCode, count); // 감소된 개수 다시 저장
                 }
+                // 절대적으로 책 자체가 쿼리에서 10개 미만으로 왔을때 고민 중
+              //  int idx=0;
+              //  while (selectedBooks.size() >= totalBooksCnt) {
 
-                if (selectedBooks.size() >= totalBooks) {
-                    break; // 원하는 총 책 개수에 도달하면 종료
-                }
+              //  }
+
             }
             bookResultDto.setSuccess("fail");
             bookResultDto.setBooks(selectedBooks);
@@ -512,6 +522,50 @@ public class BookServiceImpl implements BookSerive {
             return bookResultDto;
         }
     }
-    // Collections.sort()를 사용하여 내림차순 정렬
+    //굳이 두개로 안나눠도 sign으로 해도 되는데 결합도 생각해서 나눠 놨음
+    @Override
+    public BookResultDto CategoryLike(long childId,String Ctegory) {
+        BookResultDto bookResultDto=new BookResultDto();
+        try {
+
+            ChildFavorCategory favorCategory = childFavorCategoryRepository
+                    .findByChild_ChildIdAndCategoryCode(childId, Ctegory)
+                    .orElseThrow(() -> new IllegalArgumentException("해당 카테고리가 존재하지 않습니다."));
+
+            Long TempVal=favorCategory.getChildFavorCategoryWeight();
+            Long newWeight = Math.max(0, Math.min(100, TempVal+10));
+            favorCategory.setChildFavorCategoryWeight(newWeight);
+            childFavorCategoryRepository.save(favorCategory);
+            bookResultDto.setSuccess("success");
+            return bookResultDto;
+        }
+        catch(Exception e){
+            e.printStackTrace();
+            bookResultDto.setSuccess("fail");
+            return bookResultDto;
+        }
+    }
+    @Override
+    public BookResultDto CategoryDisLike(long childId,String Ctegory) {
+        BookResultDto bookResultDto=new BookResultDto();
+        try {
+
+            ChildFavorCategory favorCategory = childFavorCategoryRepository
+                    .findByChild_ChildIdAndCategoryCode(childId, Ctegory)
+                    .orElseThrow(() -> new IllegalArgumentException("해당 카테고리가 존재하지 않습니다."));
+
+            Long TempVal=favorCategory.getChildFavorCategoryWeight();
+            Long newWeight = Math.max(0, Math.min(100, TempVal));
+            favorCategory.setChildFavorCategoryWeight(newWeight);
+            childFavorCategoryRepository.save(favorCategory);
+            bookResultDto.setSuccess("success");
+            return bookResultDto;
+        }
+        catch(Exception e){
+            e.printStackTrace();
+            bookResultDto.setSuccess("fail");
+            return bookResultDto;
+        }
+    }
 
 }

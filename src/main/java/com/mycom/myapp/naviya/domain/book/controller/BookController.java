@@ -99,17 +99,20 @@ public class BookController {
         List<BookDto> books = bookServiceImpl.searchBooks(searchType, keyword);
         return ResponseForm.of(EXAMPLE_SUCCESS, books);
     }
-    @GetMapping("/CategoryLike")
+    //카테고리 리스트
+    @GetMapping("/CategoryList")
     public BookResultDto BookCategoryLike(@RequestParam long bookId, @RequestParam long childId, @RequestParam String Ctegory) {
         return bookServiceImpl.ChildBookLike(bookId,childId,Ctegory);
     }
+    //카테고리 좋아요
     @GetMapping("/CategoryDisLike")
-    public BookResultDto BookCategoryDisLike(@RequestParam long bookId,@RequestParam long childId,@RequestParam String Ctegory) {
-        return bookServiceImpl.ChildBookLike(bookId,childId,Ctegory);
+    public BookResultDto BookCategoryDisLike(@RequestParam long childId,@RequestParam String Ctegory) {
+        return bookServiceImpl.CategoryDisLike(childId,Ctegory);
     }
-    @GetMapping("/CategoryList")
-    public BookResultDto BookCategoryDisLike(@RequestParam long childId) {
-        return bookServiceImpl.CategoryList(childId);
+    //카테고리 싫어요
+    @GetMapping("/CategoryLike")
+    public BookResultDto BookCategoryLike(@RequestParam long childId,@RequestParam String Ctegory) {
+        return bookServiceImpl.CategoryLike(childId,Ctegory);
     }
 
 

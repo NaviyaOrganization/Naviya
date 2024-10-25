@@ -1,6 +1,5 @@
 package com.mycom.myapp.naviya.domain.child.repository;
 
-import com.mycom.myapp.naviya.domain.book.entity.Book;
 import com.mycom.myapp.naviya.domain.child.entity.Child;
 import com.mycom.myapp.naviya.domain.child.entity.ChildBookDislike;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -10,7 +9,6 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.Optional;
 
 public interface ChildBookDisLikeRepository extends JpaRepository<ChildBookDislike, Long> {
     boolean existsByChild_ChildIdAndBook_BookId(Long childId, Long bookId);
@@ -28,7 +26,7 @@ public interface ChildBookDisLikeRepository extends JpaRepository<ChildBookDisli
     @Transactional
     @Modifying
     @Query("DELETE FROM ChildBookDislike cbd WHERE cbd.child = :child AND cbd.deletedAt = :deleteAt")
-    void deleteByChildAndDeletedAt(Child child, LocalDateTime deleteAt);
+    void deleteByChildAndDeletedAt(Long child, LocalDateTime deleteAt);
 
 
 
