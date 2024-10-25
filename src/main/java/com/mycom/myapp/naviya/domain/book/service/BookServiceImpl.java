@@ -507,9 +507,7 @@ public class BookServiceImpl implements BookSerive {
                 // 절대적으로 책 자체가 쿼리에서 10개 미만으로 왔을때 고민 중
               //  int idx=0;
               //  while (selectedBooks.size() >= totalBooksCnt) {
-
               //  }
-
             }
             bookResultDto.setSuccess("fail");
             bookResultDto.setBooks(selectedBooks);

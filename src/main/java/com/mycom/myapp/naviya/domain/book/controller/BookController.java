@@ -101,8 +101,8 @@ public class BookController {
     }
     //카테고리 리스트
     @GetMapping("/CategoryList")
-    public BookResultDto BookCategoryLike(@RequestParam long bookId, @RequestParam long childId, @RequestParam String Ctegory) {
-        return bookServiceImpl.ChildBookLike(bookId,childId,Ctegory);
+    public BookResultDto BookCategoryLike(@RequestParam long childId) {
+        return bookServiceImpl.CategoryList(childId);
     }
     //카테고리 좋아요
     @GetMapping("/CategoryDisLike")
