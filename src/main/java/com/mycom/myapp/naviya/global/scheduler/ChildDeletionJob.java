@@ -39,10 +39,10 @@ public class ChildDeletionJob implements Job {
         childMbtiHistoryRepository.deleteByChildIdAndDeletedAt(childId, futureLocalDateTime);
 
         // ChildBookLike의 deletedAt이 futureLocalDateTime인 데이터 삭제
-        childBookLikeRepository.deleteByChildIdAndDeletedAt(childId, futureLocalDateTime);
+        childBookLikeRepository.deleteByChildAndDeletedAt(childId, futureLocalDateTime);
 
         // ChildBookDislike의 deletedAt이 futureLocalDateTime인 데이터 삭제
-        childBookDislikeRepository.deleteByChildIdAndDeletedAt(childId, futureLocalDateTime);
+        childBookDislikeRepository.deleteByChildAndDeletedAt(childId, futureLocalDateTime);
 
         // ChildFavorCategory의 deletedAt이 futureLocalDateTime인 데이터 삭제
         childFavorCategoryRepository.deleteByChildIdAndDeletedAt(childId, futureLocalDateTime);

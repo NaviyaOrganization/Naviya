@@ -23,4 +23,5 @@ public class ChildDto {
         this.childAge = childAge;
         this.codeMbti = codeMbti;
     }
+
 }

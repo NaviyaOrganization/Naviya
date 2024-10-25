@@ -1,23 +1,16 @@
 package com.mycom.myapp.naviya.domain.book.service;
 import com.mycom.myapp.naviya.domain.book.dto.BookDetailDto;
-import com.mycom.myapp.naviya.domain.book.dto.BookFavorTotalDto;
 import com.mycom.myapp.naviya.domain.book.entity.Book;
 import com.mycom.myapp.naviya.domain.book.dto.BookDto;
 import com.mycom.myapp.naviya.domain.book.dto.BookResultDto;
-import com.mycom.myapp.naviya.domain.book.entity.BookFavorTotal;
 import com.mycom.myapp.naviya.domain.book.entity.BookMbti;
 import com.mycom.myapp.naviya.domain.book.repository.BookFavorTotalRepository;
 import com.mycom.myapp.naviya.domain.book.repository.BookMbtiRepository;
 import com.mycom.myapp.naviya.domain.book.repository.BookRepository;
-import com.mycom.myapp.naviya.domain.child.entity.Child;
-import com.mycom.myapp.naviya.domain.child.entity.ChildBookDislike;
-import com.mycom.myapp.naviya.domain.child.entity.ChildBookLike;
-import com.mycom.myapp.naviya.domain.child.entity.ChildMbti;
-import com.mycom.myapp.naviya.domain.child.repository.ChildBookDisLikeRepository;
-import com.mycom.myapp.naviya.domain.child.repository.ChildBookLikeRepository;
-import com.mycom.myapp.naviya.domain.child.repository.ChildMbtiRepository;
-import com.mycom.myapp.naviya.domain.child.repository.ChildRepository;
-import com.mycom.myapp.naviya.global.mbti.Dto.MbtiDto;
+import com.mycom.myapp.naviya.domain.child.dto.ChildDto;
+import com.mycom.myapp.naviya.domain.child.dto.ChildFavCategoryDto;
+import com.mycom.myapp.naviya.domain.child.entity.*;
+import com.mycom.myapp.naviya.domain.child.repository.*;
 import com.mycom.myapp.naviya.global.mbti.entity.Mbti;
 import com.mycom.myapp.naviya.global.mbti.repository.MbtiRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -27,6 +20,9 @@ import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
 import java.util.*;
+import java.util.stream.Collectors;
+
+import static java.lang.constant.ConstantDescs.NULL;
 
 @Service
 @RequiredArgsConstructor
@@ -39,6 +35,7 @@ public class BookServiceImpl implements BookSerive {
     private final BookFavorTotalRepository bookFavorTotalRepository;
     private final BookMbtiRepository bookMbtiRepository;
     private final ChildRepository childRepository;
+    private final ChildFavorCategoryRepository childFavorCategoryRepository;
     private final ChildMbtiRepository childMbtiRepository;
     /*삭제순서 to 유성,정슈선
     연관관계 수정으로 book->bookmbti->mbti 한 방에 삭제
@@ -182,7 +179,7 @@ public class BookServiceImpl implements BookSerive {
     }
 
     @Override
-    @Transactional
+   @Transactional
     public BookResultDto ChildBookLike(long BookId, long ChildId,String Type) {
         BookResultDto bookResultDto=new BookResultDto();
         try{
@@ -211,12 +208,14 @@ public class BookServiceImpl implements BookSerive {
                 bookResultDto.setSuccess("fail3");
                 return bookResultDto;
             }
+            //bookFavorTotalRepository.incrementCountIfNotLiked(ChildId, BookId);
+
+            //원본
             //상대편에 싫어요 있으면 빼주기
             childBookDisLikeRepository.deleteByChild_ChildIdAndBook_BookId(ChildId, BookId);
             //일대다여서 확인해야함
             //좋아요 토탈 카운트 올려주기 && 이미 deldate없는 좋아요는 올려주지 않기
-            if(!childBookLikeRepository.existsByChildIdAndBookIdAndDelDateIsNull(ChildId, BookId))
-            {
+            if(!childBookLikeRepository.existsByChildIdAndBookIdAndDelDateIsNull(ChildId, BookId)) {
                 bookFavorTotalRepository.incrementCountByBookId(BookId);
             }
             else
@@ -225,6 +224,7 @@ public class BookServiceImpl implements BookSerive {
                 return bookResultDto;
                 //이미 있음
             }
+
             BookMbti bookMbti = book1.getBookMbti();
             Mbti book2Mbti=new Mbti();
             book2Mbti=bookMbti.getMbti();
@@ -261,13 +261,14 @@ public class BookServiceImpl implements BookSerive {
             childBookLike.setChild(child1);
             childBookLike.setBook(book1);
             childBookLike.setDeletedAt(null);
-            childBookLikeRepository.save(childBookLike);
+            childBookLikeRepository.save(childBookLike); // ChildBookLike만 명시적으로 저장
 
+            // mbti는 이미 조회된 상태에서 변경되었으므로, save 없이도 트랜잭션이 끝나면 자동 반영
             mbti.setEiType(EI);
             mbti.setSnType(SN);
             mbti.setTfType(TF);
             mbti.setJpType(JP);
-            mbtiRepository.save(mbti);
+
             bookResultDto.setSuccess("success");
             return bookResultDto;
         }
@@ -436,4 +437,133 @@ public class BookServiceImpl implements BookSerive {
     public List<BookDto> searchBooks(String searchType, String keyword) {
         return bookRepository.searchBooks(searchType, keyword);
     }
+
+    @Override
+    //카테고리 추천
+    //나이대별로 들고와야함
+    @Transactional
+    public BookResultDto CategoryList(long childId) {
+        BookResultDto bookResultDto=new BookResultDto();
+        try {
+
+            //비로그인들 걍 랜덤으로 보내버림
+            if(childId==0)
+            {
+                List<BookDto> BookDtoList=bookRepository.findAllBookDto();
+                bookResultDto.setBooks(BookDtoList);
+                bookResultDto.setSuccess("success");
+                return bookResultDto;
+            }
+
+            List<ChildFavCategoryDto> childFavorCategory = childFavorCategoryRepository.findFavCategoriesByChildId(childId);
+            //쿼리 위해 존재
+            List<String> categoryCodes = childFavorCategory.stream()
+                    .map(ChildFavCategoryDto::getCategoryCode)
+                    .collect(Collectors.toList());
+            List<BookDto> booksInCategory = bookRepository.findAllBookDtoByCategoryCodes(categoryCodes,childId);
+            double totalWeight = 0;
+
+            // 가중치 합산
+            for (ChildFavCategoryDto category : childFavorCategory) {
+                Long weight = category.getChildFavorCategoryWeight();
+                totalWeight += weight;
+            }
+
+            // 각 카테고리별 책 개수 계산
+            Map<String, Integer> categoryBookCounts = new HashMap<>();
+            int totalBooks = 10; // 총 가져올 책의 개수
+            int sumOfBooks = 0;
+            String lastCategory = null;
+            Map<String, Integer> currentCounts = new HashMap<>();
+            for (ChildFavCategoryDto category : childFavorCategory) {
+                String categoryCode = category.getCategoryCode();
+                Long weight = category.getChildFavorCategoryWeight();
+                // 비율 계산
+                double ratio = (weight / totalWeight) * totalBooks;
+                // 비율을 반영한 책 개수 저장 (반올림)
+                int bookCount = (int) Math.round(ratio);
+                currentCounts.put(categoryCode, bookCount);
+                sumOfBooks += bookCount;
+                lastCategory = categoryCode;
+            }
+            //30 30 30 이럴때 3 3 4로 맞추기 위해
+            if (sumOfBooks != totalBooks && lastCategory != null) {
+                int difference = totalBooks - sumOfBooks;
+                currentCounts.put(lastCategory, currentCounts.get(lastCategory) + difference);
+            }
+
+            int totalBooksCnt = 10;
+            List<BookDto> selectedBooks = new ArrayList<>();
+
+            for (BookDto book : booksInCategory) {
+                String categoryCode = book.getCategory();
+                Integer count = currentCounts.get(categoryCode);
+
+                if (count != null && count >= 1) {
+                    selectedBooks.add(book);
+                    count--; // 책 개수 감소
+                    currentCounts.put(categoryCode, count); // 감소된 개수 다시 저장
+                }
+                // 절대적으로 책 자체가 쿼리에서 10개 미만으로 왔을때 고민 중
+              //  int idx=0;
+              //  while (selectedBooks.size() >= totalBooksCnt) {
+              //  }
+            }
+            bookResultDto.setSuccess("fail");
+            bookResultDto.setBooks(selectedBooks);
+            return bookResultDto;
+
+        }
+        catch(Exception e){
+            e.printStackTrace();
+            bookResultDto.setSuccess("fail");
+            return bookResultDto;
+        }
+    }
+    //굳이 두개로 안나눠도 sign으로 해도 되는데 결합도 생각해서 나눠 놨음
+    @Override
+    public BookResultDto CategoryLike(long childId,String Ctegory) {
+        BookResultDto bookResultDto=new BookResultDto();
+        try {
+
+            ChildFavorCategory favorCategory = childFavorCategoryRepository
+                    .findByChild_ChildIdAndCategoryCode(childId, Ctegory)
+                    .orElseThrow(() -> new IllegalArgumentException("해당 카테고리가 존재하지 않습니다."));
+
+            Long TempVal=favorCategory.getChildFavorCategoryWeight();
+            Long newWeight = Math.max(0, Math.min(100, TempVal+10));
+            favorCategory.setChildFavorCategoryWeight(newWeight);
+            childFavorCategoryRepository.save(favorCategory);
+            bookResultDto.setSuccess("success");
+            return bookResultDto;
+        }
+        catch(Exception e){
+            e.printStackTrace();
+            bookResultDto.setSuccess("fail");
+            return bookResultDto;
+        }
+    }
+    @Override
+    public BookResultDto CategoryDisLike(long childId,String Ctegory) {
+        BookResultDto bookResultDto=new BookResultDto();
+        try {
+
+            ChildFavorCategory favorCategory = childFavorCategoryRepository
+                    .findByChild_ChildIdAndCategoryCode(childId, Ctegory)
+                    .orElseThrow(() -> new IllegalArgumentException("해당 카테고리가 존재하지 않습니다."));
+
+            Long TempVal=favorCategory.getChildFavorCategoryWeight();
+            Long newWeight = Math.max(0, Math.min(100, TempVal));
+            favorCategory.setChildFavorCategoryWeight(newWeight);
+            childFavorCategoryRepository.save(favorCategory);
+            bookResultDto.setSuccess("success");
+            return bookResultDto;
+        }
+        catch(Exception e){
+            e.printStackTrace();
+            bookResultDto.setSuccess("fail");
+            return bookResultDto;
+        }
+    }
+
 }

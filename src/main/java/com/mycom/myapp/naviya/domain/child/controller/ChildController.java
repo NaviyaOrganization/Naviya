@@ -1,5 +1,6 @@
 package com.mycom.myapp.naviya.domain.child.controller;
 
+import com.mycom.myapp.naviya.domain.book.dto.BookResultDto;
 import com.mycom.myapp.naviya.domain.child.dto.ChildAddDto;
 import com.mycom.myapp.naviya.domain.child.dto.ChildDto;
 import com.mycom.myapp.naviya.domain.child.dto.ChildResultDto;
@@ -175,4 +176,6 @@ public class ChildController {
     public ChildResultDto updateChild(@RequestBody ChildDto childDto, @RequestBody List<String> categoryCodeList, HttpSession session) {
         return childService.updateChildWithCategories(childDto, categoryCodeList);
     }
+
+
 }

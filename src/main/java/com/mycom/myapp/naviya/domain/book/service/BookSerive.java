@@ -21,5 +21,7 @@ public interface BookSerive {
     BookResultDto LogicDelChildBookLike(long BookId, long ChildId);
     BookResultDto ChildBookDisLike(long BookId, long ChildId,String Type);
     List<BookDto> searchBooks(String searchType, String keyword);
-
+    BookResultDto CategoryList(long childId);
+    BookResultDto CategoryDisLike(long childId,String Ctegorey);
+    BookResultDto CategoryLike(long childId,String Ctegorey);
 }
