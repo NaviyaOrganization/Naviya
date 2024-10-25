@@ -222,8 +222,8 @@
 
 <!-- Sidebar -->
 <div id="sidebar">
-    <a href="#">아이 프로필 변경</a>
-    <a href="#">아이정보 보기</a>
+    <a href="/children/select">아이 프로필 변경</a>
+    <a href="/children/page">아이 정보 수정</a>
     <a href="/userpage">계정보기</a>
     <a href="/ChildRecentReadBook">최근 책 보기</a>
     <a href="/ChildFavorBookList">좋아요 누른 책 보기</a>
@@ -236,7 +236,7 @@
     <h1 class="mb-4">아이들나라</h1>
 
     <!-- Updated Search Form -->
-    <form class="search-form mb-5" action="search.html" method="get">
+    <form class="search-form mb-5" th:action="@{/search}" method="get">
         <div class="input-group">
             <select class="form-select" id="searchType" name="searchType" style="max-width: 120px;">
                 <option value="title">제목</option>
@@ -256,22 +256,32 @@
             <button class="nav-button next" onclick="navigateBooks('popularBooks', 1)"><i class="fas fa-chevron-right"></i></button>
         </div>
     </div>
-
-    <div class="book-section">
-        <h2 class="mb-4">자녀의 성향에 맞는 추천 도서</h2>
-        <div class="book-container">
-            <div id="recommendedBooks" class="book-slider"></div>
-            <button class="nav-button prev" onclick="navigateBooks('recommendedBooks', -1)"><i class="fas fa-chevron-left"></i></button>
-            <button class="nav-button next" onclick="navigateBooks('recommendedBooks', 1)"><i class="fas fa-chevron-right"></i></button>
+    <div id="loggedInSections" style="display: none;">
+        <div class="book-section">
+            <h2 class="mb-4">자녀의 성향에 맞는 추천 도서</h2>
+            <div class="book-container">
+                <div id="recommendedBooks" class="book-slider"></div>
+                <button class="nav-button prev" onclick="navigateBooks('recommendedBooks', -1)"><i class="fas fa-chevron-left"></i></button>
+                <button class="nav-button next" onclick="navigateBooks('recommendedBooks', 1)"><i class="fas fa-chevron-right"></i></button>
+            </div>
         </div>
-    </div>
 
-    <div class="book-section">
-        <h2 class="mb-4">자녀의 성향과 반대되는 추천 도서</h2>
-        <div class="book-container">
-            <div id="oppositeBooks" class="book-slider"></div>
-            <button class="nav-button prev" onclick="navigateBooks('oppositeBooks', -1)"><i class="fas fa-chevron-left"></i></button>
-            <button class="nav-button next" onclick="navigateBooks('oppositeBooks', 1)"><i class="fas fa-chevron-right"></i></button>
+        <div class="book-section">
+            <h2 id="snMessage" class="mb-4">자녀의 성향과 반대되는 추천 도서</h2>
+            <div class="book-container">
+                <div id="oppositeBooks" class="book-slider"></div>
+                <button class="nav-button prev" onclick="navigateBooks('oppositeBooks', -1)"><i class="fas fa-chevron-left"></i></button>
+                <button class="nav-button next" onclick="navigateBooks('oppositeBooks', 1)"><i class="fas fa-chevron-right"></i></button>
+            </div>
+        </div>
+
+        <div class="book-section">
+            <h2 id="tfMessage" class="mb-4">자녀의 성향과 반대되는 추천 도서</h2>
+            <div class="book-container">
+                <div id="tfoppositeBooks" class="book-slider"></div>
+                <button class="nav-button prev" onclick="navigateBooks('tfoppositeBooks', -1)"><i class="fas fa-chevron-left"></i></button>
+                <button class="nav-button next" onclick="navigateBooks('tfoppositeBooks', 1)"><i class="fas fa-chevron-right"></i></button>
+            </div>
         </div>
     </div>
 
@@ -326,34 +336,25 @@
         }
     });
 
-    // // 로그인 상태 확인 및 섹션 표시/숨김 처리
-    // function checkLoginStatus() {
-    //     const loggedInSections = document.getElementById('loggedInSections');
-    //     const isLoggedIn = /* 여기에 로그인 상태 확인 로직 추가 */;
-    //
-    //     if (isLoggedIn) {
-    //         loggedInSections.style.display = 'block';
-    //         fetchRecommendedBooks(1);
-    //     } else {
-    //         loggedInSections.style.display = 'none';
-    //     }
-    // }
-    //
-    // // 페이지 로드 시 실행
-    // window.addEventListener('load', () => {
-    //     checkLoginStatus();
-    //     fetchBooksOrderedByDate(1);
-    //     fetchBookFavorCount(1);
-    // });
+    // 로그인 상태 확인 및 섹션 표시/숨김 처리
+    function checkLoginStatus() {
+        const childId = sessionStorage.getItem('selectedChildId');
 
+        if (childId) {
+            document.getElementById('loggedInSections').style.display = 'block';
+            fetchRecommendedBooks(childId);
+            fetchSNTFRecommendedBooks(childId);
+            fetchBooksOrderedByDate(childId);
+            fetchBookFavorCount(childId);
+        }else {
+            fetchBooksOrderedByDate(1);
+            fetchBookFavorCount(1);
+        }
+    }
 
-    // 페이지 로드 시 추천 도서 가져오기
+    // 페이지 로드 시 실행
     window.addEventListener('load', () => {
-        const childId = sessionStorage.getItem("selectedChildId");
-        fetchRecommendedBooks(1);
-        fetchSNTFRecommendedBooks(1);
-        fetchBooksOrderedByDate(1);
-        fetchBookFavorCount(1);
+        checkLoginStatus()
     });
 
     // 책 슬라이드 기능
@@ -365,6 +366,46 @@
         newBooks: { currentIndex: 0 }
     };
 
+    // function renderBooks(books, containerId) {
+    //     const container = document.getElementById(containerId);
+    //     container.innerHTML = ''; // 기존 내용 제거
+    //
+    //     // 슬라이드의 개수 설정
+    //     const booksPerSlide = 3; // 한 슬라이드에 보여줄 책 개수
+    //     const totalSlides = Math.ceil(books.length / booksPerSlide);
+    //     // 책이 없을 경우 메시지 표시
+    //     if (books.length === 0) {
+    //         const messageDiv = document.createElement('div');
+    //         messageDiv.className = 'no-books-message';
+    //         messageDiv.innerHTML = '<h3>추천할 책이 없습니다.</h3>';
+    //         container.parentElement.appendChild(messageDiv);
+    //         return; // 함수 종료
+    //     }
+    //     for (let i = 0; i < totalSlides; i++) {
+    //         const slideDiv = document.createElement('div');
+    //         slideDiv.classList.add('slide');
+    //
+    //         // 슬라이드에 책 추가
+    //         for (let j = 0; j < booksPerSlide; j++) {
+    //             const bookIndex = i * booksPerSlide + j;
+    //             if (bookIndex >= books.length) break; // 책이 없으면 종료
+    //
+    //             const book = books[bookIndex];
+    //             const bookItem = `
+    //                 <div class="book-item">
+    //                     <img src=/img.png alt="${book.title}">
+    //                     <h3>${book.title}</h3>
+    //                     <p>${book.author}</p>
+    //                     <a href="/Book/detail" class="btn btn-primary btn-sm" onclick="showBookDetails('${book.bookId}', '${containerId}')">자세히 보기</a>
+    //                 </div>
+    //             `;
+    //             slideDiv.innerHTML += bookItem;
+    //         }
+    //
+    //         container.appendChild(slideDiv);
+    //     }
+    //
+    // }
     function renderBooks(books, containerId) {
         const container = document.getElementById(containerId);
         container.innerHTML = ''; // 기존 내용 제거
@@ -372,6 +413,7 @@
         // 슬라이드의 개수 설정
         const booksPerSlide = 3; // 한 슬라이드에 보여줄 책 개수
         const totalSlides = Math.ceil(books.length / booksPerSlide);
+
         // 책이 없을 경우 메시지 표시
         if (books.length === 0) {
             const messageDiv = document.createElement('div');
@@ -380,6 +422,7 @@
             container.parentElement.appendChild(messageDiv);
             return; // 함수 종료
         }
+
         for (let i = 0; i < totalSlides; i++) {
             const slideDiv = document.createElement('div');
             slideDiv.classList.add('slide');
@@ -390,22 +433,58 @@
                 if (bookIndex >= books.length) break; // 책이 없으면 종료
 
                 const book = books[bookIndex];
-                const bookItem = `
-                    <div class="book-item">
-                        <img src=/img.png alt="${book.title}">
-                        <h3>${book.title}</h3>
-                        <p>${book.author}</p>
-                        <a href="#" class="btn btn-primary btn-sm" onclick="showBookDetails('${book.bookId}')">자세히 보기</a>
-                    </div>
-                `;
-                slideDiv.innerHTML += bookItem;
+                const bookItem = document.createElement('div');
+                bookItem.className = 'book-item';
+
+                bookItem.innerHTML = `
+                <img src="/img.png" alt="${book.title}">
+                <h3>${book.title}</h3>
+                <p>${book.author}</p>
+            `;
+
+                const detailButton = document.createElement('a');
+                detailButton.href = '#';
+                detailButton.className = 'btn btn-primary btn-sm';
+                detailButton.textContent = '자세히 보기';
+
+                detailButton.addEventListener('click', function(e) {
+                    e.preventDefault();
+
+                    let type;
+                    if (containerId === 'recommendedBooks') {
+                        type = 'MBTI';
+                    } else if (containerId === 'oppositeBooks' || containerId === 'tfoppositeBooks') {
+                        type = 'REVERSE';
+                    } else {
+                        type = 'NORMAL';
+                    }
+
+                    sessionStorage.setItem('Type', type);
+
+                    // 동적으로 폼 생성
+                    const form = document.createElement('form');
+                    form.method = 'GET';
+                    form.action = '/Book/detail';
+
+                    const input = document.createElement('input');
+                    input.type = 'hidden';
+                    input.name = 'bookId';
+                    input.value = book.bookId;
+
+                    form.appendChild(input);
+                    document.body.appendChild(form);
+
+                    // 폼 제출
+                    form.submit();
+                });
+
+                bookItem.appendChild(detailButton);
+                slideDiv.appendChild(bookItem);
             }
 
             container.appendChild(slideDiv);
         }
-
     }
-
     function navigateBooks(containerId, direction) {
         const container = document.getElementById(containerId);
         const slides = container.getElementsByClassName('slide');
@@ -423,11 +502,16 @@
         container.style.transform = `translateX(${offset}%)`;
     }
 
-    function showBookDetails(bookId) {
-        // 여기에 책 상세 페이지로 이동하는 로직을 구현합니다.
-        // 예를 들어, 다음과 같이 URL을 구성할 수 있습니다:
-        window.location.href = `book-details.html?id=${bookId}`;
-    }
+    // function showBookDetails(bookId, containerId) {
+    //     if (containerId === 'recommendedBooks') {
+    //         type = 'MBTI';
+    //     } else if (containerId === 'oppositeBooks' || containerId === 'tfoppositeBooks') {
+    //         type = 'REVERSE';
+    //     } else {
+    //         type = 'NORMAL';
+    //     }
+    //     sessionStorage.setItem('Type', type);
+    // }
 
     let popularBooks = [];
 
@@ -532,7 +616,6 @@
     // displayBooks 함수 수정
     function displayBooks(sectionId) {
         const books = bookSections[sectionId];
-        console.log(sectionId, books);
         renderBooks(books, sectionId);
     }
 

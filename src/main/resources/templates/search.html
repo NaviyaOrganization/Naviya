@@ -141,13 +141,13 @@
 
 <!-- Sidebar -->
 <div id="sidebar">
-  <a href="#">아이 프로필 변경</a>
-  <a href="#">아이정보 보기</a>
-  <a href="#">계정보기</a>
+  <a href="/children/select">아이 프로필 변경</a>
+  <a href="/children/page">아이 정보 수정</a>
+  <a href="/userpage">계정보기</a>
   <a href="#">최근 책 보기</a>
-  <a href="#">좋아요 누른 책 보기</a>
+  <a href="/ChildFavorBookList.html">좋아요 누른 책 보기</a>
   <a href="#">카테고리 별 책보기</a>
-  <a href="#">선착순 이벤트</a>
+  <a href="/lottery/form">선착순 이벤트</a>
 </div>
 
 <!-- Main Content -->
@@ -189,7 +189,7 @@
     if (sidebar.style.left === '0px') {
       sidebar.style.left = '-250px';
       toggleBtn.classList.remove('toggle-active');
-      mainContent.style.marginLeft = '0'; // Reset margin when sidebar is closed
+      mainContent.style.marginLeft = '150px'; // Reset margin when sidebar is closed
     } else {
       sidebar.style.left = '0px';
       toggleBtn.classList.add('toggle-active');
@@ -263,9 +263,31 @@
       cardPublisher.textContent = `출판사: ${book.publisher}`;
 
       const cardLink = document.createElement('a');
-      cardLink.href = `book-details.html?id=${book.bookId}`; // Use bookId in the link
+      // cardLink.href = `/book.html?id=${book.bookId}`; // Use bookId in the link
+      cardLink.href = '#'; // Use bookId in the link
       cardLink.className = 'btn btn-primary mt-auto'; // Push button to bottom
       cardLink.textContent = '자세히 보기';
+
+      cardLink.addEventListener('click', function(e) {
+        e.preventDefault();
+        sessionStorage.setItem('Type', 'NORMAL');
+
+        // 동적으로 폼 생성
+        const form = document.createElement('form');
+        form.method = 'GET';
+        form.action = '/Book/detail';
+
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'bookId';
+        input.value = book.bookId;
+
+        form.appendChild(input);
+        document.body.appendChild(form);
+
+        // 폼 제출
+        form.submit();
+      });
 
       cardBody.appendChild(cardTitle);
       cardBody.appendChild(cardAuthor);
