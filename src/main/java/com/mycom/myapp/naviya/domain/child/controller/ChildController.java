@@ -141,7 +141,7 @@ public class ChildController {
     }
 
 
-    //     자녀 인적사항 조회
+    // 자녀 인적사항 조회
     @GetMapping("/detailPage/{childId}")
     public String getChildDetail(@PathVariable Long childId, Model model, HttpSession session) {
         String email = (String) session.getAttribute("userEmail");

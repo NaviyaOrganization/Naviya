@@ -12,8 +12,8 @@ public interface ChildService {
     String determineAgeRange(int age); // 나이 측정 -> 범위 설정
     List<Child> getChildrenByUserId(Long userId);
     ChildResultDto addChild(ChildAddDto ChildAddDto);
-    ChildResultDto getChildDetailById(Long childId);
 
+    ChildResultDto getChildDetailById(Long childId);
     ChildResultDto updateChild(ChildDto childDto);
     ChildResultDto updateChildFavCategory(Long childId, List<String> categoryCodeList);
 

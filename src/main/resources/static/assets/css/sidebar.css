@@ -1,0 +1,76 @@
+body {
+    overflow-x: hidden;
+}
+
+/* Navigation Bar styles */
+.navbar {
+    background-color: #47688d;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.navbar-nav .nav-link {
+    color: white !important;
+}
+
+.navbar-nav .nav-link:hover {
+    color: #c4d6e9 !important;
+}
+
+/* Sidebar styles */
+#sidebar {
+    height: 100%;
+    width: 250px;
+    position: fixed;
+    top: 0;
+    left: -250px;
+    background-color: #f7f7f7;
+    color: black;
+    transition: left 0.3s ease;
+    padding-top: 20px;
+    z-index: 1000;
+}
+
+#sidebar a {
+    padding: 15px;
+    text-decoration: none;
+    font-size: 18px;
+    color: black;
+    display: block;
+    transition: background-color 0.2s;
+}
+
+#sidebar a:hover {
+    background-color: #e0e0e0;
+}
+
+#sidebar a:first-child {
+    margin-top: 35px;
+}
+
+/* Toggle Button styles */
+#toggleSidebar {
+    font-size: 24px;
+    cursor: pointer;
+    position: fixed;
+    top: 15px;
+    left: 15px;
+    z-index: 1100;
+    transition: left 0.3s ease;
+    color: white;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+/* Sidebar active state */
+.sidebar-active {
+    left: 0;
+}
+
+/* Toggle button movement when sidebar is active */
+.toggle-active {
+    left: 265px;
+}
+
+#main-content {
+    transition: margin-left 0.3s ease;
+}

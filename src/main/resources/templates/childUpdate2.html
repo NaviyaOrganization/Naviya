@@ -157,11 +157,8 @@
     </div>
   </div>
 </div>
-<script th:inline="javascript">
-  /* 서버에서 전달된 storedInterests 데이터를 JS 배열로 변환 */
-  // const storedInterests = /*[[${childAddDto.childFavCategoryDtoList}]]*/ [];
-  // console.log(storedInterests);
 
+<script>
   // 모달을 열기 위한 함수
   function openImageSelectionModal() {
     const modal = new bootstrap.Modal(document.getElementById('profileImageModal'));
@@ -194,10 +191,7 @@
   ];
 
   // 서버에서 전달된 storedInterests 데이터를 JS 배열로 변환
-  // const storedInterests = JSON.parse(/*[[${childAddDto.childFavCategoryDtoList}]]*/ '[]');
-  const storedInterests = /*[[${childAddDto.childFavCategoryDtoList}]]*/ [];
-
-  console.log(storedInterests);
+  const storedInterests = JSON.parse(/*[[${childAddDto.childFavCategoryDtoList}]]*/ '[]');
 
   function loadProfileData() {
     const storedImage = localStorage.getItem('selectedProfileImage');

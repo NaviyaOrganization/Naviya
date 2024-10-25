@@ -4,8 +4,18 @@
   <meta charset="UTF-8">
   <title>아이 정보 수정</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link href="/assets/css/sidebar.css" rel="stylesheet">
   <style>
+    body { overflow-x: hidden; }
+    .navbar { background-color: #47688d; border-bottom: 1px solid #e0e0e0; }
+    .navbar-nav .nav-link { color: white !important; }
+    .navbar-nav .nav-link:hover { color: #c4d6e9 !important; }
+    #sidebar { height: 100%; width: 250px; position: fixed; top: 0; left: -250px; background-color: #f7f7f7; color: black; transition: left 0.3s ease; padding-top: 20px; z-index: 1000; }
+    #sidebar a { padding: 15px; text-decoration: none; font-size: 18px; color: black; display: block; transition: background-color 0.2s; }
+    #sidebar a:hover { background-color: #e0e0e0; }
+    #sidebar a:first-child { margin-top: 35px; }
+    #toggleSidebar { font-size: 24px; cursor: pointer; position: fixed; top: 15px; left: 15px; z-index: 1100; transition: left 0.3s ease; color: white; padding: 10px; border-radius: 5px; }
+    .sidebar-active { left: 0; }
+    .toggle-active { left: 265px; }
     .profile-picture { width: 100px; height: 100px; border-radius: 50%; background-color: #f0f0f0; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; cursor: pointer; overflow: hidden; }
     .profile-picture img { width: 100%; height: 100%; object-fit: cover; }
     .interest-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; }
@@ -41,11 +51,21 @@
   <a href="#">카테고리 별 책보기</a>
   <a href="/lottery/form">선착순 이벤트</a>
 </div>
-<script src="/assets/js/sidebar.js"></script>
 
-
-
-
+<!-- 스크립트: 사이드바 토글 기능 -->
+<script>
+  document.getElementById('toggleSidebar').addEventListener('click', function() {
+    const sidebar = document.getElementById('sidebar');
+    const toggleBtn = document.getElementById('toggleSidebar');
+    if (sidebar.style.left === '0px') {
+      sidebar.style.left = '-250px';
+      toggleBtn.classList.remove('toggle-active');
+    } else {
+      sidebar.style.left = '0px';
+      toggleBtn.classList.add('toggle-active');
+    }
+  });
+</script>
 
 <div class="container mt-5">
   <div class="row justify-content-center">
@@ -65,19 +85,16 @@
               <div class="mb-3">
                 <label for="name" class="form-label">이름</label>
                 <input type="text" class="form-control" id="name" th:value="${childAddDto.childDto.childName}" required>
-                <input type="hidden" id="childId" th:value="${childAddDto.childDto.childId}">
               </div>
               <div class="mb-3">
                 <label class="form-label">성별</label>
                 <div>
                   <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="radio" name="gender" id="male" value="M"
-                           th:field="*{childAddDto.childDto.childGender}">
+                    <input class="form-check-input" type="radio" name="gender" id="male" value="M" th:checked="${childAddDto.childDto.childGender == 'M'}">
                     <label class="form-check-label" for="male">남</label>
-                  </div>
-                  <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="radio" name="gender" id="female" value="F"
-                           th:field="*{childAddDto.childDto.childGender}">
+                    </div>
+                    <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="gender" id="female" value="F" th:checked="${childAddDto.childDto.childGender == 'F'}">
                     <label class="form-check-label" for="female">여</label>
                   </div>
                 </div>
@@ -94,16 +111,14 @@
               <div class="mb-3">
                 <label class="form-label">관심사 선택 (최대 3개)</label>
                 <div class="interest-grid" id="interestGrid">
-                  <!-- 관심사 항목을 JavaScript에서 추가 -->
+                  <!-- JavaScript will fill this area -->
                 </div>
               </div>
               <div class="text-center">
                 <button type="button" class="btn btn-secondary me-2" onclick="showBasicInfoSection()">이전</button>
-<!--                <button type="submit" class="btn btn-primary">수정하기</button>-->
-                <button type="button" class="btn btn-primary" onclick="updateChild()">수정하기</button>
+                <button type="submit" class="btn btn-primary">수정하기</button>
               </div>
             </div>
-            <input type="hidden" id="selectedProfileId" name="selectedProfileId" value="">
           </form>
         </div>
       </div>
@@ -111,8 +126,43 @@
   </div>
 </div>
 <div class="text-center mt-5">
-  <button type="button" class="btn btn-primary" onclick="deleteChild()">삭제하기</button>
+<button type="button" class="btn btn-primary" onclick="deleteChild()">삭제하기</button>
 </div>
+<script>
+  function deleteChild() {
+    const childId = sessionStorage.getItem('selectedChildId');
+
+    if (confirm("해당 자녀를 삭제하시겠습니까?")) {
+      fetch(`/children/detailPage/delete?childId=${childId}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
+              .then(response => {
+                if (!response.ok) {
+                  return response.text().then(text => {
+                    throw new Error(`Server Error: ${text}`);
+                  });
+                }
+                return response.json(); // JSON 응답이 있을 때 처리
+              })
+              .then(data => {
+                if (data && data.result === 'success') {
+                  alert('Child deleted successfully.');
+                  // 삭제 후 페이지 이동
+                  window.location.href = '/children/page';
+                } else {
+                  alert('Failed to delete child.');
+                }
+              })
+              .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while deleting the child.');
+              });
+    }
+  }
+</script>
 
 <!-- 이미지 선택 모달 -->
 <div class="modal fade" id="profileImageModal" tabindex="-1" aria-labelledby="profileImageModalLabel" aria-hidden="true">
@@ -123,81 +173,57 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
+        <!-- 여기에 프로필 이미지 선택 옵션 추가 -->
         <div class="row">
-          <!-- 정적으로 9개의 이미지 추가 -->
           <div class="col-4 mb-3">
-            <img src="/assets/img/profile1.png" class="img-thumbnail" onclick="selectProfileImage(1)" alt="Profile 1">
+            <img src="/assets/img/profile1.png" class="img-thumbnail" onclick="selectProfileImage('/assets/img/profile1.png')" alt="Profile 1">
           </div>
-          <div class="col-4 mb-3">
-            <img src="/assets/img/profile2.png" class="img-thumbnail" onclick="selectProfileImage(2)" alt="Profile 2">
-          </div>
-          <div class="col-4 mb-3">
-            <img src="/assets/img/profile3.png" class="img-thumbnail" onclick="selectProfileImage(3)" alt="Profile 3">
-          </div>
-          <div class="col-4 mb-3">
-            <img src="/assets/img/profile4.png" class="img-thumbnail" onclick="selectProfileImage(4)" alt="Profile 4">
-          </div>
-          <div class="col-4 mb-3">
-            <img src="/assets/img/profile5.png" class="img-thumbnail" onclick="selectProfileImage(5)" alt="Profile 5">
-          </div>
-          <div class="col-4 mb-3">
-            <img src="/assets/img/profile6.png" class="img-thumbnail" onclick="selectProfileImage(6)" alt="Profile 6">
-          </div>
-          <div class="col-4 mb-3">
-            <img src="/assets/img/profile7.png" class="img-thumbnail" onclick="selectProfileImage(7)" alt="Profile 7">
-          </div>
-          <div class="col-4 mb-3">
-            <img src="/assets/img/profile8.png" class="img-thumbnail" onclick="selectProfileImage(8)" alt="Profile 8">
-          </div>
-          <div class="col-4 mb-3">
-            <img src="/assets/img/profile9.png" class="img-thumbnail" onclick="selectProfileImage(9)" alt="Profile 9">
-          </div>
+          <!-- 다른 이미지 선택 옵션 추가 -->
         </div>
       </div>
     </div>
   </div>
 </div>
-<script th:inline="javascript">
-  /* 서버에서 전달된 storedInterests 데이터를 JS 배열로 변환 */
-  // const storedInterests = /*[[${childAddDto.childFavCategoryDtoList}]]*/ [];
-  // console.log(storedInterests);
 
+<script>
   // 모달을 열기 위한 함수
   function openImageSelectionModal() {
     const modal = new bootstrap.Modal(document.getElementById('profileImageModal'));
     modal.show();
   }
 
-  // 프로필 이미지 선택 시 이미지 ID를 저장
-  function selectProfileImage(profileId) {
-    document.getElementById('profileImage').src = `/assets/img/profile${profileId}.png`;
-    document.getElementById('selectedProfileId').value = profileId;
+  // 프로필 이미지 선택 시 로컬 스토리지에 저장
+  function selectProfileImage(imagePath) {
+    document.getElementById('profileImage').src = imagePath;
+    localStorage.setItem('selectedProfileImage', imagePath);
     const modal = bootstrap.Modal.getInstance(document.getElementById('profileImageModal'));
     modal.hide();
   }
+</script>
 
-  // 기본 정보 섹션의 유효성 검사
-  function validateBasicInfo() {
-    // 기본적으로 true를 반환하여 유효성 검사를 통과시킵니다.
-    return true;
-  }
 
+
+<script th:inline="javascript">
+  var childAddDto = /*[[${childAddDto}]]*/ {};
+  console.log(childAddDto);
+  var thischildId = childAddDto.childDto ? childAddDto.childDto.childId : null;
+  console.log(thischildId);
+
+</script>
+
+<script>
   const categories = [
-    {code: "010", name: "소설"},
-    {code: "020", name: "전래동화"},
-    {code: "030", name: "과학"},
-    {code: "040", name: "수학"},
-    {code: "050", name: "역사"},
-    {code: "060", name: "동물"},
-    {code: "070", name: "문학"},
-    {code: "080", name: "자연"}
+    { code: "010", name: "소설" },
+    { code: "020", name: "전래동화" },
+    { code: "030", name: "과학" },
+    { code: "040", name: "수학" },
+    { code: "050", name: "역사" },
+    { code: "060", name: "동물" },
+    { code: "070", name: "문학" },
+    { code: "080", name: "자연" }
   ];
 
-  // 서버에서 전달된 storedInterests 데이터를 JS 배열로 변환
-  // const storedInterests = JSON.parse(/*[[${childAddDto.childFavCategoryDtoList}]]*/ '[]');
   const storedInterests = /*[[${childAddDto.childFavCategoryDtoList}]]*/ [];
-
-  console.log(storedInterests);
 
   function loadProfileData() {
     const storedImage = localStorage.getItem('selectedProfileImage');
@@ -236,7 +262,6 @@
   }
 
   window.addEventListener('load', loadProfileData);
-
   function showInterestSection() {
     if (validateBasicInfo()) {
       document.getElementById('basicInfoSection').style.display = 'none';
@@ -249,88 +274,58 @@
     document.getElementById('interestSection').style.display = 'none';
   }
 
-  // document.getElementById('childForm').addEventListener('submit', function(e) {
-  //   e.preventDefault(); // 기본 폼 제출 동작을 막음
-  //
-  //   const name = document.getElementById('name').value;
-  //   const gender = document.querySelector('input[name="gender"]:checked').value; // 성별 값 가져오기
-  //   const age = parseInt(document.getElementById('age').value);
-  //   const interests = Array.from(document.querySelectorAll('.interest-item.selected'))
-  //           .map(el => el.dataset.code);
-  //   const selectedProfileId = document.getElementById('selectedProfileId').value;
-  //   const childId = document.getElementById('childId').value; // ID 필드에서 값 가져오기
-  //
-  //   // ChildDto 데이터 구성
-  //   const childDto = {
-  //     childId: childId,
-  //     childName: name,
-  //     childAge: age,
-  //     childGender: gender, // 성별 데이터 추가
-  //     childImage: selectedProfileId, // 이미지 ID 전송
-  //     codeMbti: "" // 필요시 MBTI 코드 설정
-  //   };
-  //
-  //   // 카테고리 정보 구성
-  //   const categoryCodeList = interests;
-  //
-  //   // AJAX 요청 (수정)
-  //   axios.put('/children/detailPage/update', {
-  //     childDto,
-  //     categoryCodeList
-  //   })
-  //           .then(response => {
-  //             alert('Child profile updated successfully.');
-  //             window.location.href = '/children/page'; // 예시로 페이지 이동
-  //           })
-  //           .catch(error => {
-  //             alert('Failed to update child profile.');
-  //             console.error('Error:', error);
-  //           });
-  // });
-
-    function updateChild() {
-    // 기본 폼 동작을 막을 필요 없음 (버튼 클릭으로 직접 실행되기 때문)
-
-    // 필드 값 가져오기
+  function validateBasicInfo() {
     const name = document.getElementById('name').value;
-    const gender = document.querySelector('input[name="gender"]:checked').value; // 성별 값 가져오기
+    const gender = document.querySelector('input[name="gender"]:checked');
+    const age = document.getElementById('age').value;
+
+    if (!name || !gender || !age) {
+      alert('모든 기본 정보를 입력해주세요.');
+      return false;
+    }
+    return true;
+  }
+
+  // 폼 데이터 전송
+  document.getElementById('childForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const name = document.getElementById('name').value;
+    const gender = document.querySelector('input[name="gender"]:checked').value;
     const age = parseInt(document.getElementById('age').value);
     const interests = Array.from(document.querySelectorAll('.interest-item.selected'))
-    .map(el => el.dataset.code);
-    const selectedProfileId = document.getElementById('selectedProfileId').value;
-    const childId = document.getElementById('childId').value; // ID 필드에서 값 가져오기
+            .map(el => el.dataset.code);
+    const profileImage = document.getElementById('profileImage').src.split('/').pop();
 
     // ChildDto 데이터 구성
     const childDto = {
-    childId: childId,
-    childName: name,
-    childAge: age,
-    childGender: gender, // 성별 데이터 추가
-    childImage: selectedProfileId, // 이미지 ID 전송
-    codeMbti: "" // 필요시 MBTI 코드 설정
-  };
+      childId : thischildId,
+      childName: name,
+      childAge: age,
+      childGender: gender,
+      childImage: profileImage,
+      codeMbti: "" // 필요시 MBTI 코드 설정
+    };
 
     // 카테고리 정보 구성
     const categoryCodeList = interests;
 
     // AJAX 요청 (수정)
     axios.put('/children/detailPage/update', {
-    childDto,
-    categoryCodeList
-  })
-    .then(response => {
-    alert('Child profile updated successfully.');
-    window.location.href = '/children/page'; // 예시로 페이지 이동
-  })
-    .catch(error => {
-    alert('Failed to update child profile.');
-    console.error('Error:', error);
+      childDto,
+      categoryCodeList
+    })
+            .then(response => {
+              alert('Child profile updated successfully.');
+              window.location.href = '/children/page'; // 예시로 페이지 이동
+            })
+            .catch(error => {
+              alert('Failed to update child profile.');
+              console.error('Error:', error);
+            });
   });
-  }
 
-
+  window.addEventListener('load', loadProfileData);
 </script>
-
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 </body>
