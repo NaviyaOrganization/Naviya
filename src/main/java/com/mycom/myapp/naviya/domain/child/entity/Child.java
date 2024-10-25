@@ -52,10 +52,7 @@ public class Child {
     @OneToMany(mappedBy = "child", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ChildBookLike> chldBookLikes;
 
-    @OneToOne(mappedBy = "child", cascade = CascadeType.ALL, orphanRemoval = true)
-    private ChildMbti childMbti;
-
-    @OneToMany(mappedBy = "child")
+    @OneToMany(mappedBy = "child", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ChildMbti> childMbti;
 
     @OneToMany(mappedBy = "child", cascade = CascadeType.ALL, orphanRemoval = true)
