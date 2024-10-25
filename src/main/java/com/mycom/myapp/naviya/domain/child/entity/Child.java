@@ -55,6 +55,9 @@ public class Child {
     @OneToOne(mappedBy = "child", cascade = CascadeType.ALL, orphanRemoval = true)
     private ChildMbti childMbti;
 
+    @OneToMany(mappedBy = "child")
+    private List<ChildMbti> childMbti;
+
     @OneToMany(mappedBy = "child", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ChildFavorCategory> childFavorCategories = new ArrayList<>();
 

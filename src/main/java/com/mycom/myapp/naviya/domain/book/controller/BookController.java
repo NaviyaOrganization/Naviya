@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 import static com.mycom.myapp.naviya.global.response.ResponseCode.EXAMPLE_SUCCESS;
 
@@ -55,12 +56,12 @@ public class BookController {
         return bookServiceImpl.detailBook(bookId,childId);
     }
     @GetMapping("/BookLike")
-    public BookResultDto BookLike(@RequestParam long bookId,@RequestParam long childId,String Type)
+    public BookResultDto BookLike(@RequestParam long bookId,@RequestParam long childId, @RequestParam String Type)
     {
         return bookServiceImpl.ChildBookLike(bookId,childId,Type);
     }
     @GetMapping("/BookDisLike")
-    public BookResultDto BookDisLike(@RequestParam long bookId,@RequestParam long childId , String Type)
+    public BookResultDto BookDisLike(@RequestParam long bookId,@RequestParam long childId ,@RequestParam String Type)
     {
         return bookServiceImpl.ChildBookDisLike(bookId,childId,Type);
     }
@@ -87,10 +88,53 @@ public class BookController {
         return ResponseForm.of(EXAMPLE_SUCCESS, books);
     }
 
+    @GetMapping("/snftrecommend")
+    public ResponseForm SNFTRecommendBooks(@RequestParam Long childId) {
+        Map<String, Object> books = mbtiRecommendService.SNFTRecommendBooks(childId);
+        return ResponseForm.of(EXAMPLE_SUCCESS, books);
+    }
+
     @GetMapping("/search")
     public ResponseForm searchBooks(@RequestParam String searchType, String keyword) {
         List<BookDto> books = bookServiceImpl.searchBooks(searchType, keyword);
         return ResponseForm.of(EXAMPLE_SUCCESS, books);
     }
+    //카테고리 리스트
+    @GetMapping("/CategoryList")
+    public BookResultDto BookCategoryLike(@RequestParam long childId) {
+        return bookServiceImpl.CategoryList(childId);
+    }
+    //카테고리 좋아요
+    @GetMapping("/CategoryDisLike")
+    public BookResultDto BookCategoryDisLike(@RequestParam long childId,@RequestParam String Ctegory) {
+        return bookServiceImpl.CategoryDisLike(childId,Ctegory);
+    }
+    //카테고리 싫어요
+    @GetMapping("/CategoryLike")
+    public BookResultDto BookCategoryLike(@RequestParam long childId,@RequestParam String Ctegory) {
+        return bookServiceImpl.CategoryLike(childId,Ctegory);
+    }
 
+    //유성이 요청 ALLbookList에서 child id  나이 고려, 좋아요 싫어요 고려
+    @GetMapping("/ChildAllListBook")
+    public BookResultDto ChildALLListBook(@RequestParam  long childId)
+    {
+        return bookServiceImpl.ChildALLlistBook(childId);
+    }
+    @GetMapping("/NoChildlistBookChildFavor")
+    public BookResultDto NoChildListBookFavorCount()
+    {
+        return bookServiceImpl.NoChildlistBookChildFavor();
+    }
+    @GetMapping("/NoChildListOrderDate")
+    public BookResultDto NoChildListOrderDate()
+    {
+        return bookServiceImpl.NoCHildlistbookOrderByCreateDate();
+    }
+
+    @GetMapping("/BookCategoryOne")
+    public BookResultDto BookCategoryOne(@RequestParam Long childId,@RequestParam String Ctegory)
+    {
+        return bookServiceImpl.BookCategoryOne(childId,Ctegory);
+    }
 }

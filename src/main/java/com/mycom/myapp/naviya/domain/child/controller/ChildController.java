@@ -1,5 +1,10 @@
 package com.mycom.myapp.naviya.domain.child.controller;
 
+import com.mycom.myapp.naviya.domain.book.dto.BookResultDto;
+import com.mycom.myapp.naviya.domain.child.dto.ChildAddDto;
+import com.mycom.myapp.naviya.domain.child.dto.ChildDto;
+import com.mycom.myapp.naviya.domain.child.dto.ChildResultDto;
+import com.mycom.myapp.naviya.domain.child.dto.ChildWithMbtiHistoryDto;
 import com.mycom.myapp.naviya.domain.child.dto.*;
 import com.mycom.myapp.naviya.domain.child.entity.Child;
 import com.mycom.myapp.naviya.domain.child.repository.ChildRepository;
@@ -98,6 +103,7 @@ public class ChildController {
     public String getChildren(Model model, HttpSession session) {
         String email = (String) session.getAttribute("userEmail");
 
+
         User user = userRepository.findByEmail(email);
         Long userId = user.getUserId();
         List<Child> childDto = childService.getChildrenByUserId(userId);
@@ -158,6 +164,7 @@ public class ChildController {
         return "childUpdate";
     }
 
+    // 자녀정보 수정
     @PutMapping("/detailPage/update")
     @ResponseBody
     public ChildResultDto updateChild(@RequestBody ChildUpdateRequestDto childUpdateRequestDto) {

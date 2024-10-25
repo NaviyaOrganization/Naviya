@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>아이들나라</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <style>
+        /* 기존 CSS 스타일 */
+        body {
+            overflow-x: hidden;
+            background-color: #fff9e6;
+            font-family: 'Arial Rounded MT Bold', Arial, sans-serif;
+            margin: 0; /* 기본 여백 제거 */
+        }
+
+        .navbar {
+            background-color: #ffe066;
+            border-radius: 0 0 20px 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .navbar-nav .nav-link {
+            color: #5a4d41 !important;
+            font-size: 1.1rem;
+            margin: 0 10px;
+            border-radius: 20px;
+            padding: 8px 15px;
+        }
+
+        .navbar-nav .nav-link:hover {
+            background-color: #fff3b0;
+            transform: scale(1.05);
+            transition: all 0.3s ease;
+        }
+
+        .category-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 10px; /* 버튼 사이의 간격 */
+            margin: 20px 0; /* 위아래 여백 추가 */
+        }
+
+        .category-button {
+            background-color: #ffe066;
+            border: none;
+            color: #5a4d41;
+            border-radius: 20px;
+            padding: 10px 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .category-button:hover {
+            background-color: #ffd43b;
+            transform: scale(1.05);
+        }
+
+        .book-container {
+            display: flex;
+            flex-direction: column; /* 세로 방향으로 배치 */
+            overflow-y: auto; /* 세로 스크롤 활성화 */
+            max-height: calc(100vh - 56px); /* 네비바 높이를 뺀 최대 높이 설정 */
+            padding: 20px;
+            margin: 0 auto;
+            gap: 20px;
+        }
+
+        .book-item {
+            background-color: white;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+            margin: 10px 0; /* 상하 여백만 추가 */
+            border: none;
+        }
+
+        .book-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+        }
+
+        .book-item img {
+            border-radius: 10px;
+            margin-bottom: 15px;
+            max-height: 200px; /* 이미지 최대 높이 설정 */
+            width: auto;
+        }
+
+        .book-item h3 {
+            font-size: 1.2rem;
+            color: #5a4d41;
+            margin-bottom: 10px;
+        }
+
+        .search-form {
+            background-color: white;
+            padding: 20px;
+            border-radius: 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            margin: 20px auto;
+            max-width: 600px;
+        }
+
+        .search-form select,
+        .search-form input {
+            border-radius: 20px;
+            border: 2px solid #ffe066;
+            padding: 10px 20px;
+        }
+
+        .search-form button {
+            background-color: #ffe066;
+            border: none;
+            color: #5a4d41;
+            border-radius: 20px;
+            padding: 10px 25px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .search-form button:hover {
+            background-color: #ffd43b;
+            transform: scale(1.05);
+        }
+
+        .book-section h2 {
+            background-color: #ffe066;
+            display: inline-block;
+            padding: 10px 25px;
+            border-radius: 25px;
+            margin-bottom: 30px;
+        }
+    </style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-light">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="#">최근 본 책</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link active" aria-current="page" href="/">홈</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<!-- 카테고리 버튼 추가 -->
+<div class="category-buttons">
+    <button class="category-button" onclick="selectCategory('001')">수학</button>
+    <button class="category-button" onclick="selectCategory('002')">과학</button>
+    <button class="category-button" onclick="selectCategory('003')">소설</button>
+    <button class="category-button" onclick="selectCategory('004')">전래동화</button>
+    <button class="category-button" onclick="selectCategory('005')">역사</button>
+    <button class="category-button" onclick="selectCategory('006')">동물</button>
+    <button class="category-button" onclick="selectCategory('007')">문학</button>
+    <button class="category-button" onclick="selectCategory('008')">자연</button>
+</div>
+
+<div id="book-list" class="book-container"></div>
+
+<script>
+    const selectedChildId = sessionStorage.getItem("selectedChildId");
+    window.addEventListener('load', () => {
+        ListFavorBook(selectedChildId,'010');
+        console.log(selectedChildId);
+    });
+
+    async function ListFavorBook(selectedChildId,cateogryId) {
+        try {
+            //const longCategoryId = parseInt(categoryId, 10); // 문자열을 정수로 변환
+            const response = await fetch(`/Book/BookCategoryOne?childId=${selectedChildId}&Ctegory=${cateogryId}`);
+            const data = await response.json();
+            console.log(cateogryId);
+            if (response.ok) {
+                const bookList = document.getElementById("book-list");
+                bookList.innerHTML = '';
+                console.log(data);
+                data.books.forEach(book => {
+                    const bookItem = document.createElement("div");
+                    bookItem.className = "book-item";
+
+                    const img = document.createElement("img");
+                    img.src = book.bookImage;
+                    img.alt = `${book.title}의 표지`;
+
+                    const title = document.createElement("h3");
+                    title.textContent = book.title;
+
+                    const author = document.createElement("p");
+                    author.textContent = `저자: ${book.author}`;
+
+                    const summary = document.createElement("p");
+                    summary.textContent = `${book.summary}`;
+
+                    // 책 정보를 담을 클릭 이벤트 추가
+                    bookItem.addEventListener("click", () => {
+                        sessionStorage.setItem("bookId", book.bookId);
+                        window.location.href = `/book/detail?id=${book.bookId}`;
+                    });
+
+                    bookItem.appendChild(img);
+                    bookItem.appendChild(title);
+                    bookItem.appendChild(author);
+                    bookItem.appendChild(summary);
+                    bookList.appendChild(bookItem);
+                });
+            } else {
+                console.error('Failed to fetch recommended books:', data.message);
+            }
+        } catch (error) {
+            console.error('Error fetching recommended books:', error);
+        }
+    }
+
+    // 카테고리 선택 함수
+    function selectCategory(categoryId) {
+        ListFavorBook(selectedChildId, categoryId); // 변환된 ID를 사용하여 함수 호출
+    }
+</script>
+</body>
+</html>

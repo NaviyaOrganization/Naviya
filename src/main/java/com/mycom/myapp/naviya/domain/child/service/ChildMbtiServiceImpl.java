@@ -9,9 +9,10 @@ import com.mycom.myapp.naviya.domain.child.entity.ChildMbti;
 import com.mycom.myapp.naviya.domain.child.entity.ChildMbtiHistory;
 import com.mycom.myapp.naviya.domain.child.repository.*;
 import com.mycom.myapp.naviya.global.mbti.entity.Mbti;
-import com.mycom.myapp.naviya.global.mbti.service.MbtiDiagnosisDataSchedulerService;
+import com.mycom.myapp.naviya.global.mbti.service.MbtiDiagnosisDataQuartzService;
 import com.mycom.myapp.naviya.global.mbti.repository.MbtiRepository;
 import lombok.AllArgsConstructor;
+import org.quartz.SchedulerException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,7 +37,7 @@ public class ChildMbtiServiceImpl implements ChildMbtiService {
 
     private ChildFavorCategoryRepository childFavorCategoryRepository;
 
-    private MbtiDiagnosisDataSchedulerService mbtiDiagnosisDataSchedulerService;
+    private MbtiDiagnosisDataQuartzService mbtiDiagnosisDataQuartzService;
 
     /**
      * 자녀의 MBTI 성향을 진단하고 저장하는 메서드 (ChildMbti와 ChildMbtiHistory에 저장).
@@ -59,7 +60,6 @@ public class ChildMbtiServiceImpl implements ChildMbtiService {
         // 히스토리 데이터 생성 및 저장
         createChildMbtiHistory(child, scores);
     }
-
     /**
      * 기존 ChildMbti 및 ChildMbtiHistory에서 deletedAt이 null인 데이터를
      * 현재 시점으로부터 30일 뒤로 업데이트하는 메서드.
@@ -69,9 +69,9 @@ public class ChildMbtiServiceImpl implements ChildMbtiService {
     @Transactional
     public void updateDeletedAtForExistingRecords(Child child) {
         // 현재 시간 기준으로 30일 뒤 시간 설정
-//        LocalDateTime futureLocalDateTime = LocalDateTime.now().plusDays(30);
+        // LocalDateTime futureLocalDateTime = LocalDateTime.now().plusDays(30);
         // 현재 시간 기준으로 2분 뒤 시간 설정
-        LocalDateTime futureLocalDateTime = LocalDateTime.now().plusMinutes(2);
+        LocalDateTime futureLocalDateTime = LocalDateTime.now().plusMinutes(1);
 
         // ChildMbti의 deletedAt 업데이트
         childMbtiRepository.updateDeletedAtForChild(child, futureLocalDateTime);
@@ -89,9 +89,13 @@ public class ChildMbtiServiceImpl implements ChildMbtiService {
         childFavorCategoryRepository.updateDeletedAtForChild(child, futureLocalDateTime);
 
         // 스케줄러를 이용하여 30일 뒤에 실제 삭제 수행
-        mbtiDiagnosisDataSchedulerService.scheduleChildDeletion(child, futureLocalDateTime);
+        try {
+            mbtiDiagnosisDataQuartzService.
+                    scheduleChildDeletion(child, futureLocalDateTime);
+        } catch (SchedulerException e) {
+            throw new RuntimeException("Failed to schedule child deletion", e);
+        }
     }
-
 
     /**
      * 새로운 MBTI 데이터를 ChildMbti에 저장하고 자녀의 MBTI 코드를 업데이트하는 메서드.
