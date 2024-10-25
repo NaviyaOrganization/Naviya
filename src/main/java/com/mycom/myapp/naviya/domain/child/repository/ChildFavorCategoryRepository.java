@@ -15,6 +15,8 @@ import java.util.Optional;
 
 public interface ChildFavorCategoryRepository extends JpaRepository<ChildFavorCategory, Long> {
 
+    @Modifying
+    @Transactional
     @Query("DELETE FROM ChildFavorCategory fc WHERE fc.child.childId = :childId")
     void deleteCategoryByChildId(Long childId);
 

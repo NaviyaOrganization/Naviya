@@ -5,6 +5,7 @@ import com.mycom.myapp.naviya.domain.child.dto.ChildAddDto;
 import com.mycom.myapp.naviya.domain.child.dto.ChildDto;
 import com.mycom.myapp.naviya.domain.child.dto.ChildResultDto;
 import com.mycom.myapp.naviya.domain.child.dto.ChildWithMbtiHistoryDto;
+import com.mycom.myapp.naviya.domain.child.dto.*;
 import com.mycom.myapp.naviya.domain.child.entity.Child;
 import com.mycom.myapp.naviya.domain.child.repository.ChildRepository;
 import com.mycom.myapp.naviya.domain.child.service.ChildMbtiService;
@@ -14,6 +15,8 @@ import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -67,6 +70,7 @@ public class ChildController {
         return "diagnosisForm";
     }
 
+    // 자녀 프로필 선택
     @GetMapping("/select")
     public String selectChildPage(HttpSession session, Model model) {
         // 세션에서 사용자 이메일 가져오기
@@ -77,7 +81,7 @@ public class ChildController {
             // 이메일로 사용자 정보를 조회
             User user = userRepository.findByEmail(email);
             // 사용자에게 등록된 자녀 목록 가져오기
-            List<Child> children = childRepository.findByUser_UserId(user.getUserId());
+            List<ChildSelectDto> children = childRepository.findChildSelectDtoListByUserId(user.getUserId());
             model.addAttribute("children", children);
             model.addAttribute("user", user);
         }
@@ -94,7 +98,7 @@ public class ChildController {
     }
 
 
-    // 자녀 프로필 조회
+    // 자녀들 프로필 모두 조회
     @GetMapping("/page")
     public String getChildren(Model model, HttpSession session) {
         String email = (String) session.getAttribute("userEmail");
@@ -111,6 +115,17 @@ public class ChildController {
 
     }
 
+
+    @GetMapping("/addPage")
+    public String childAddPage(HttpSession session, Model model) {
+        // 세션에서 사용자 이메일을 가져옴
+        String email = (String) session.getAttribute("userEmail");
+
+        User user = userRepository.findByEmail(email);
+        model.addAttribute("user", user);
+
+        return "childAdd";
+    }
 
     // 자녀 추가
     @PostMapping("/addPage")
@@ -132,9 +147,9 @@ public class ChildController {
     }
 
 
-    //     자녀 인적사항 조회
-    @GetMapping("/detailPage")
-    public String getChildDetail(@RequestParam("childId") Long childId, Model model, HttpSession session) {
+    // 자녀 인적사항 조회
+    @GetMapping("/detailPage/{childId}")
+    public String getChildDetail(@PathVariable Long childId, Model model, HttpSession session) {
         String email = (String) session.getAttribute("userEmail");
         User user = userRepository.findByEmail(email);  // 이메일로 사용자 정보 조회
         if (user == null) {
@@ -149,33 +164,38 @@ public class ChildController {
         return "childUpdate";
     }
 
-//    // 자녀 인적사항 조회 AJAX
-//    @GetMapping("/detailPage")
-//    @ResponseBody
-//    public ChildResultDto getChildDetail(@RequestParam("childId") Long childId, HttpSession session) {
-//        String email = (String) session.getAttribute("userEmail");
-//        User user = userRepository.findByEmail(email);  // 이메일로 사용자 정보 조회
-//        if (user == null) {
-//            throw new RuntimeException("User not found with email: " + email);
-//        }
-//        Long userId = user.getUserId();
-//
-//
-//        System.out.println("-------------------------");
-//        System.out.println("childId: " + childId);
-//        System.out.println("-------------------------");
-//        ChildResultDto childResultDto = childService.getChildDetailById(childId);
-//        ChildAddDto childAddDto = childResultDto.getChildAddDto();
-//        return childResultDto;
-//    }
-
-
-    // 자녀 정보 수정
+    // 자녀정보 수정
     @PutMapping("/detailPage/update")
     @ResponseBody
-    public ChildResultDto updateChild(@RequestBody ChildDto childDto, @RequestBody List<String> categoryCodeList, HttpSession session) {
-        return childService.updateChildWithCategories(childDto, categoryCodeList);
+    public ChildResultDto updateChild(@RequestBody ChildUpdateRequestDto childUpdateRequestDto) {
+        ChildDto childDto = childUpdateRequestDto.getChildDto();
+        Long childId = childDto.getChildId();
+        List<String> categoryCodeList = childUpdateRequestDto.getCategoryCodeList();
+
+        childService.updateChild(childDto);
+        childService.updateChildFavCategory(childId, categoryCodeList);
+
+        ChildResultDto childResultDto = new ChildResultDto();
+        childResultDto.setResult("success");
+        return childResultDto;
     }
 
-
+    // 자녀 삭제
+    @DeleteMapping("/detailPage/delete")
+    @ResponseBody
+    public ResponseEntity<ChildResultDto> deleteChild(@RequestParam("childId") Long childId) {
+        try {
+            ChildResultDto result = childService.deleteChildById(childId);
+            if ("success".equals(result.getResult())) {
+                return ResponseEntity.ok(result);
+            } else {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+            }
+        } catch (Exception e) {
+            // Log the exception for debugging purposes
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
 }
+
