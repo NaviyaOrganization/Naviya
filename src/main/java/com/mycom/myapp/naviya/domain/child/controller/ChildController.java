@@ -10,6 +10,8 @@ import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -140,8 +142,8 @@ public class ChildController {
 
 
     //     자녀 인적사항 조회
-    @GetMapping("/detailPage")
-    public String getChildDetail(@RequestParam("childId") Long childId, Model model, HttpSession session) {
+    @GetMapping("/detailPage/{childId}")
+    public String getChildDetail(@PathVariable Long childId, Model model, HttpSession session) {
         String email = (String) session.getAttribute("userEmail");
         User user = userRepository.findByEmail(email);  // 이메일로 사용자 정보 조회
         if (user == null) {
@@ -156,10 +158,37 @@ public class ChildController {
         return "childUpdate";
     }
 
-    // 자녀 정보 수정
     @PutMapping("/detailPage/update")
     @ResponseBody
-    public ChildResultDto updateChild(@RequestBody ChildDto childDto, @RequestBody List<String> categoryCodeList, HttpSession session) {
-        return childService.updateChildWithCategories(childDto, categoryCodeList);
+    public ChildResultDto updateChild(@RequestBody ChildUpdateRequestDto childUpdateRequestDto) {
+        ChildDto childDto = childUpdateRequestDto.getChildDto();
+        Long childId = childDto.getChildId();
+        List<String> categoryCodeList = childUpdateRequestDto.getCategoryCodeList();
+
+        childService.updateChild(childDto);
+        childService.updateChildFavCategory(childId, categoryCodeList);
+
+        ChildResultDto childResultDto = new ChildResultDto();
+        childResultDto.setResult("success");
+        return childResultDto;
+    }
+
+    // 자녀 삭제
+    @DeleteMapping("/detailPage/delete")
+    @ResponseBody
+    public ResponseEntity<ChildResultDto> deleteChild(@RequestParam("childId") Long childId) {
+        try {
+            ChildResultDto result = childService.deleteChildById(childId);
+            if ("success".equals(result.getResult())) {
+                return ResponseEntity.ok(result);
+            } else {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+            }
+        } catch (Exception e) {
+            // Log the exception for debugging purposes
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 }
+

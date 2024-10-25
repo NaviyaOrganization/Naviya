@@ -46,16 +46,16 @@ public class Child {
     @Column(name="child_age_range")
     private String ChildAgeRange;
 
-    @OneToMany(mappedBy = "child")
+    @OneToMany(mappedBy = "child", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ChildBookDislike> childBookDislikes;
 
-    @OneToMany(mappedBy = "child")
+    @OneToMany(mappedBy = "child", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ChildBookLike> chldBookLikes;
 
-    @OneToOne(mappedBy = "child")
+    @OneToOne(mappedBy = "child", cascade = CascadeType.ALL, orphanRemoval = true)
     private ChildMbti childMbti;
 
-    @OneToMany(mappedBy = "child")
+    @OneToMany(mappedBy = "child", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ChildFavorCategory> childFavorCategories = new ArrayList<>();
 
 }

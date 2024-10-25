@@ -17,7 +17,5 @@ public interface ChildService {
     ChildResultDto updateChild(ChildDto childDto);
     ChildResultDto updateChildFavCategory(Long childId, List<String> categoryCodeList);
 
-    //update 통합 구현
-    ChildResultDto updateChildWithCategories(ChildDto childDto, List<String> categoryCodeList);
-
+    ChildResultDto deleteChildById(Long childId);
 }

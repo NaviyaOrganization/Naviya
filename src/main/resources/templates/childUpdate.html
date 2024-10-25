@@ -2,163 +2,46 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>아이 추가</title>
+  <title>아이 정보 수정</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
-
-
-    /* Navigation Bar styles */
-    .navbar {
-      background-color: #47688d; /* 밝은 색으로 변경 (흰색) */
-      border-bottom: 1px solid #e0e0e0; /* 아래쪽에 얇은 테두리 추가 */
-    }
-
-    .navbar-nav .nav-link {
-      color: white !important; /* 어두운 색으로 텍스트 변경 */
-    }
-
-    .navbar-nav .nav-link:hover {
-      color: #c4d6e9 !important; /* 파란색으로 변경 (hover 시) */
-    }
-
-    /* Sidebar styles */
-    #sidebar {
-      height: 100%;
-      width: 250px;
-      position: fixed;
-      top: 0;
-      left: -250px; /* 사이드바는 기본적으로 숨김 */
-      background-color: #f7f7f7; /* 연한 회색으로 변경 */
-      color: black;
-      transition: left 0.3s ease; /* 부드러운 전환 효과 */
-      padding-top: 20px;
-      z-index: 1000;
-    }
-
-    #sidebar a {
-      padding: 15px;
-      text-decoration: none;
-      font-size: 18px;
-      color: black;
-      display: block;
-      transition: background-color 0.2s;
-    }
-
-    #sidebar a:hover {
-      background-color: #e0e0e0; /* hover 시 배경색을 밝은 회색으로 변경 */
-    }
-
-    #sidebar a:first-child {
-      margin-top: 35px; /* 필요에 따라 조정 */
-    }
-
-    /* Toggle Button styles */
-    #toggleSidebar {
-      font-size: 24px;
-      cursor: pointer;
-      position: fixed;
-      top: 15px;
-      left: 15px;
-      z-index: 1100; /* 다른 요소 위에 표시 */
-      transition: left 0.3s ease; /* 사이드바에 따라 버튼 이동 */
-      /* background-color: #343a40; 어두운 색으로 설정 */
-      color: white; /* 흰색 텍스트 */
-      padding: 10px; /* 클릭 영역을 위한 패딩 */
-      border-radius: 5px; /* 둥근 모서리 */
-    }
-
-    /* 사이드바 활성 상태 */
-    .sidebar-active {
-      left: 0; /* 사이드바를 표시 */
-    }
-
-    /* 사이드바가 활성 상태일 때 토글 버튼 이동 */
-    .toggle-active {
-      left: 265px; /* 사이드바와 정렬 */
-    }
-
-    /*본문*/
-    .interest-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 15px;
-    }
-    .interest-item {
-      width: 100%;
-      aspect-ratio: 1 / 1;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      transition: background-color 0.3s, color 0.3s;
-      border: 2px solid #007bff;
-      color: #007bff;
-      font-weight: bold;
-    }
-    .interest-item.selected {
-      background-color: #007bff;
-      color: white;
-    }
-    #interestSection {
-      display: none;
-    }
-    .profile-picture {
-      width: 100px;
-      height: 100px;
-      border-radius: 50%;
-      background-color: #f0f0f0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin: 0 auto 20px;
-      cursor: pointer;
-      overflow: hidden;
-    }
-    .profile-picture img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-
-
+    body { overflow-x: hidden; }
+    .navbar { background-color: #47688d; border-bottom: 1px solid #e0e0e0; }
+    .navbar-nav .nav-link { color: white !important; }
+    .navbar-nav .nav-link:hover { color: #c4d6e9 !important; }
+    #sidebar { height: 100%; width: 250px; position: fixed; top: 0; left: -250px; background-color: #f7f7f7; color: black; transition: left 0.3s ease; padding-top: 20px; z-index: 1000; }
+    #sidebar a { padding: 15px; text-decoration: none; font-size: 18px; color: black; display: block; transition: background-color 0.2s; }
+    #sidebar a:hover { background-color: #e0e0e0; }
+    #sidebar a:first-child { margin-top: 35px; }
+    #toggleSidebar { font-size: 24px; cursor: pointer; position: fixed; top: 15px; left: 15px; z-index: 1100; transition: left 0.3s ease; color: white; padding: 10px; border-radius: 5px; }
+    .sidebar-active { left: 0; }
+    .toggle-active { left: 265px; }
+    .profile-picture { width: 100px; height: 100px; border-radius: 50%; background-color: #f0f0f0; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; cursor: pointer; overflow: hidden; }
+    .profile-picture img { width: 100%; height: 100%; object-fit: cover; }
+    .interest-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; }
+    .interest-item { width: 100%; aspect-ratio: 1 / 1; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background-color 0.3s, color 0.3s; border: 2px solid #007bff; color: #007bff; font-weight: bold; }
+    .interest-item.selected { background-color: #007bff; color: white; }
+    #interestSection { display: none; }
   </style>
 </head>
 <body>
-
-<!-- Navigation Bar -->
+<!-- 네비게이션 바 -->
 <nav class="navbar navbar-expand-lg navbar">
   <div class="container-fluid">
-    <!-- Toggle Button -->
     <span id="toggleSidebar" class="navbar-toggler-icon"></span>
-
-    <!-- Right-Side Links -->
     <div class="collapse navbar-collapse justify-content-end">
       <ul class="navbar-nav">
-        <li class="nav-item">
-          <a class="nav-link" href="/">메인페이지</a>
-        </li>
-        <!-- 로그인 상태 확인 -->
-        <li class="nav-item" th:if="${user == null}">
-          <a class="nav-link" href="/login">로그인</a>
-        </li>
-        <li class="nav-item" th:if="${user == null}">
-          <a class="nav-link" href="/signup">회원가입</a>
-        </li>
-        <!-- 로그인한 사용자 정보 -->
-        <li class="nav-item" th:if="${user != null}">
-          <a class="nav-link" th:text="${user.name + '님'}"></a>
-        </li>
-        <li class="nav-item" th:if="${user != null}">
-          <a class="nav-link" href="/logout">로그아웃</a>
-        </li>
+        <li class="nav-item"><a class="nav-link" href="/">메인페이지</a></li>
+        <li class="nav-item" th:if="${user == null}"><a class="nav-link" href="/login">로그인</a></li>
+        <li class="nav-item" th:if="${user == null}"><a class="nav-link" href="/signup">회원가입</a></li>
+        <li class="nav-item" th:if="${user != null}"><a class="nav-link" th:text="${user.name + '님'}"></a></li>
+        <li class="nav-item" th:if="${user != null}"><a class="nav-link" href="/logout">로그아웃</a></li>
       </ul>
     </div>
   </div>
 </nav>
 
-<!-- Sidebar -->
+<!-- 사이드바 -->
 <div id="sidebar">
   <a href="/children/select">아이 프로필 변경</a>
   <a href="/children/page">아이 정보 수정</a>
@@ -169,59 +52,92 @@
   <a href="/lottery/form">선착순 이벤트</a>
 </div>
 
-<!-- JavaScript for sidebar toggle -->
+<!-- 스크립트: 사이드바 토글 기능 -->
 <script>
-  // 사이드바 토글 기능
   document.getElementById('toggleSidebar').addEventListener('click', function() {
     const sidebar = document.getElementById('sidebar');
     const toggleBtn = document.getElementById('toggleSidebar');
-
-    // 사이드바 가시성 전환
     if (sidebar.style.left === '0px') {
-      sidebar.style.left = '-250px'; // 사이드바 숨기기
-      toggleBtn.classList.remove('toggle-active'); // 버튼 원래대로
+      sidebar.style.left = '-250px';
+      toggleBtn.classList.remove('toggle-active');
     } else {
-      sidebar.style.left = '0px'; // 사이드바 보이기
-      toggleBtn.classList.add('toggle-active'); // 버튼 함께 이동
+      sidebar.style.left = '0px';
+      toggleBtn.classList.add('toggle-active');
     }
   });
 </script>
 
-
 <div class="container mt-5">
   <div class="row justify-content-center">
     <div class="col-md-6">
-      <h2 class="text-center mb-4">아이 수정</h2>
+      <h2 class="text-center mb-4">아이 정보 수정</h2>
+      <button type="button" class="btn btn-primary" onclick="deleteChild()">삭제하기</button>
+
+      <script>
+        function deleteChild() {
+          const childId = sessionStorage.getItem('selectedChildId');
+
+          if (confirm("Are you sure you want to delete this child?")) {
+            fetch(`/children/detailPage/delete?childId=${childId}`, {
+              method: 'DELETE',
+              headers: {
+                'Content-Type': 'application/json'
+              }
+            })
+                    .then(response => {
+                      if (!response.ok) {
+                        return response.text().then(text => {
+                          throw new Error(`Server Error: ${text}`);
+                        });
+                      }
+                      return response.json(); // JSON 응답이 있을 때 처리
+                    })
+                    .then(data => {
+                      if (data && data.result === 'success') {
+                        alert('Child deleted successfully.');
+                        // 삭제 후 페이지 이동
+                        window.location.href = '/children/page';
+                      } else {
+                        alert('Failed to delete child.');
+                      }
+                    })
+                    .catch(error => {
+                      console.error('Error:', error);
+                      alert('An error occurred while deleting the child.');
+                    });
+          }
+        }
+      </script>
       <div class="card">
         <div class="card-body">
           <form id="childForm">
             <div id="basicInfoSection">
               <div class="mb-3 text-center">
-                <div class="profile-picture" onclick="location.href='childImageUpdate.html'">
-                  <img id="profileImage" src="/placeholder.svg?height=100&width=100" alt="프로필 사진">
+                <div class="profile-picture" onclick="openImageSelectionModal()">
+                  <img id="profileImage" th:src="@{${childAddDto.childDto.childImage}}" alt="프로필 사진">
                 </div>
                 <p class="mt-2">프로필 사진 선택</p>
               </div>
               <div class="mb-3">
                 <label for="name" class="form-label">이름</label>
-                <input type="text" class="form-control" id="name" required>
+                <input type="text" class="form-control" id="name" th:value="${childAddDto.childDto.childName}" required>
               </div>
               <div class="mb-3">
                 <label class="form-label">성별</label>
                 <div>
                   <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="radio" name="gender" id="male" value="male" required>
+                    <input class="form-check-input" type="radio" name="gender" id="male" value="M" th:checked="${childAddDto.childDto.childGender == 'M'}">
                     <label class="form-check-label" for="male">남</label>
                   </div>
                   <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="radio" name="gender" id="female" value="female" required>
+                    <input class="form-check-input" type="radio" name="gender" id="female" value="F" th:checked="${childAddDto.childDto.childGender == 'F'}">
                     <label class="form-check-label" for="female">여</label>
                   </div>
                 </div>
               </div>
               <div class="mb-3">
                 <label for="age" class="form-label">나이</label>
-                <input type="number" class="form-control" id="age" required>
+                <input type="number" class="form-control" id="age" th:value="${childAddDto.childDto.childAge}" required>
               </div>
               <div class="text-center">
                 <button type="button" class="btn btn-primary" onclick="showInterestSection()">다음</button>
@@ -230,21 +146,13 @@
             <div id="interestSection">
               <div class="mb-3">
                 <label class="form-label">관심사 선택 (최대 3개)</label>
-                <div class="interest-grid">
-                  <div class="interest-item" onclick="toggleInterest(this)">운동</div>
-                  <div class="interest-item" onclick="toggleInterest(this)">음악</div>
-                  <div class="interest-item" onclick="toggleInterest(this)">미술</div>
-                  <div class="interest-item" onclick="toggleInterest(this)">과학</div>
-                  <div class="interest-item" onclick="toggleInterest(this)">독서</div>
-                  <div class="interest-item" onclick="toggleInterest(this)">요리</div>
-                  <div class="interest-item" onclick="toggleInterest(this)">게임</div>
-                  <div class="interest-item" onclick="toggleInterest(this)">여행</div>
-                  <div class="interest-item" onclick="toggleInterest(this)">동물</div>
+                <div class="interest-grid" id="interestGrid">
+                  <!-- JavaScript will fill this area -->
                 </div>
               </div>
               <div class="text-center">
                 <button type="button" class="btn btn-secondary me-2" onclick="showBasicInfoSection()">이전</button>
-                <button type="submit" class="btn btn-primary">등록하기</button>
+                <button type="submit" class="btn btn-primary">수정하기</button>
               </div>
             </div>
           </form>
@@ -253,8 +161,67 @@
     </div>
   </div>
 </div>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
+<script th:inline="javascript">
+
+</script>
+
 <script>
+
+  var childAddDto = /*[[${childAddDto}]]*/ {};
+  console.log(childAddDto);
+  var thischildId = childAddDto.childDto.childId;
+  console.log(thischildId)
+
+  const categories = [
+    { code: "010", name: "소설" },
+    { code: "020", name: "전래동화" },
+    { code: "030", name: "과학" },
+    { code: "040", name: "수학" },
+    { code: "050", name: "역사" },
+    { code: "060", name: "동물" },
+    { code: "070", name: "문학" },
+    { code: "080", name: "자연" }
+  ];
+
+  const storedInterests = /*[[${childAddDto.childFavCategoryDtoList}]]*/ [];
+
+  function loadProfileData() {
+    const storedImage = localStorage.getItem('selectedProfileImage');
+    if (storedImage) {
+      document.getElementById('profileImage').src = storedImage;
+    }
+    renderInterests();
+  }
+
+  function renderInterests() {
+    const interestGrid = document.getElementById('interestGrid');
+    interestGrid.innerHTML = '';
+
+    categories.forEach(category => {
+      const interestItem = document.createElement('div');
+      interestItem.className = 'interest-item';
+      interestItem.textContent = category.name;
+      interestItem.dataset.code = category.code;
+      interestItem.onclick = () => toggleInterest(interestItem);
+
+      if (storedInterests.some(favCategory => favCategory.categoryCode === category.code)) {
+        interestItem.classList.add('selected');
+      }
+
+      interestGrid.appendChild(interestItem);
+    });
+  }
+
+  function toggleInterest(element) {
+    const selectedInterests = document.querySelectorAll('.interest-item.selected');
+    if (!element.classList.contains('selected') && selectedInterests.length >= 3) {
+      alert('최대 3개까지만 선택할 수 있습니다.');
+      return;
+    }
+    element.classList.toggle('selected');
+  }
+
   function showInterestSection() {
     if (validateBasicInfo()) {
       document.getElementById('basicInfoSection').style.display = 'none';
@@ -279,36 +246,47 @@
     return true;
   }
 
-  function toggleInterest(element) {
-    const selectedInterests = document.querySelectorAll('.interest-item.selected');
-    if (!element.classList.contains('selected') && selectedInterests.length >= 3) {
-      alert('최대 3개까지만 선택할 수 있습니다.');
-      return;
-    }
-    element.classList.toggle('selected');
-  }
-
+  // 폼 데이터 전송
   document.getElementById('childForm').addEventListener('submit', function(e) {
     e.preventDefault();
     const name = document.getElementById('name').value;
     const gender = document.querySelector('input[name="gender"]:checked').value;
-    const age = document.getElementById('age').value;
-    const interests = Array.from(document.querySelectorAll('.interest-item.selected')).map(el => el.textContent);
-    const profileImage = document.getElementById('profileImage').src;
+    const age = parseInt(document.getElementById('age').value);
+    const interests = Array.from(document.querySelectorAll('.interest-item.selected'))
+            .map(el => el.dataset.code);
+    const profileImage = document.getElementById('profileImage').src.split('/').pop();
 
-    console.log({ name, gender, age, interests, profileImage });
-    alert('프로필이 등록되었습니다.');
-    // Here you would typically send this data to your backend
+    // ChildDto 데이터 구성
+    const childDto = {
+      childId : thischildId,
+      childName: name,
+      childAge: age,
+      childGender: gender,
+      childImage: profileImage,
+      codeMbti: "" // 필요시 MBTI 코드 설정
+    };
+
+    // 카테고리 정보 구성
+    const categoryCodeList = interests;
+
+    // AJAX 요청 (수정)
+    axios.put('/children/detailPage/update', {
+      childDto,
+      categoryCodeList
+    })
+            .then(response => {
+              alert('Child profile updated successfully.');
+              window.location.href = '/children/page'; // 예시로 페이지 이동
+            })
+            .catch(error => {
+              alert('Failed to update child profile.');
+              console.error('Error:', error);
+            });
   });
 
-  // Check if a profile image was selected
-  window.addEventListener('load', function() {
-    const selectedImage = localStorage.getItem('selectedProfileImage');
-    if (selectedImage) {
-      document.getElementById('profileImage').src = selectedImage;
-      localStorage.removeItem('selectedProfileImage');
-    }
-  });
+  window.addEventListener('load', loadProfileData);
 </script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 </body>
 </html>
