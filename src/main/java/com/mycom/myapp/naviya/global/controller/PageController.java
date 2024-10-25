@@ -10,8 +10,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
-import java.util.List;
-
 @Controller
 @RequiredArgsConstructor
 public class PageController {
@@ -69,4 +67,36 @@ public class PageController {
         return "childAdd";
     }
 
+
+    @GetMapping("/ChildFavorBookList")
+    public String ChildFavorBookListChildFavorBookList(HttpSession session, Model model) {
+        // 세션에서 사용자 이메일을 가져옴
+        String email = (String) session.getAttribute("userEmail");
+
+        User user = userRepository.findByEmail(email);
+        model.addAttribute("user", user);
+
+        return "BookCategoryHtml";
+    }
+    @GetMapping("/ChildRecentReadBook")
+    public String   ChildRecentReadBook(HttpSession session, Model model) {
+        // 세션에서 사용자 이메일을 가져옴
+        String email = (String) session.getAttribute("userEmail");
+
+        User user = userRepository.findByEmail(email);
+        model.addAttribute("user", user);
+
+        return "ChildRecentReadBook";
+    }
+    @GetMapping("/BookCategoryHtml")
+    public String   BookCategory(HttpSession session, Model model) {
+        // 세션에서 사용자 이메일을 가져옴
+        String email = (String) session.getAttribute("userEmail");
+
+        User user = userRepository.findByEmail(email);
+        model.addAttribute("user", user);
+
+        return "BookCategoryHtml";
+    }
 }
+

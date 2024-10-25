@@ -1,7 +1,9 @@
 package com.mycom.myapp.naviya.domain.child.repository;
 
+
 import com.mycom.myapp.naviya.domain.child.entity.Child;
 import com.mycom.myapp.naviya.domain.child.entity.ChildMbti;
+import com.mycom.myapp.naviya.global.mbti.Dto.MbtiDto;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -31,6 +33,8 @@ public interface ChildMbtiRepository extends JpaRepository<ChildMbti, Long> {
     @Query("DELETE FROM ChildMbti c WHERE c.child.childId = :childId AND c.deletedAt = :deleteAt")
     void deleteByChildIdAndDeletedAt(Long childId, LocalDateTime deleteAt);
 
-
-
+    @Query("SELECT new com.mycom.myapp.naviya.global.mbti.Dto.MbtiDto(c.mbti.mbtiId, c.mbti.eiType, c.mbti.snType, c.mbti.tfType, c.mbti.jpType) " +
+            "FROM ChildMbti c " +
+            "WHERE c.child.childId = :childId AND c.deletedAt IS NULL")
+    List<MbtiDto> findActiveMbtiScoresByChildId(@Param("childId") Long childId);
 }
