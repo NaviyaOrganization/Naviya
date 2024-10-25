@@ -49,8 +49,8 @@ public class Child {
     @OneToMany(mappedBy = "child")
     private List<ChildBookLike> chldBookLikes;
 
-    @OneToOne(mappedBy = "child")
-    private ChildMbti childMbti;
+    @OneToMany(mappedBy = "child")
+    private List<ChildMbti> childMbti;
 
     @Column(name="child_age_range")
     private String ChildAgeRange;

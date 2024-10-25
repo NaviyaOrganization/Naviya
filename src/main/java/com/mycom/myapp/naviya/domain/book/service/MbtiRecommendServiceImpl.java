@@ -1,10 +1,10 @@
 package com.mycom.myapp.naviya.domain.book.service;
 
 import com.mycom.myapp.naviya.domain.book.dto.BookFavorTotalDto;
-import com.mycom.myapp.naviya.domain.book.dto.BookResultDto;
 import com.mycom.myapp.naviya.domain.book.dto.BookDto;
 import com.mycom.myapp.naviya.domain.book.repository.BookRepository;
 import com.mycom.myapp.naviya.domain.child.entity.Child;
+import com.mycom.myapp.naviya.domain.child.entity.ChildMbti;
 import com.mycom.myapp.naviya.domain.child.repository.ChildRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -21,15 +21,27 @@ public class MbtiRecommendServiceImpl implements MbtiRecommendService {
     private final BookRepository bookRepository;
     private final ChildRepository childRepository;
 
+    //나중에 예외처리 빠꾸 예외처리 해줘야함
     public int calculateWeightedScore(Child child, BookDto book) {
         int score = 0;
         int[] childMbti = new int[4];
+        List<ChildMbti> childMbtis= child.getChildMbti();
+        ChildMbti childMbti_val =new ChildMbti();
+        for( ChildMbti childMbti_Temp : childMbtis)
+        {
+            if(childMbti_Temp.getDeletedAt()==null)
+            {
+                childMbti_val=childMbti_Temp;
+                break;
+            }
+        }
+
 
         if (child.getChildMbti() != null) {
-            childMbti[0] = child.getChildMbti().getMbti().getEiType();
-            childMbti[1] = child.getChildMbti().getMbti().getSnType();
-            childMbti[2] = child.getChildMbti().getMbti().getTfType();
-            childMbti[3] = child.getChildMbti().getMbti().getJpType();
+            childMbti[0] = childMbti_val.getMbti().getEiType();
+            childMbti[1] = childMbti_val.getMbti().getSnType();
+            childMbti[2] =childMbti_val.getMbti().getTfType();
+            childMbti[3] =childMbti_val.getMbti().getJpType();
         } else {
             childMbti[0] = 0;
             childMbti[1] = 0;
@@ -95,13 +107,26 @@ public class MbtiRecommendServiceImpl implements MbtiRecommendService {
     public Map<String,Object> SNFTRecommendBooks(Long childId) {
         Child child = childRepository.findById(childId)
                 .orElseThrow(() -> new IllegalArgumentException("자식을 찾을 수 없습니다."));
+        int score = 0;
+        int[] childMbti = new int[4];
+        List<ChildMbti> childMbtis= child.getChildMbti();
+        ChildMbti childMbti_val =new ChildMbti();
+        for( ChildMbti childMbti_Temp : childMbtis)
+        {
+            if(childMbti_Temp.getDeletedAt()==null)
+            {
+                childMbti_val=childMbti_Temp;
+                break;
+            }
+        }
+
 
         List<BookDto> books = bookRepository.findAllBookDto();  // 자녀 연령 필터링 및 좋아요/싫어요 고려하여 가져오기
         List<BookDto> SNrecommendedBooks = new ArrayList<>();
         List<BookDto> FTrecommendedBooks = new ArrayList<>();
 
-        int childSnType = child.getChildMbti().getMbti().getSnType();  // S/N 성향
-        int childTfType = child.getChildMbti().getMbti().getTfType();  // T/F 성향
+        int childSnType = childMbti_val.getMbti().getSnType();  // S/N 성향
+        int childTfType = childMbti_val.getMbti().getTfType();  // T/F 성향
 
         for (BookDto bookDto : books) {
             int bookSnType = bookDto.getBookMbti().getSnType();  // 책의 S/N 성향

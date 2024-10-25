@@ -56,12 +56,12 @@ public class BookController {
         return bookServiceImpl.detailBook(bookId,childId);
     }
     @GetMapping("/BookLike")
-    public BookResultDto BookLike(@RequestParam long bookId,@RequestParam long childId,String Type)
+    public BookResultDto BookLike(@RequestParam long bookId,@RequestParam long childId, @RequestParam String Type)
     {
         return bookServiceImpl.ChildBookLike(bookId,childId,Type);
     }
     @GetMapping("/BookDisLike")
-    public BookResultDto BookDisLike(@RequestParam long bookId,@RequestParam long childId , String Type)
+    public BookResultDto BookDisLike(@RequestParam long bookId,@RequestParam long childId ,@RequestParam String Type)
     {
         return bookServiceImpl.ChildBookDisLike(bookId,childId,Type);
     }
@@ -115,5 +115,26 @@ public class BookController {
         return bookServiceImpl.CategoryLike(childId,Ctegory);
     }
 
+    //유성이 요청 ALLbookList에서 child id  나이 고려, 좋아요 싫어요 고려
+    @GetMapping("/ChildAllListBook")
+    public BookResultDto ChildALLListBook(@RequestParam  long childId)
+    {
+        return bookServiceImpl.ChildALLlistBook(childId);
+    }
+    @GetMapping("/NoChildlistBookChildFavor")
+    public BookResultDto NoChildListBookFavorCount()
+    {
+        return bookServiceImpl.NoChildlistBookChildFavor();
+    }
+    @GetMapping("/NoChildListOrderDate")
+    public BookResultDto NoChildListOrderDate()
+    {
+        return bookServiceImpl.NoCHildlistbookOrderByCreateDate();
+    }
 
+    @GetMapping("/BookCategoryOne")
+    public BookResultDto BookCategoryOne(@RequestParam Long childId,@RequestParam String Ctegory)
+    {
+        return bookServiceImpl.BookCategoryOne(childId,Ctegory);
+    }
 }

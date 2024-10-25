@@ -7,7 +7,6 @@ import com.mycom.myapp.naviya.domain.book.entity.BookMbti;
 import com.mycom.myapp.naviya.domain.book.repository.BookFavorTotalRepository;
 import com.mycom.myapp.naviya.domain.book.repository.BookMbtiRepository;
 import com.mycom.myapp.naviya.domain.book.repository.BookRepository;
-import com.mycom.myapp.naviya.domain.child.dto.ChildDto;
 import com.mycom.myapp.naviya.domain.child.dto.ChildFavCategoryDto;
 import com.mycom.myapp.naviya.domain.child.entity.*;
 import com.mycom.myapp.naviya.domain.child.repository.*;
@@ -21,8 +20,6 @@ import org.springframework.stereotype.Service;
 import java.sql.Timestamp;
 import java.util.*;
 import java.util.stream.Collectors;
-
-import static java.lang.constant.ConstantDescs.NULL;
 
 @Service
 @RequiredArgsConstructor
@@ -96,6 +93,21 @@ public class BookServiceImpl implements BookSerive {
             return bookResultDto;
         }
     }
+    @Override
+    public BookResultDto ChildALLlistBook(Long childId) {
+        BookResultDto bookResultDto=new BookResultDto();
+        try{
+            List<BookDto> bookDto = bookRepository.ChildAgefindAllBookDto(childId);
+            bookResultDto.setBooks(bookDto);  // Book 리스트를 BookResultDto에 설정
+            bookResultDto.setSuccess("success");
+            return bookResultDto;
+        }
+        catch(Exception e){
+            e.printStackTrace();
+            bookResultDto.setSuccess("fail");
+            return bookResultDto;
+        }
+    }
 
     @Override
     public BookResultDto updateBook(BookDto bookDto) {
@@ -122,7 +134,21 @@ public class BookServiceImpl implements BookSerive {
             return bookResultDto;
         }
     }
-
+    @Override
+    public BookResultDto NoCHildlistbookOrderByCreateDate() {
+        BookResultDto bookResultDto=new BookResultDto();
+        try{
+            List<BookDto> bookDto = bookRepository.NoChildfindBookDtoDescCreateDate();
+            bookResultDto.setBooks(bookDto);  // Book 리스트를 BookResultDto에 설정
+            bookResultDto.setSuccess("success");
+            return bookResultDto;
+        }
+        catch(Exception e){
+            e.printStackTrace();
+            bookResultDto.setSuccess("fail");
+            return bookResultDto;
+        }
+    }
     @Override
     public BookResultDto listBookChildFavor(long ChildId) {
         BookResultDto bookResultDto=new BookResultDto();
@@ -138,6 +164,22 @@ public class BookServiceImpl implements BookSerive {
             return bookResultDto;
         }
     }
+    @Override
+    public BookResultDto NoChildlistBookChildFavor() {
+        BookResultDto bookResultDto=new BookResultDto();
+        try{
+            List<BookDto> bookDto = bookRepository.NoChildfindBookDescBookFavorCount();
+            bookResultDto.setBooks(bookDto);
+            bookResultDto.setSuccess("success");
+            return bookResultDto;
+        }
+        catch(Exception e){
+            e.printStackTrace();
+            bookResultDto.setSuccess("fail");
+            return bookResultDto;
+        }
+    }
+
 
     @Override
     public BookResultDto listBookFavorCount(long childId) {
@@ -203,16 +245,27 @@ public class BookServiceImpl implements BookSerive {
                 bookResultDto.setSuccess("fail2");
                 return bookResultDto;
             }
-            ChildMbti childMbti = child1.getChildMbti();
-            if (childMbti == null) {
+
+
+            List<ChildMbti> childMbtis= child1.getChildMbti();
+            ChildMbti childMbti_val =new ChildMbti();
+            int flag=0;
+
+            for( ChildMbti childMbti_Temp : childMbtis)
+            {
+                if(childMbti_Temp.getDeletedAt()==null)
+                {
+                    childMbti_val=childMbti_Temp;
+                    flag=1;
+                    break;
+                }
+            }
+            if (flag==0) {
                 bookResultDto.setSuccess("fail3");
                 return bookResultDto;
             }
-            //bookFavorTotalRepository.incrementCountIfNotLiked(ChildId, BookId);
 
-            //원본
-            //상대편에 싫어요 있으면 빼주기
-            childBookDisLikeRepository.deleteByChild_ChildIdAndBook_BookId(ChildId, BookId);
+
             //일대다여서 확인해야함
             //좋아요 토탈 카운트 올려주기 && 이미 deldate없는 좋아요는 올려주지 않기
             if(!childBookLikeRepository.existsByChildIdAndBookIdAndDelDateIsNull(ChildId, BookId)) {
@@ -226,9 +279,9 @@ public class BookServiceImpl implements BookSerive {
             }
 
             BookMbti bookMbti = book1.getBookMbti();
-            Mbti book2Mbti=new Mbti();
-            book2Mbti=bookMbti.getMbti();
-            Mbti mbti = childMbti.getMbti();
+            Mbti book2Mbti=bookMbti.getMbti();
+            Mbti mbti=childMbti_val.getMbti();
+
             int EI;
             int SN;
             int TF;
@@ -268,7 +321,7 @@ public class BookServiceImpl implements BookSerive {
             mbti.setSnType(SN);
             mbti.setTfType(TF);
             mbti.setJpType(JP);
-
+            mbtiRepository.save(mbti);
             bookResultDto.setSuccess("success");
             return bookResultDto;
         }
@@ -308,19 +361,29 @@ public class BookServiceImpl implements BookSerive {
                 bookResultDto.setSuccess("fail2");
                 return bookResultDto;
             }
-            ChildMbti childMbti = child1.getChildMbti();
-            if (childMbti == null) {
+            List<ChildMbti> childMbtis= child1.getChildMbti();
+            ChildMbti childMbti_val =new ChildMbti();
+            int flag=0;
+
+            for( ChildMbti childMbti_Temp : childMbtis)
+            {
+                if(childMbti_Temp.getDeletedAt()==null)
+                {
+                    childMbti_val=childMbti_Temp;
+                    flag=1;
+                    break;
+                }
+            }
+            if (flag==0) {
                 bookResultDto.setSuccess("fail3");
                 return bookResultDto;
             }
-            //상대편에 좋아요 있으면 빼주기
+            Mbti mbti = childMbti_val.getMbti();
             childBookLikeRepository.deleteByChildIdAndBookIdAndDelDateIsNull(ChildId, BookId);
-            //상대편 토탈 좋아요 카운트 내려야함
             bookFavorTotalRepository.decrementCountByBookId(BookId);
             BookMbti bookMbti = book1.getBookMbti();
-            Mbti book2Mbti=new Mbti();
-            book2Mbti=bookMbti.getMbti();
-            Mbti mbti = childMbti.getMbti();
+            Mbti book2Mbti=bookMbti.getMbti();
+
             int EI;
             int SN;
             int TF;
@@ -565,5 +628,19 @@ public class BookServiceImpl implements BookSerive {
             return bookResultDto;
         }
     }
-
+    @Override
+    public BookResultDto BookCategoryOne(long childId,String categoryId) {
+        BookResultDto bookResultDto=new BookResultDto();
+        try{
+            List<BookDto> bookDto = bookRepository.findBookDtoOneCateogory(categoryId,childId);
+            bookResultDto.setBooks(bookDto);  // Book 리스트를 BookResultDto에 설정
+            bookResultDto.setSuccess("success");
+            return bookResultDto;
+        }
+        catch(Exception e){
+            e.printStackTrace();
+            bookResultDto.setSuccess("fail");
+            return bookResultDto;
+        }
+    }
 }
