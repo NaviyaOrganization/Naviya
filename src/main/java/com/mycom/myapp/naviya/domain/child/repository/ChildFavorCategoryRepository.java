@@ -1,5 +1,6 @@
 package com.mycom.myapp.naviya.domain.child.repository;
 
+import com.mycom.myapp.naviya.domain.child.dto.ChildFavCategoryDto;
 import com.mycom.myapp.naviya.domain.child.entity.Child;
 import com.mycom.myapp.naviya.domain.child.entity.ChildFavorCategory;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -9,9 +10,13 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
 
 public interface ChildFavorCategoryRepository extends JpaRepository<ChildFavorCategory, Long> {
 
+    @Modifying
+    @Transactional
     @Query("DELETE FROM ChildFavorCategory fc WHERE fc.child.childId = :childId")
     void deleteCategoryByChildId(Long childId);
 
@@ -22,7 +27,15 @@ public interface ChildFavorCategoryRepository extends JpaRepository<ChildFavorCa
 
     @Transactional
     @Modifying
-    @Query("DELETE FROM ChildFavorCategory cfc WHERE cfc.child = :child AND cfc.deletedAt = :deleteAt")
-    void deleteByChildAndDeletedAt(Child child, LocalDateTime deleteAt);
+    @Query("DELETE FROM ChildFavorCategory cfc WHERE cfc.child.childId = :childId AND cfc.deletedAt = :deleteAt")
+    void deleteByChildIdAndDeletedAt(Long childId, LocalDateTime deleteAt);
+
+
+    @Query("SELECT new com.mycom.myapp.naviya.domain.child.dto.ChildFavCategoryDto(c.childId, cfc.categoryCode, cfc.childFavorCategoryWeight) " +
+            "FROM ChildFavorCategory cfc " +
+            "JOIN cfc.child c " +
+            "WHERE c.childId = :childId")
+    List<ChildFavCategoryDto> findFavCategoriesByChildId(@Param("childId") Long childId);
+    Optional<ChildFavorCategory> findByChild_ChildIdAndCategoryCode(Long childId, String categoryCode);
 
 }

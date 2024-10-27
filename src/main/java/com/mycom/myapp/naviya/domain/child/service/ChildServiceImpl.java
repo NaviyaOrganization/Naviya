@@ -142,7 +142,11 @@ public class ChildServiceImpl implements ChildService {
     public ChildResultDto updateChild(ChildDto childDto) {
         ChildResultDto childResultDto = new ChildResultDto();
         try {
-            Child child = new Child();
+            // 기존 자녀 정보 조회
+            Child child = childRepository.findById(childDto.getChildId())
+                    .orElseThrow(() -> new RuntimeException("Child not found with ID: " + childDto.getChildId()));
+
+            // 자녀 정보 업데이트
             child.setChildName(childDto.getChildName());
             child.setChildAge(childDto.getChildAge());
             child.setChildGender(childDto.getChildGender());
@@ -151,15 +155,14 @@ public class ChildServiceImpl implements ChildService {
             child.setUpdatedAt(LocalDateTime.now());
             child.setChildAgeRange(determineAgeRange(childDto.getChildAge())); // 나이 범위 설정
 
+            // 변경 사항 저장
             childRepository.save(child);
             childResultDto.setResult("success");
 
-        }catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
             childResultDto.setResult("자녀 인적사항 수정 실패");
         }
-
-
         return childResultDto;
     }
 
@@ -183,7 +186,7 @@ public class ChildServiceImpl implements ChildService {
                         ChildFavorCategory favorCategory = new ChildFavorCategory();
                         favorCategory.setChild(child);
                         favorCategory.setCategoryCode(categoryCode);
-                        favorCategory.setChildFavorCategoryWeight(10L); // 초기 가중치 설정
+                        favorCategory.setChildFavorCategoryWeight(50L); // 초기 가중치 설정
                         return favorCategory;
                     })
                     .collect(Collectors.toList());
@@ -202,17 +205,23 @@ public class ChildServiceImpl implements ChildService {
     }
 
     @Override
-    public ChildResultDto updateChildWithCategories(ChildDto childDto, List<String> categoryCodeList) {
-        // 자녀 정보 업데이트
-        ChildResultDto childResultDto = updateChild(childDto);
+    public ChildResultDto deleteChildById(Long childId) {
+        ChildResultDto childResultDto = new ChildResultDto();
 
-        // 자녀의 선호 카테고리 정보 업데이트
-        Long childId = childDto.getChildId();
-        updateChildFavCategory(childId, categoryCodeList);
+        try {
+            // 자식 엔티티 삭제
+            childFavorCategoryRepository.deleteCategoryByChildId(childId);
 
-        childResultDto.setResult("success");
+            // 부모 엔티티 삭제
+            childRepository.deleteById(childId);
+
+            childResultDto.setResult("success");
+        } catch (Exception e) {
+            e.printStackTrace();
+            childResultDto.setResult("delete fail");
+        }
 
         return childResultDto;
     }
-
 }
+

@@ -30,10 +30,10 @@ public class Mbti {
     @Column(name = "jp_type")
     private int jpType;
 
-    @OneToOne(mappedBy = "mbti")
+    @OneToOne(mappedBy = "mbti", fetch = FetchType.LAZY)
     private ChildMbti childMbtis;
 
-    @OneToOne(mappedBy = "mbti")
+    @OneToOne(mappedBy = "mbti",  fetch = FetchType.LAZY)
     private BookMbti bookMbti;
 
     // Getters and Setters

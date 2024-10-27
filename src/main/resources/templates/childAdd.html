@@ -5,75 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>아이 추가</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="/assets/css/sidebar.css" rel="stylesheet">
   <style>
-    body {
-      overflow-x: hidden;
-    }
-
-    .navbar {
-      background-color: #47688d;
-      border-bottom: 1px solid #e0e0e0;
-    }
-
-    .navbar-nav .nav-link {
-      color: white !important;
-    }
-
-    .navbar-nav .nav-link:hover {
-      color: #c4d6e9 !important;
-    }
-
-    #sidebar {
-      height: 100%;
-      width: 250px;
-      position: fixed;
-      top: 0;
-      left: -250px;
-      background-color: #f7f7f7;
-      color: black;
-      transition: left 0.3s ease;
-      padding-top: 20px;
-      z-index: 1000;
-    }
-
-    #sidebar a {
-      padding: 15px;
-      text-decoration: none;
-      font-size: 18px;
-      color: black;
-      display: block;
-      transition: background-color 0.2s;
-    }
-
-    #sidebar a:hover {
-      background-color: #e0e0e0;
-    }
-
-    #toggleSidebar {
-      font-size: 24px;
-      cursor: pointer;
-      position: fixed;
-      top: 15px;
-      left: 15px;
-      z-index: 1100;
-      transition: left 0.3s ease;
-      color: white;
-      padding: 10px;
-      border-radius: 5px;
-    }
-
-    .sidebar-active {
-      left: 0;
-    }
-
-    .toggle-active {
-      left: 265px;
-    }
-
-    #main-content {
-      transition: margin-left 0.3s ease;
-    }
-
     .interest-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
@@ -121,12 +54,34 @@
       height: 100%;
       object-fit: cover;
     }
+
+    .profile-picture img:hover {
+      transform: scale(1.1); /* 호버 시 확대 효과 */
+    }
+
+    /* 모달 안의 프로필 이미지 스타일 */
+    .select-profile-img {
+      width: 80px; /* 고정된 너비 */
+      height: 80px; /* 고정된 높이 */
+      border-radius: 50%; /* 동그랗게 */
+      object-fit: cover; /* 이미지 비율 유지하면서 채우기 */
+      transition: transform 0.3s ease; /* 선택 시 애니메이션 효과 */
+      cursor: pointer;
+    }
+
+    .select-profile-img:hover {
+      transform: scale(1.1); /* 호버 시 확대 효과 */
+    }
   </style>
 </head>
 <body>
+<!-- Navigation Bar -->
 <nav class="navbar navbar-expand-lg navbar">
   <div class="container-fluid">
+    <!-- Toggle Button -->
     <span id="toggleSidebar" class="navbar-toggler-icon"></span>
+
+    <!-- Right-Side Links -->
     <div class="collapse navbar-collapse justify-content-end">
       <ul class="navbar-nav">
         <li class="nav-item">
@@ -149,15 +104,42 @@
   </div>
 </nav>
 
+<!-- Sidebar -->
 <div id="sidebar">
-  <a href="#">아이 프로필 변경</a>
-  <a href="/children/">아이정보 보기</a>
+  <a href="/children/select">아이 프로필 변경</a>
+  <a href="/children/page">아이 정보 수정</a>
   <a href="/userpage">계정보기</a>
   <a href="#">최근 책 보기</a>
-  <a href="/ChildFavorBookList.html">좋아요 누른 책 보기</a>
+  <a href="/templates/BookCategoryHtml.html">좋아요 누른 책 보기</a>
   <a href="#">카테고리 별 책보기</a>
   <a href="/lottery/form">선착순 이벤트</a>
 </div>
+
+<!-- 이미지 선택 모달 -->
+<div class="modal fade" id="profileImageModal" tabindex="-1" aria-labelledby="profileImageModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="profileImageModalLabel">프로필 이미지 선택</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <!-- 9개의 고정된 프로필 이미지를 보여줍니다. -->
+          <div class="col-4 mb-3" th:each="i : ${#numbers.sequence(1,9)}">
+            <img src="/assets/img/profile[[${i}]].png"
+                 class="img-thumbnail select-profile-img"
+                 alt="프로필 이미지 [[${i}]]"
+                 data-profile="profile[[${i}]].png"
+                 style="cursor: pointer;" />
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="/assets/js/sidebar.js"></script>
+
 
 <div class="container mt-5">
   <div class="row justify-content-center">
@@ -168,7 +150,7 @@
           <form id="childForm">
             <div id="basicInfoSection">
               <div class="mb-3 text-center">
-                <div class="profile-picture" onclick="location.href='childImageUpdate.html'">
+                <div class="profile-picture">
                   <img id="profileImage" src="/placeholder.svg?height=100&width=100" alt="프로필 사진">
                 </div>
                 <p class="mt-2">프로필 사진 선택</p>
@@ -203,15 +185,7 @@
               <div class="mb-3">
                 <label class="form-label">관심사 선택 (최대 3개)</label>
                 <div class="interest-grid">
-                  <div class="interest-item" onclick="toggleInterest(this)">운동</div>
-                  <div class="interest-item" onclick="toggleInterest(this)">음악</div>
-                  <div class="interest-item" onclick="toggleInterest(this)">미술</div>
-                  <div class="interest-item" onclick="toggleInterest(this)">과학</div>
-                  <div class="interest-item" onclick="toggleInterest(this)">독서</div>
-                  <div class="interest-item" onclick="toggleInterest(this)">요리</div>
-                  <div class="interest-item" onclick="toggleInterest(this)">게임</div>
-                  <div class="interest-item" onclick="toggleInterest(this)">여행</div>
-                  <div class="interest-item" onclick="toggleInterest(this)">동물</div>
+                  <!-- JavaScript가 이 부분을 채움 -->
                 </div>
               </div>
               <div class="text-center">
@@ -230,18 +204,114 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 <script>
-  function showInterestSection() {
-    if (validateBasicInfo()) {
-      document.getElementById('basicInfoSection').style.display = 'none';
-      document.getElementById('interestSection').style.display = 'block';
+  // 카테고리 코드 목록 (서버로부터 전달받은 공통 코드 데이터)
+  const categories = [
+    { code: "010", name: "소설" },
+    { code: "020", name: "전래동화" },
+    { code: "030", name: "과학" },
+    { code: "040", name: "수학" },
+    { code: "050", name: "역사" },
+    { code: "060", name: "동물" },
+    { code: "070", name: "문학" },
+    { code: "080", name: "자연" }
+  ];
+  // 페이지 로드 시 관심사 목록 렌더링 및 로컬 스토리지에서 저장된 이미지 가져오기
+  window.addEventListener('load', function () {
+    renderInterests();
+    const selectedImage = localStorage.getItem('selectedProfileImage');
+    if (selectedImage) {
+      document.getElementById('profileImage').src = selectedImage;
+    }
+  });
+
+  // 모달이 열리면, 9개의 프로필 이미지를 보여주고 클릭 시 이미지 선택
+  document.addEventListener('DOMContentLoaded', function() {
+    const profileImageModal = new bootstrap.Modal(document.getElementById('profileImageModal'), {});
+
+    // 프로필 사진 선택 버튼을 클릭하면 모달을 연다
+    document.querySelector('.profile-picture').addEventListener('click', function() {
+      profileImageModal.show();
+    });
+
+    // 이미지 선택 시 선택된 이미지 경로를 설정
+    document.querySelectorAll('.select-profile-img').forEach(img => {
+      img.addEventListener('click', function() {
+        const selectedProfile = this.getAttribute('data-profile');
+        // 선택된 이미지의 경로를 보여주고 DTO에 설정
+        document.getElementById('profileImage').src = `/assets/img/${selectedProfile}`;
+        localStorage.setItem('selectedProfileImage', `/assets/img/${selectedProfile}`);
+        profileImageModal.hide();
+      });
+    });
+
+    // 페이지 로드 시 로컬 스토리지에 저장된 이미지가 있다면, 그것을 표시
+    const storedImage = localStorage.getItem('selectedProfileImage');
+    if (storedImage) {
+      document.getElementById('profileImage').src = storedImage;
+    }
+  });
+
+  // 관심사 목록 동적으로 렌더링
+  function renderInterests() {
+    const interestGrid = document.querySelector('.interest-grid');
+    interestGrid.innerHTML = ''; // 기존 항목 초기화
+
+    categories.forEach(category => {
+      const interestItem = document.createElement('div');
+      interestItem.className = 'interest-item';
+      interestItem.textContent = category.name;
+      interestItem.dataset.code = category.code;
+      interestItem.onclick = function () {
+        toggleInterest(interestItem);
+      };
+      interestGrid.appendChild(interestItem);
+    });
+  }
+
+  // 프로필 이미지 동적으로 렌더링
+  function renderProfileImages() {
+    const modalBody = document.querySelector('.modal-body .row');
+    modalBody.innerHTML = ''; // 기존 항목 초기화
+
+    for (let i = 1; i <= 9; i++) {
+      const colDiv = document.createElement('div');
+      colDiv.className = 'col-4 mb-3';
+
+      const img = document.createElement('img');
+      img.src = `/assets/img/profile${i}.png`; // 이미지 경로 설정
+      img.className = 'img-thumbnail select-profile-img';
+      img.alt = `프로필 이미지 ${i}`;
+      img.dataset.profile = `profile${i}.png`;
+      img.style.cursor = 'pointer';
+
+      // 이미지 클릭 이벤트 등록
+      img.addEventListener('click', function () {
+        const selectedProfile = this.dataset.profile;
+        document.getElementById('profileImage').src = `/assets/img/${selectedProfile}`;
+        localStorage.setItem('selectedProfileImage', `/assets/img/${selectedProfile}`);
+        const profileImageModal = bootstrap.Modal.getInstance(document.getElementById('profileImageModal'));
+        profileImageModal.hide();
+      });
+
+      colDiv.appendChild(img);
+      modalBody.appendChild(colDiv);
     }
   }
 
-  function showBasicInfoSection() {
-    document.getElementById('basicInfoSection').style.display = 'block';
-    document.getElementById('interestSection').style.display = 'none';
+  // 모달이 열릴 때 프로필 이미지를 렌더링
+  document.querySelector('.profile-picture').addEventListener('click', renderProfileImages);
+
+  // 관심사 선택 토글
+  function toggleInterest(element) {
+    const selectedInterests = document.querySelectorAll('.interest-item.selected');
+    if (!element.classList.contains('selected') && selectedInterests.length >= 3) {
+      alert('최대 3개까지만 선택할 수 있습니다.');
+      return;
+    }
+    element.classList.toggle('selected');
   }
 
+  // 기본 정보 유효성 검사
   function validateBasicInfo() {
     const name = document.getElementById('name').value;
     const gender = document.querySelector('input[name="gender"]:checked');
@@ -254,53 +324,56 @@
     return true;
   }
 
-  function toggleInterest(element) {
-    const selectedInterests = document.querySelectorAll('.interest-item.selected');
-    if (!element.classList.contains('selected') && selectedInterests.length >= 3) {
-      alert('최대 3개까지만 선택할 수 있습니다.');
-      return;
+  // 기본 정보 섹션을 숨기고 관심사 섹션을 보여줌
+  function showInterestSection() {
+    if (validateBasicInfo()) {
+      document.getElementById('basicInfoSection').style.display = 'none';
+      document.getElementById('interestSection').style.display = 'block';
     }
-    element.classList.toggle('selected');
   }
 
-  // Submit form via AJAX using Axios
+  // 관심사 섹션을 숨기고 기본 정보 섹션을 보여줌
+  function showBasicInfoSection() {
+    document.getElementById('basicInfoSection').style.display = 'block';
+    document.getElementById('interestSection').style.display = 'none';
+  }
+
+  // 폼 데이터 전송
   document.getElementById('childForm').addEventListener('submit', function (e) {
     e.preventDefault();
 
     const name = document.getElementById('name').value;
     const gender = document.querySelector('input[name="gender"]:checked').value;
-    const age = document.getElementById('age').value;
-    const interests = Array.from(document.querySelectorAll('.interest-item.selected')).map(el => el.textContent);
-    const profileImage = document.getElementById('profileImage').src;
+    const age = parseInt(document.getElementById('age').value);
+    const interests = Array.from(document.querySelectorAll('.interest-item.selected'))
+            .map(el => el.dataset.code);
+    const profileImage = document.getElementById('profileImage').src.split('/').pop();
 
+    // ChildAddDto 데이터 구성
     const childAddDto = {
       childDto: {
         childName: name,
         childAge: age,
-        childGender: gender,
+        childGender: gender.charAt(0).toUpperCase(),
         childImage: profileImage,
-        codeMbti: "",
+        codeMbti: ""
       },
-      categoryCodeList: interests
+      childFavCategoryDtoList: interests.map(categoryCode => ({
+        categoryCode: categoryCode
+      }))
     };
 
-    axios.post('/children/add', childAddDto)
+    // AJAX 요청
+    axios.post('/children/addPage', childAddDto)
             .then(response => {
-              document.getElementById('resultMessage').textContent = "프로필이 성공적으로 등록되었습니다!";
               document.getElementById('resultMessage').classList.add('text-success');
+              localStorage.removeItem('selectedProfileImage');
+              window.location.href = "/children/select";
             })
             .catch(error => {
               document.getElementById('resultMessage').textContent = "프로필 등록에 실패했습니다.";
               document.getElementById('resultMessage').classList.add('text-danger');
             });
-  });
-
-  window.addEventListener('load', function () {
-    const selectedImage = localStorage.getItem('selectedProfileImage');
-    if (selectedImage) {
-      document.getElementById('profileImage').src = selectedImage;
-      localStorage.removeItem('selectedProfileImage');
-    }
   });
 </script>
 </body>

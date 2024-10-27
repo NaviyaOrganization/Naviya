@@ -9,10 +9,13 @@ public interface BookSerive {
     BookResultDto delBook(Long bookId);
     BookResultDto detailBook(Long bookId,Long childId);
     BookResultDto listBook();
+    BookResultDto ChildALLlistBook(Long childId);
     BookResultDto updateBook(BookDto bookDto);
     BookResultDto insertBook(BookDto bookDto);
     BookResultDto listbookOrderByCreateDate(long childId);
+    BookResultDto NoCHildlistbookOrderByCreateDate();
     BookResultDto listBookChildFavor(long ChildId);
+    BookResultDto NoChildlistBookChildFavor();
     BookResultDto listBookFavorCount(long childId);
     BookResultDto listBookChildRecntRead(long ChildId);
     BookResultDto ChildBookLike(long BookId, long ChildId,String Type);
@@ -21,5 +24,8 @@ public interface BookSerive {
     BookResultDto LogicDelChildBookLike(long BookId, long ChildId);
     BookResultDto ChildBookDisLike(long BookId, long ChildId,String Type);
     List<BookDto> searchBooks(String searchType, String keyword);
-
+    BookResultDto CategoryList(long childId);
+    BookResultDto CategoryDisLike(long childId,String Ctegorey);
+    BookResultDto CategoryLike(long childId,String Ctegorey);
+    BookResultDto BookCategoryOne(long childId,String categoryId);
 }

@@ -5,6 +5,8 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.firewall.HttpFirewall;
+import org.springframework.security.web.firewall.StrictHttpFirewall;
 
 @Configuration
 @EnableWebSecurity
@@ -20,8 +22,8 @@ public class SecurityConfig {
 
         http
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/login", "/signup", "/signupProc", "/children/**",
-                                        "/static/**","/static/assets/img/**", "/css/**", "/js/**", "/images/**", "/Book/**").permitAll()
+                        .requestMatchers("/", "/login", "/signup", "/signupProc",
+                                        "/static/**","/assets/img/**", "/css/**", "/js/**", "/images/**", "/Book/**", "templates/BookCategoryHtml.html/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .formLogin(auth -> auth
@@ -47,5 +49,12 @@ public class SecurityConfig {
 
 
         return http.build();
+    }
+
+    @Bean
+    public HttpFirewall allowSemicolonHttpFirewall() {
+        StrictHttpFirewall firewall = new StrictHttpFirewall();
+        firewall.setAllowSemicolon(true); // Allow semicolons in URLs
+        return firewall;
     }
 }

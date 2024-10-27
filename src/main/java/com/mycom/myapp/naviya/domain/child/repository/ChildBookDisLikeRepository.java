@@ -26,6 +26,13 @@ public interface ChildBookDisLikeRepository extends JpaRepository<ChildBookDisli
     @Transactional
     @Modifying
     @Query("DELETE FROM ChildBookDislike cbd WHERE cbd.child = :child AND cbd.deletedAt = :deleteAt")
-    void deleteByChildAndDeletedAt(Child child, LocalDateTime deleteAt);}
+    void deleteByChildAndDeletedAt(Long child, LocalDateTime deleteAt);
+
+
+
+}
+
+
+
 
 
