@@ -6,7 +6,7 @@ import com.mycom.myapp.naviya.domain.book.dto.BookResultDto;
 
 import java.util.List;
 
-public interface BookSerive {
+public interface BookService {
     BookResultDto delBook(Long bookId);
     BookResultDto detailBook(Long bookId, Long childId);
     BookResultDto listBook();
@@ -26,4 +26,8 @@ public interface BookSerive {
     BookResultDto CategoryDisLike(long childId, String category);
     BookResultDto CategoryLike(long childId, String category);
     BookResultDto BookCategoryOne(long childId, String categoryId);
+    BookResultDto ChildALLlistBook(Long childId);
+    BookResultDto NoCHildlistbookOrderByCreateDate();
+    BookResultDto NoChildlistBookChildFavor();
+
 }

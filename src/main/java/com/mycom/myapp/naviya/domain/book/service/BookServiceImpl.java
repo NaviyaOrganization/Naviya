@@ -1,12 +1,25 @@
 package com.mycom.myapp.naviya.domain.book.service;
 import com.mycom.myapp.naviya.domain.book.dto.BookDetailDto;
+import com.mycom.myapp.naviya.domain.book.dto.BookInsertDto;
 import com.mycom.myapp.naviya.domain.book.entity.Book;
 import com.mycom.myapp.naviya.domain.book.dto.BookDto;
 import com.mycom.myapp.naviya.domain.book.dto.BookResultDto;
+import com.mycom.myapp.naviya.domain.book.entity.BookFavorTotal;
 import com.mycom.myapp.naviya.domain.book.entity.BookMbti;
 import com.mycom.myapp.naviya.domain.book.repository.BookFavorTotalRepository;
 import com.mycom.myapp.naviya.domain.book.repository.BookMbtiRepository;
 import com.mycom.myapp.naviya.domain.book.repository.BookRepository;
+import com.mycom.myapp.naviya.domain.child.entity.Child;
+import com.mycom.myapp.naviya.domain.child.entity.ChildBookDislike;
+import com.mycom.myapp.naviya.domain.child.entity.ChildBookLike;
+import com.mycom.myapp.naviya.domain.child.entity.ChildMbti;
+import com.mycom.myapp.naviya.domain.child.repository.ChildBookDisLikeRepository;
+import com.mycom.myapp.naviya.domain.child.repository.ChildBookLikeRepository;
+import com.mycom.myapp.naviya.domain.child.repository.ChildMbtiRepository;
+import com.mycom.myapp.naviya.domain.child.repository.ChildRepository;
+import com.mycom.myapp.naviya.domain.common.entity.Code;
+import com.mycom.myapp.naviya.domain.common.repository.CodeRepository;
+import com.mycom.myapp.naviya.global.mbti.Dto.MbtiDto;
 import com.mycom.myapp.naviya.domain.child.dto.ChildFavCategoryDto;
 import com.mycom.myapp.naviya.domain.child.entity.*;
 import com.mycom.myapp.naviya.domain.child.repository.*;
@@ -23,7 +36,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class BookServiceImpl implements BookSerive {
+public class BookServiceImpl implements BookService {
 
     private final BookRepository bookRepository;
     private final MbtiRepository mbtiRepository;
@@ -34,6 +47,7 @@ public class BookServiceImpl implements BookSerive {
     private final ChildRepository childRepository;
     private final ChildFavorCategoryRepository childFavorCategoryRepository;
     private final ChildMbtiRepository childMbtiRepository;
+    private final CodeRepository codeRepository;
     /*삭제순서 to 유성,정슈선
     연관관계 수정으로 book->bookmbti->mbti 한 방에 삭제
 
@@ -61,8 +75,38 @@ public class BookServiceImpl implements BookSerive {
         // BookRepository의 findAll() 메서드를 통해 모든 Book을 가져옴
 
         BookResultDto bookResultDto = new BookResultDto();
+        BookDetailDto bookDetailDto = new BookDetailDto();
         try {
-            BookDetailDto bookDetailDto=bookRepository.findBookDetailDtoByBookId(bookId,childId);
+            Book book = bookRepository.findBookByBookId(bookId);
+            bookDetailDto.setBookId(book.getBookId());
+            bookDetailDto.setTitle(book.getTitle());
+            bookDetailDto.setSummary(book.getSummary());
+            bookDetailDto.setRecommendedAge(book.getRecommendedAge());
+            bookDetailDto.setPublisher(book.getPublisher());
+            bookDetailDto.setAuthor(book.getAuthor());
+            bookDetailDto.setCreatedAt(book.getCreatedAt());
+            bookDetailDto.setFullStory(book.getFullStory());
+            bookDetailDto.setBookImage(book.getBookImage());
+
+            // 카테고리 코드로 Code 엔티티에서 codeName 조회
+            String categoryCode = book.getCategoryCode();  // Book의 categoryCode 필드
+            Optional<Code> codeOptional = codeRepository.findByCode(categoryCode);
+
+            if (codeOptional.isPresent()) {
+                String codeName = codeOptional.get().getCodeName();  // codeName 가져오기
+                bookDetailDto.setCategory(codeName);  // Category 이름 설정
+            } else {
+                bookDetailDto.setCategory("Unknown Category");  // 코드가 없을 경우 기본값
+            }
+            // Mbti 정보 매핑
+            if (book.getBookMbti() != null) {
+                MbtiDto mbtiDto = new MbtiDto();
+                mbtiDto.setEiType(book.getBookMbti().getMbti().getEiType());
+                mbtiDto.setSnType(book.getBookMbti().getMbti().getSnType());
+                mbtiDto.setTfType(book.getBookMbti().getMbti().getTfType());
+                mbtiDto.setJpType(book.getBookMbti().getMbti().getJpType());
+                bookDetailDto.setBookMbti(mbtiDto);
+            }
             bookResultDto.setBookDetail(bookDetailDto);
             bookResultDto.setSuccess("success");
             return bookResultDto;
@@ -110,12 +154,12 @@ public class BookServiceImpl implements BookSerive {
     }
 
     @Override
-    public BookResultDto updateBook(BookDto bookDto) {
+    public BookResultDto updateBook(BookInsertDto bookInsertDto) {
         return null;
     }
 
     @Override
-    public BookResultDto insertBook(BookDto bookDto) {
+    public BookResultDto insertBook(BookInsertDto bookInsertDto) {
         return null;
     }
 
@@ -221,7 +265,7 @@ public class BookServiceImpl implements BookSerive {
     }
 
     @Override
-   @Transactional
+    @Transactional
     public BookResultDto ChildBookLike(long BookId, long ChildId,String Type) {
         BookResultDto bookResultDto=new BookResultDto();
         try{
@@ -264,11 +308,12 @@ public class BookServiceImpl implements BookSerive {
                 bookResultDto.setSuccess("fail3");
                 return bookResultDto;
             }
-
-
+            //상대편에 싫어요 있으면 빼주기
+            childBookDisLikeRepository.deleteByChild_ChildIdAndBook_BookId(ChildId, BookId);
             //일대다여서 확인해야함
             //좋아요 토탈 카운트 올려주기 && 이미 deldate없는 좋아요는 올려주지 않기
-            if(!childBookLikeRepository.existsByChildIdAndBookIdAndDelDateIsNull(ChildId, BookId)) {
+            if(!childBookLikeRepository.existsByChildIdAndBookIdAndDelDateIsNull(ChildId, BookId))
+            {
                 bookFavorTotalRepository.incrementCountByBookId(BookId);
             }
             else
@@ -380,6 +425,7 @@ public class BookServiceImpl implements BookSerive {
             }
             Mbti mbti = childMbti_val.getMbti();
             childBookLikeRepository.deleteByChildIdAndBookIdAndDelDateIsNull(ChildId, BookId);
+            //상대편 토탈 좋아요 카운트 내려야함
             bookFavorTotalRepository.decrementCountByBookId(BookId);
             BookMbti bookMbti = book1.getBookMbti();
             Mbti book2Mbti=bookMbti.getMbti();

@@ -25,10 +25,12 @@ public interface ChildRepository extends JpaRepository<Child, Long> {
             "WHERE u.userId = :userId")
     List<ChildSelectDto> findChildSelectDtoListByUserId(@Param("userId") Long userId);
 
+
     Child findByChildId(Long childId);
 
     @Modifying
     @Transactional
     @Query("DELETE FROM Child c WHERE c.childId = :childId")
     int deleteChildByChildId(Long childId);
+
 }
