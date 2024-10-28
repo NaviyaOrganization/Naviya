@@ -69,7 +69,8 @@ public class SecurityConfig {
                         .logoutSuccessUrl("/admin/login")
                         .invalidateHttpSession(true)
                         .permitAll()
-                );
+                )
+                .csrf(csrf -> csrf.disable());
         return http.build();
     }
 
