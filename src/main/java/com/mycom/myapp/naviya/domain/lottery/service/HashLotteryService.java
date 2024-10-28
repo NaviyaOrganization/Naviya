@@ -22,7 +22,6 @@ import java.util.stream.Collectors;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-@Primary
 public class HashLotteryService implements LotteryService {
 
     private final LotteryRepository lotteryRepository;
@@ -54,17 +53,34 @@ public class HashLotteryService implements LotteryService {
                 return "이미 응모한 전화번호입니다.";
             }
 
-            // 응모 카운트 확인
-            Long currentCount = redisTemplate.opsForValue().increment(LOTTERY_COUNT_KEY, 1);
+            // Redis에서 응모자 수 확인 (문자열로 반환되므로 변환 과정 필요)
+            String countStr = redisTemplate.opsForValue().get(LOTTERY_COUNT_KEY);
+            Long currentCount = 0L;
 
-            if (currentCount > 100) {
-                redisTemplate.opsForValue().decrement(LOTTERY_COUNT_KEY); // 카운트 복구
+            // countStr이 null이라면 초기값 0을 설정, 숫자 변환 가능 여부 확인
+            if (countStr == null) {
+                // Redis에 키가 없으면 0으로 초기화
+                redisTemplate.opsForValue().set(LOTTERY_COUNT_KEY, "0");
+            } else {
+                try {
+                    currentCount = Long.valueOf(countStr);
+                } catch (NumberFormatException e) {
+                    log.warn("Invalid count value in Redis. Resetting count to 0.");
+                    currentCount = 0L;
+                    redisTemplate.opsForValue().set(LOTTERY_COUNT_KEY, "0");  // 잘못된 값일 경우 초기화
+                }
+            }
+
+            if (currentCount >= 100) {
                 log.info("응모 마감 - 현재 응모자 수가 100명을 초과하였습니다.");
                 return "응모가 마감되었습니다.";
             }
 
             // 성공한 응모 처리: 이름과 전화번호를 Redis 리스트에 추가
             redisTemplate.opsForHash().put(LOTTERY_HASH_KEY, entryKey, entryData);
+
+            // 응모 리스트에 추가 후 카운트 증가
+            redisTemplate.opsForValue().increment(LOTTERY_COUNT_KEY, 1);
 
             log.info("응모가 접수되었습니다 - 이름: {}, 전화번호: {}", name, phone);
             return "응모가 접수되었습니다. 결과는 내일 오후 1시에 발표됩니다.";
