@@ -1,19 +1,21 @@
-
-
-// Sidebar toggle functionality
-document.getElementById('toggleSidebar').addEventListener('click', function() {
+<!-- JavaScript for sidebar toggle -->
+    // 사이드바 토글 기능
+    document.getElementById('toggleSidebar').addEventListener('click', function() {
     const sidebar = document.getElementById('sidebar');
     const toggleBtn = document.getElementById('toggleSidebar');
+    const mainContent = document.getElementById('main-content');
 
-    // Toggle sidebar visibility
     if (sidebar.style.left === '0px') {
-        sidebar.style.left = '-250px';
-        toggleBtn.classList.remove('toggle-active');
-    } else {
-        sidebar.style.left = '0px';
-        toggleBtn.classList.add('toggle-active');
-    }
+    sidebar.style.left = '-250px';
+    toggleBtn.classList.remove('toggle-active');
+    mainContent.style.marginLeft = '150px'; // 콘텐츠를 중앙으로 이동
+} else {
+    sidebar.style.left = '0px';
+    toggleBtn.classList.add('toggle-active');
+    mainContent.style.marginLeft = '250px';
+}
 });
+
 
 // 로그아웃 시 세션에서 userEmail, selectedChildId 제거
 document.addEventListener('DOMContentLoaded', function() {

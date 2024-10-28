@@ -4,6 +4,8 @@ import com.mycom.myapp.naviya.domain.user.entity.User;
 import com.mycom.myapp.naviya.domain.user.repository.UserRepository;
 import com.mycom.myapp.naviya.global.security.dto.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -13,14 +15,14 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class CustomUserDetailService implements UserDetailsService {
 
+    private final Logger logger = LoggerFactory.getLogger(CustomUserDetailService.class);
     public final UserRepository userRepository;
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
 
-        System.out.println("이메일로 사용자 찾기 시도: " + email);
+        logger.info("userEmail" + email);
         User user = userRepository.findByEmail(email);
-        System.out.println("찾은 사용자: " + user);
 
         if (user != null) {
             return new CustomUserDetails(user);

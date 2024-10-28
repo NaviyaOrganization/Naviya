@@ -21,7 +21,7 @@ import java.util.Map;
 import static com.mycom.myapp.naviya.global.response.ResponseCode.EXAMPLE_SUCCESS;
 
 
-@Controller
+@RestController
 @RequiredArgsConstructor
 @RequestMapping("/Book")
 public class BookController {

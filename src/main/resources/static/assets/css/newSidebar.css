@@ -1,0 +1,111 @@
+body {
+    overflow-x: hidden;
+    background-color: #fff9e6; /* 연한 파스텔 노란색 배경 */
+    font-family: 'Arial Rounded MT Bold', Arial, sans-serif;
+}
+
+/* Navigation Bar styles */
+.navbar {
+    background-color: #ffe066; /* 파스텔 노란색 */
+    border-radius: 0 0 20px 20px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.navbar-nav .nav-link {
+    color: #5a4d41 !important; /* 부드러운 갈색 텍스트 */
+    font-size: 1.1rem;
+    margin: 0 10px;
+    border-radius: 20px;
+    padding: 8px 15px;
+}
+
+.navbar-nav .nav-link:hover {
+    background-color: #fff3b0;
+    transform: scale(1.05);
+    transition: all 0.3s ease;
+}
+
+/* Sidebar styles */
+#sidebar {
+    height: 100%;
+    width: 250px;
+    position: fixed;
+    top: 60px;
+    left: -250px;
+    background-color: #fff3b0; /* 파스텔 노란색 */
+    border-radius: 0 20px 20px 0;
+    transition: left 0.3s ease;
+    padding-top: 20px;
+    z-index: 1000;
+    box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+}
+
+#sidebar a {
+    padding: 15px 25px;
+    text-decoration: none;
+    font-size: 18px;
+    color: #5a4d41;
+    display: block;
+    transition: all 0.3s ease;
+    margin: 5px 10px;
+    border-radius: 15px;
+}
+
+#sidebar a:hover {
+    background-color: #ffe066;
+    transform: scale(1.02);
+}
+
+
+/* Main Content */
+#main-content {
+    transition: margin-left 0.3s ease;
+    padding: 20px;
+    text-align: center;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+
+/* Navigation Buttons */
+.nav-button {
+    background-color: #ffe066;
+    border: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    color: #5a4d41;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+}
+.nav-button.prev {
+    left: 10px;
+}
+.nav-button.next {
+    right: 10px;
+}
+
+.nav-button:hover {
+    background-color: #ffd43b;
+    transform: scale(1.1);
+}
+
+/* Toggle Button */
+#toggleSidebar {
+    background-color: #ffe066;
+    border-radius: 50%;
+    width: 45px;
+    height: 45px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    transition: left 0.3s ease;
+    z-index: 1100; /* 다른 요소 위에 표시 */
+    padding: 10px; /* 클릭 영역을 위한 패딩 */
+}
+
+#toggleSidebar:hover {
+    transform: scale(1.1);
+    background-color: #ffd43b;
+}
