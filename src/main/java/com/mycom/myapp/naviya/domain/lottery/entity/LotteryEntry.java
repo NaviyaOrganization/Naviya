@@ -3,6 +3,7 @@ import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.sql.Timestamp;
@@ -26,7 +27,8 @@ public class LotteryEntry {
     @Column(nullable = false, unique = true)
     private String phone;
 
-    @Column(name = "created_at")
+    @Column(name = "created_at", nullable = false, updatable = false)
+    @CreatedDate
     private Timestamp createdAt;
 
     public LotteryEntry(String name, String phone) {

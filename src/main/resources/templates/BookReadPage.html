@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>책 상세 페이지</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      overflow-x: hidden;
+      background: linear-gradient(135deg, #fff9e6 0%, #ffd43b 100%);
+      font-family: 'Jua', Arial, sans-serif;
+    }
+
+    .navbar {
+      background-color: #ffe066;
+      border-radius: 0 0 20px 20px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .navbar-nav .nav-link {
+      color: #5a4d41 !important;
+      font-size: 1.3rem;
+      margin: 0 15px;
+      border-radius: 25px;
+      padding: 10px 20px;
+      transition: all 0.3s ease;
+    }
+
+    .navbar-nav .nav-link:hover {
+      background-color: #ffd43b;
+      transform: scale(1.1);
+    }
+
+    #sidebar {
+      height: 100%;
+      width: 260px;
+      position: fixed;
+      top: 0;
+      left: -260px;
+      background-color: #ffd43b;
+      border-radius: 0 20px 20px 0;
+      transition: left 0.3s ease;
+      padding-top: 20px;
+      z-index: 1000;
+      box-shadow: 2px 0 15px rgba(0,0,0,0.1);
+    }
+
+    #sidebar a {
+      padding: 15px 25px;
+      text-decoration: none;
+      font-size: 1.1rem;
+      color: #5a4d41;
+      display: block;
+      transition: all 0.3s ease;
+      margin: 8px 10px;
+      border-radius: 20px;
+    }
+
+    #sidebar a:hover {
+      background-color: #ffe066;
+      transform: scale(1.05);
+    }
+
+    #main-content {
+      transition: margin-left 0.3s ease;
+      padding: 30px;
+      max-width: 1200px;
+      margin: 0 auto;
+      text-align: left;
+    }
+
+    /* 책 제목 스타일 */
+    .book-title {
+      font-size: 2rem;
+      font-weight: bold;
+      color: #5a4d41;
+      text-shadow: 1px 1px 3px rgba(0,0,0,0.1);
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    /* 이미지와 제목을 나란히 배치 */
+    .book-container {
+      display: flex;
+      align-items: flex-end;
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+
+    .book-container img.book-cover {
+      width: 100px;
+      height: auto;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .book-container img.audio-button {
+      width: 30px;
+      height:30px;
+      cursor: pointer;
+    }
+
+    /* 책 내용 컴포넌트 스타일 */
+    .book-content {
+      background-color: #fff;
+      border-radius: 20px;
+      padding: 40px;
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+      margin-top: 10px;
+      max-width: 1000px;
+      font-size: 1.1rem;
+      color: #333;
+    }
+
+    /* 사이드바 활성 상태 */
+    .sidebar-active {
+      left: 0; /* 사이드바를 표시 */
+    }
+
+    /* 사이드바가 활성 상태일 때 토글 버튼 이동 */
+    .toggle-active {
+      left: 265px; /* 사이드바와 정렬 */
+    }
+
+    #toggleSidebar {
+      position: fixed;
+      top: 15px;
+      left: 10px;
+      z-index: 1001;
+      cursor: pointer;
+      transition: left 0.3s ease;
+    }
+  </style>
+</head>
+<body>
+
+<!-- Navigation Bar -->
+<nav class="navbar navbar-expand-lg navbar">
+  <div class="container-fluid">
+    <!-- Toggle Button -->
+    <span id="toggleSidebar" class="navbar-toggler-icon"></span>
+
+    <!-- Right-Side Links -->
+    <div class="collapse navbar-collapse justify-content-end">
+      <ul class="navbar-nav">
+        <li class="nav-item">
+          <a class="nav-link" href="#">메인페이지</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#">로그인</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#">회원가입</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<!-- Sidebar -->
+<div id="sidebar">
+  <a href="/children/select">아이 프로필 변경</a>
+  <a href="/children/page">아이 정보 수정</a>
+  <a href="/userpage">계정보기</a>
+  <a href="#">최근 책 보기</a>
+  <a href="/ChildFavorBookList.html">좋아요 누른 책 보기</a>
+  <a href="#">카테고리 별 책보기</a>
+  <a href="/lottery/form">선착순 이벤트</a>
+</div>
+
+<!-- Main Content -->
+<div id="main-content" class="container-fluid mt-5">
+  <!-- Book Image and Title + Audio Button -->
+  <div class="book-container">
+    <!-- Book Cover Image -->
+    <img src="/images/BookImage.png" alt="책 표지" class="book-cover">
+
+    <!-- Title and Audio Button to the right of the image -->
+    <div class="book-title-audio">
+      <span class="book-title">
+        <span th:text="${book.title}">Adventure in the Darkness</span>
+        <img src="/images/AudioButton.png" alt="읽기" class="audio-button" id="readButton">
+      </span>
+    </div>
+  </div>
+
+  <!-- 통합된 책 내용 (책 내용 상자 크기 조정) -->
+  <div class="book-content" id="storyContent">
+    <p th:text="${book.fullStory}">
+      책의 내용이 여기에 들어갑니다. 루나는 달을 보며 속삭였습니다.
+    </p>
+  </div>
+</div>
+
+<!-- JavaScript for sidebar toggle and TTS -->
+<script>
+  let isPlaying = false; // 재생 여부를 추적하는 변수
+  let utterance;
+
+  document.getElementById('toggleSidebar').addEventListener('click', function() {
+    const sidebar = document.getElementById('sidebar');
+    const toggleBtn = document.getElementById('toggleSidebar');
+
+    // Toggle sidebar visibility
+    if (sidebar.style.left === '0px') {
+      sidebar.style.left = '-250px'; // Hide sidebar
+      toggleBtn.classList.remove('toggle-active'); // Move button back
+    } else {
+      sidebar.style.left = '0px'; // Show sidebar
+      toggleBtn.classList.add('toggle-active'); // Move button with sidebar
+    }
+  });
+
+  // TTS 기능 추가
+  document.getElementById('readButton').addEventListener('click', function() {
+    if (!isPlaying) {
+      const storyContent = document.getElementById('storyContent').innerText;
+      utterance = new SpeechSynthesisUtterance(storyContent);
+      utterance.lang = "ko-KR"; // 한국어 설정
+      speechSynthesis.speak(utterance);
+      isPlaying = true;
+    } else {
+      speechSynthesis.cancel(); // 재생 중이면 중지
+      isPlaying = false;
+    }
+
+    // 재생이 끝나면 상태를 변경
+    utterance.onend = function() {
+      isPlaying = false;
+    };
+  });
+
+  let isPlaying = false; // 재생 여부를 추적하는 변수
+  let utterance;
+  let isSidebarOpen = false; // 사이드바 열림 상태를 추적하는 변수
+
+  document.getElementById('toggleSidebar').addEventListener('click', function() {
+    const sidebar = document.getElementById('sidebar');
+    const toggleBtn = this; // 'this'는 클릭된 요소를 가리킵니다
+
+    if (isSidebarOpen) {
+      sidebar.style.left = '-260px'; // 사이드바 닫기
+      toggleBtn.style.left = '10px'; // 토글 버튼을 원래 위치로
+      isSidebarOpen = false;
+    } else {
+      sidebar.style.left = '0'; // 사이드바 열기
+      toggleBtn.style.left = '270px'; // 토글 버튼을 사이드바 옆으로 이동
+      isSidebarOpen = true;
+    }
+  });
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
