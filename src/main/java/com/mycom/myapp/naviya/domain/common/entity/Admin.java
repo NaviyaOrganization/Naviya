@@ -3,7 +3,7 @@ package com.mycom.myapp.naviya.domain.common.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 
-import java.security.Timestamp;
+import java.time.LocalDateTime;
 
 @Data
 @Entity
@@ -24,10 +24,10 @@ public class Admin {
     private String adminPassword;
 
     @Column(name = "created_at")
-    private Timestamp createdAt;
+    private LocalDateTime createdAt;
 
     @Column(name = "updated_at")
-    private Timestamp updatedAt;
+    private LocalDateTime updatedAt;
 
     @Column(name = "role")
     private String role;
