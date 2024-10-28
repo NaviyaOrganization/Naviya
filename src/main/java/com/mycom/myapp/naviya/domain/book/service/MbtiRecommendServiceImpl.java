@@ -1,7 +1,6 @@
 package com.mycom.myapp.naviya.domain.book.service;
 
 import com.mycom.myapp.naviya.domain.book.dto.BookFavorTotalDto;
-import com.mycom.myapp.naviya.domain.book.dto.BookResultDto;
 import com.mycom.myapp.naviya.domain.book.dto.BookDto;
 import com.mycom.myapp.naviya.domain.book.repository.BookRepository;
 import com.mycom.myapp.naviya.domain.child.entity.Child;

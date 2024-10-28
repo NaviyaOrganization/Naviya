@@ -1,13 +1,9 @@
 package com.mycom.myapp.naviya.domain.child.service;
 
-import com.mycom.myapp.naviya.domain.child.dto.ChildMbtiHistoryDto;
 import com.mycom.myapp.naviya.domain.child.dto.ChildWithMbtiHistoryDto;
 import com.mycom.myapp.naviya.domain.child.dto.MBTIScoresDto;
 import com.mycom.myapp.naviya.domain.child.entity.Child;
-import com.mycom.myapp.naviya.domain.child.entity.ChildMbtiHistory;
 import com.mycom.myapp.naviya.global.mbti.entity.Mbti;
-
-import java.util.List;
 
 public interface ChildMbtiService {
 

@@ -6,6 +6,8 @@ import com.mycom.myapp.naviya.domain.child.dto.ChildFavCategoryDto;
 import com.mycom.myapp.naviya.domain.child.dto.ChildResultDto;
 import com.mycom.myapp.naviya.domain.child.entity.Child;
 import com.mycom.myapp.naviya.domain.child.entity.ChildFavorCategory;
+import com.mycom.myapp.naviya.domain.child.repository.ChildBookDisLikeRepository;
+import com.mycom.myapp.naviya.domain.child.repository.ChildBookLikeRepository;
 import com.mycom.myapp.naviya.domain.child.repository.ChildFavorCategoryRepository;
 import com.mycom.myapp.naviya.domain.child.repository.ChildRepository;
 import com.mycom.myapp.naviya.domain.user.entity.User;
@@ -29,6 +31,8 @@ public class ChildServiceImpl implements ChildService {
     private final ChildRepository childRepository;
     private final UserRepository userRepository;
     private final ChildFavorCategoryRepository childFavorCategoryRepository;
+    private final ChildBookLikeRepository childBookLikeRepository;
+    private final ChildBookDisLikeRepository childBookDisLikeRepository;
     private final Logger LOGGER = LoggerFactory.getLogger(ChildService.class);
 
     // 나이에 맞는 나이 range 입력
@@ -223,5 +227,13 @@ public class ChildServiceImpl implements ChildService {
 
         return childResultDto;
     }
-}
+    @Override
+    public boolean existsLike(Long childId, Long bookId){
+        return childBookLikeRepository.existsByChild_ChildIdAndBook_BookId(childId,bookId);
+    }
+    @Override
+    public boolean existsDislike(Long childId, Long bookId){
+        return childBookDisLikeRepository.existsByChild_ChildIdAndBook_BookId(childId,bookId);
+    }
 
+}
