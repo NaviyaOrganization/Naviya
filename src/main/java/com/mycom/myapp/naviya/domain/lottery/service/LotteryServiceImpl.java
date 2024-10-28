@@ -14,6 +14,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 
 
@@ -29,9 +30,10 @@ public class LotteryServiceImpl implements LotteryService {
     private static final String LOTTERY_WINNERS_LIST = "lottery:winners";
 
     // 캐시 변수: 마스킹된 응모 데이터를 저장
-    private List<String> cachedMaskedEntries = new ArrayList<>();
+    private List<String> cachedMaskedEntries = new CopyOnWriteArrayList<>();
 
     @Override
+    @Transactional
     public String submitLotteryEntry(LotteryEntryRequest request) {
 
         try {
@@ -63,7 +65,7 @@ public class LotteryServiceImpl implements LotteryService {
             redisTemplate.opsForValue().increment(LOTTERY_COUNT_KEY);
 
             log.info("응모가 접수되었습니다 - 이름: {}, 전화번호: {}", name, phone);
-            return "응모가 접수되었습니다. 결과는 내일 오후 12시에 발표됩니다.";
+            return "응모가 접수되었습니다. 결과는 내일 오후 1시에 발표됩니다.";
 
         } catch (Exception e) {
             log.error("응모 처리 중 오류 발생 - 이름: {}, 전화번호: {} 오류{}", request.getPhone(), request.getPhone(), e.getMessage());
