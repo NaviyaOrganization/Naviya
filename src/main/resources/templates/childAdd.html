@@ -479,7 +479,7 @@
             .then(response => {
               document.getElementById('resultMessage').classList.add('text-success');
               localStorage.removeItem('selectedProfileImage');
-              window.location.href = "/children/select";
+              window.location.href = "/children/askMbti";
             })
             .catch(error => {
               document.getElementById('resultMessage').textContent = "프로필 등록에 실패했습니다.";
