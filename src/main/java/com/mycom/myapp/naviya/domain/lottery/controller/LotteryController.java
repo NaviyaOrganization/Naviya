@@ -4,6 +4,7 @@ import com.mycom.myapp.naviya.domain.lottery.dto.LotteryEntryRequest;
 import com.mycom.myapp.naviya.domain.lottery.service.LotteryService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Primary;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;

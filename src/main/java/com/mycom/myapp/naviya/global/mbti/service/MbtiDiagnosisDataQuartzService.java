@@ -28,14 +28,14 @@ public class MbtiDiagnosisDataQuartzService {
 
         // JobDetail 생성: 자녀 삭제 작업에 대한 정보 포함
         JobDetail jobDetail = JobBuilder.newJob(ChildDeletionJob.class)
-                .withIdentity("childDeletionJob", child.getChildId().toString()) // Job 이름에 자녀 ID 사용
+                .withIdentity("childDeletionJob", child.getChildId().toString()+" "+ deleteDate) // Job 이름에 자녀 ID 사용
                 .usingJobData("child", child.getChildId()) // Job에 필요한 데이터 설정 (childId)
                 .usingJobData("deleteDate", deleteDate.toString()) // Job에 필요한 데이터 설정 (deleteDate)
                 .build();
 
         // 트리거 생성: 특정 시점에 Job을 실행하도록 설정
         Trigger trigger = TriggerBuilder.newTrigger()
-                .withIdentity("childDeletionTrigger", child.getChildId().toString()) // 트리거 이름에 자녀 ID 사용
+                .withIdentity("childDeletionTrigger", child.getChildId().toString()+" "+ deleteDate) // 트리거 이름에 자녀 ID 사용
                 .startAt(deleteAt) // 지정된 날짜에 Job 실행
                 .build();
 

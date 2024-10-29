@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>아이 성향 확인하기</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <link href="/assets/css/newSidebar.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #fff9e6;
+            font-family: 'Arial Rounded MT Bold', Arial, sans-serif;
+        }
+        .main-container {
+            min-height: 90vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .results-container {
+            background-color: white;
+            border-radius: 25px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1),
+            0 8px 12px -3px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+            width: 100%;
+            max-width: 768px;
+            padding: 0;
+            margin: 20px;
+            border: 8px solid #ffe066;
+        }
+        .results-header {
+            background-color: #ffe066;
+            color: #5a4d41;
+            padding: 1.5rem;
+            text-align: center;
+            border-radius: 17px 17px 0 0;
+            border-bottom: 4px dashed #fff9e6;
+        }
+        h1 {
+            color: #5a4d41;
+            font-weight: bold;
+            margin: 20px 0;
+            text-shadow: 2px 2px 0 #fff9e6;
+            font-size: 2.8rem; /* Updated font size */
+            letter-spacing: 2px;
+        }
+        .results-content {
+            padding: 2rem;
+        }
+        .no-data-container {
+            text-align: center;
+            padding: 3rem 1rem;
+            background-color: #fff3b0;
+            border-radius: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .no-data-message {
+            color: #5a4d41;
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 2rem;
+            text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.8);
+        }
+        .diagnosis-button {
+            background-color: #ffe066;
+            color: #5a4d41;
+            border: none;
+            font-weight: bold;
+            font-size: 1.5rem;
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .diagnosis-button:hover {
+            background-color: #ffd700;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+        }
+        .diagnosis-button:active {
+            transform: translateY(-1px);
+            box-shadow: 0 3px 4px rgba(0, 0, 0, 0.15);
+        }
+        .no-data-icon {
+            font-size: 5rem;
+            color: #ffd700;
+            margin-bottom: 1.5rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+        .no-data-icon::after {
+            content: "진단을 하지 않으면 아이의 성향을 새롭게 발견할 기회가 있어요. 아이와 함께 진단 과정을 즐겨보세요!";
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #ffe066;
+            color: #5a4d41;
+            padding: 10px;
+            border-radius: 10px;
+            width: 250px;
+            font-size: 1rem;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s, visibility 0.3s;
+            z-index: 10;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        .no-data-icon:hover::after {
+            opacity: 1;
+            visibility: visible;
+        }
+        .mbti-result {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #5a4d41;
+            text-align: center;
+            margin-bottom: 2rem;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 0.8s ease forwards;
+            text-shadow: 2px 2px 0 #ffe066;
+        }
+        .dimension-container {
+            background-color: #fff3b0;
+            border-radius: 25px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            opacity: 0;
+            transform: translateX(-20px);
+            animation: fadeInLeft 0.8s ease forwards;
+            border: 4px solid #ffe066;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        .dimension-container:nth-child(2) { animation-delay: 0.2s; }
+        .dimension-container:nth-child(3) { animation-delay: 0.4s; }
+        .dimension-container:nth-child(4) { animation-delay: 0.6s; }
+        .dimension-label {
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: #5a4d41;
+            margin-bottom: 1rem;
+            display: flex;
+            justify-content: space-between;
+            text-shadow: 1px 1px 0 #fff9e6;
+        }
+        .dimension-bar-container {
+            position: relative;
+            height: 50px;
+            padding: 10px 0;
+        }
+        .dimension-bar {
+            height: 30px;
+            background-color: #ffffff;
+            border-radius: 15px;
+            overflow: hidden;
+            position: relative;
+            border: 3px solid #ffe066;
+        }
+        .dimension-value {
+            height: 100%;
+            position: absolute;
+            top: 0;
+            background: linear-gradient(45deg, #ffe066, #ffd700);
+            width: 0;
+            transition: all 1s ease-out;
+            box-shadow: inset 0 -2px 4px rgba(0,0,0,0.1);
+        }
+        .center-line {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            width: 3px;
+            height: 100%;
+            background-color: #ffe066;
+        }
+        .tick-marks {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+        .tick {
+            position: absolute;
+            width: 2px;
+            height: 10px;
+            background-color: #ffd700;
+            top: -5px;
+        }
+        .score-display {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            font-weight: bold;
+            color: #5a4d41;
+            z-index: 10;
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.9rem;
+        }
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        @keyframes fadeInLeft {
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        .dimension-label span {
+            position: relative;
+            display: inline-block;
+            padding: 5px 15px;
+            background-color: #ffe066;
+            border-radius: 15px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .action-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 2rem;
+        }
+        .action-buttons button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 25px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .history-btn {
+            background-color: #ffe066;
+            color: #5a4d41;
+        }
+        .history-btn:hover {
+            background-color: #ffd700;
+        }
+        .delete-btn {
+            background-color: #ff6b6b;
+            color: white;
+        }
+        .delete-btn:hover {
+            background-color: #ff4757;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+        .modal-content {
+            background-color: #fff9e6;
+            margin: 15% auto;
+            padding: 20px;
+            border: 5px solid #ffe066;
+            border-radius: 25px;
+            width: 80%;
+            max-width: 500px;
+            text-align: center;
+        }
+        .modal-buttons {
+            margin-top: 20px;
+        }
+        .modal-buttons button {
+            margin: 0 10px;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 20px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .confirm-delete {
+            background-color: #ff6b6b;
+            color: white;
+        }
+        .cancel-delete {
+            background-color: #ffe066;
+            color: #5a4d41;
+        }
+        .mbti-info-container {
+            display: flex;
+            gap: 2rem;
+            margin-bottom: 2rem;
+            background-color: #fff3b0;
+            border-radius: 25px;
+            padding: 1.5rem;
+            border: 4px solid #ffe066;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 0.8s ease forwards;
+        }
+        .mbti-image-container {
+            flex: 0 0 200px;
+            background-color: #fff;
+            border-radius: 15px;
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 3px solid #ffe066;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .mbti-image-container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.15);
+        }
+        .mbti-image-container img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 10px;
+            object-fit: cover;
+        }
+        .mbti-description-container {
+            flex: 1;
+        }
+        .description-list {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 1rem 0;
+        }
+        .description-item {
+            background-color: white;
+            margin-bottom: 0.5rem;
+            padding: 0.8rem;
+            border-radius: 15px;
+            border: 2px solid #ffe066;
+            color: #5a4d41;
+            font-size: 1.1rem;
+        }
+        .tags-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+        .tag {
+            background-color: #ffe066;
+            color: #5a4d41;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 0.9rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+        .tag:hover {
+            background-color: #ffd700;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.15);
+        }
+        .placeholder-image {
+            width: 100%;
+            height: 200px;
+            background-color: #ffe066;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #5a4d41;
+            font-size: 2rem;
+            text-align: center;
+            padding: 1rem;
+            line-height: 1.2;
+            text-shadow: 1px 1px 2px rgba(255,255,255,0.5);
+        }
+    </style>
+</head>
+<body>
+
+<!-- Navigation Bar -->
+<nav class="navbar navbar-expand-lg">
+    <div class="container-fluid">
+        <span id="toggleSidebar" class="navbar-toggler-icon"></span>
+        <div class="collapse navbar-collapse justify-content-end">
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link" href="/"><i class="fas fa-home"></i> 메인페이지</a>
+                </li>
+                <li class="nav-item" th:if="${user == null}">
+                    <a class="nav-link" href="/login"><i class="fas fa-sign-in-alt"></i> 로그인</a>
+                </li>
+                <li class="nav-item" th:if="${user == null}">
+                    <a class="nav-link" href="/signup"><i class="fas fa-user-plus"></i> 회원가입</a>
+                </li>
+                <li class="nav-item" th:if="${user != null}">
+                    <a class="nav-link" th:text="${user.name + '님'}"><i class="fas fa-user-plus"></i></a>
+                </li>
+                <li class="nav-item" th:if="${user != null}">
+                    <a class="nav-link" href="/logout"><i class="fas fa-sign-out-alt"></i> 로그아웃</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<!-- Sidebar with Icons -->
+<div id="sidebar">
+    <a href="/children/select"><i class="fas fa-child"></i> 아이 프로필 변경</a>
+    <a href="/children/page"><i class="fas fa-edit"></i> 아이 정보 수정</a>
+    <a href="/userpage"><i class="fas fa-user"></i> 계정보기</a>
+    <a href="#"><i class="fas fa-history"></i> 최근 책 보기</a>
+    <a href="/ChildFavorBookList.html"><i class="fas fa-heart"></i> 좋아요 누른 책 보기</a>
+    <a href="#"><i class="fas fa-tags"></i> 카테고리 별 책보기</a>
+    <a href="/lottery/form"><i class="fas fa-gift"></i> 선착순 이벤트</a>
+</div>
+
+<script src="/assets/js/newSidebar.js"></script>
+
+<div class="main-container">
+    <div class="results-container">
+        <div class="results-header">
+            <h1>아이 성향 확인하기</h1> </div>
+        <div class="results-content">
+            <div  th:if="${childMbti == null} or ${childMbti.codeMbti == ''} or ${mbtiType == null}" class="no-data-container">
+                <i class="fas fa-question-circle no-data-icon" aria-label="진단 정보"></i>
+                <p class="no-data-message">아직 진단 데이터가 없어요!</p>
+                <button onclick="location.href='http://localhost:8080/children/diagnosisForm'"
+                        class="diagnosis-button">
+                    지금 진단하러 가기
+                </button>
+            </div>
+
+            <div th:if="${childMbti != null} and ${childMbti.codeMbti != null} and ${childMbti.codeMbti != ''}" class="mbti-result" id="mbtiResult"
+                 th:text="${childMbti.childName} + '의 MBTI는 ' + ${childMbti.codeMbti} + '입니다!'"></div>
+
+            <div class="mbti-info-container" th:if="${childMbti != null} and ${childMbti.codeMbti != null} and ${childMbti.codeMbti != ''} and ${mbtiType != null}">
+                <div class="mbti-image-container">
+                    <div th:if="${mbtiType.image == null}" class="placeholder-image">
+                        <span th:text="${mbtiType.type}"></span>
+                        <br>
+                        <span style="font-size: 1rem;">이미지 준비중</span>
+                    </div>
+                    <img th:if="${mbtiType.image != null}"
+                         th:src="@{${mbtiType.image}}"
+                         th:alt="${mbtiType.type + ' 타입 이미지'}">
+                </div>
+                <div class="mbti-description-container">
+                    <ul class="description-list">
+                        <li th:each="desc : ${mbtiType.descriptions}"
+                            class="description-item"
+                            th:text="${desc.description}">
+                        </li>
+                    </ul>
+                    <div class="tags-container">
+                        <span th:each="tag : ${mbtiType.tags}"
+                              class="tag"
+                              th:text="${tag.tag}">
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <div th:if="${childMbti != null} and ${childMbti.codeMbti != null} and ${childMbti.codeMbti != ''}" id="dimensionsContainer"
+                 th:data-ei="${childMbti.eiType}"
+                 th:data-sn="${childMbti.snType}"
+                 th:data-tf="${childMbti.tfType}"
+                 th:data-jp="${childMbti.jpType}">
+            </div>
+
+            <div th:if="${childMbti != null} and ${childMbti.codeMbti != null} and ${childMbti.codeMbti != ''}" class="action-buttons">
+                <button class="history-btn" onclick="goToHistory()">히스토리</button>
+                <button class="delete-btn" onclick="showDeleteConfirmation()">삭제</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div th:if="${childMbti != null} and ${childMbti.codeMbti != null} and ${childMbti.getChildName() != ''}" id="deleteModal" class="modal">
+    <div class="modal-content">
+        <h2>삭제 확인</h2>
+        <p>MBTI, MBTI 히스토리, 카테고리, 좋아요가 모두 삭제됩니다. 계속하시겠습니까?</p>
+        <div class="modal-buttons">
+            <button class="confirm-delete" onclick="deleteData()">삭제</button>
+            <button class="cancel-delete" onclick="hideDeleteConfirmation()">취소</button>
+        </div>
+    </div>
+</div>
+
+<script th:inline="javascript">
+    function createTicks(container, start, end, step) {
+        const ticksContainer = document.createElement('div');
+        ticksContainer.className = 'tick-marks';
+
+        for (let i = start; i <= end; i += step) {
+            if (i === 0) continue;
+            const tick = document.createElement('div');
+            tick.className = 'tick';
+            const position = (i + 100) / 2;
+            tick.style.left = `${position}%`;
+            ticksContainer.appendChild(tick);
+        }
+
+        return ticksContainer;
+    }
+
+    function displayResults() {
+        const dimensionsContainer = document.getElementById('dimensionsContainer');
+        if (!dimensionsContainer) return;
+
+        const dimensions = {
+            IE: parseInt(dimensionsContainer.getAttribute('data-ei')),
+            SN: parseInt(dimensionsContainer.getAttribute('data-sn')),
+            TF: parseInt(dimensionsContainer.getAttribute('data-tf')),
+            JP: parseInt(dimensionsContainer.getAttribute('data-jp'))
+        };
+
+        for (const [dimension, value] of Object.entries(dimensions)) {
+            const dimensionDiv = document.createElement('div');
+            dimensionDiv.className = 'dimension-container';
+            dimensionDiv.innerHTML = `
+                <div class="dimension-label">
+                    <span>${dimension[0]}</span> <span>${dimension[1]}</span>
+                </div>
+                <div class="dimension-bar-container">
+                    <div class="dimension-bar">
+                        <div class="center-line"></div>
+                        <div class="dimension-value" id="${dimension}Value"></div>
+                        <div class="score-display">${value}</div>
+                    </div>
+                </div>
+            `;
+            dimensionsContainer.appendChild(dimensionDiv);
+
+            const barContainer = dimensionDiv.querySelector('.dimension-bar');
+            barContainer.appendChild(createTicks(barContainer, -90, 90, 10));
+
+            setTimeout(() => {
+                const valueBar = document.getElementById(`${dimension}Value`);
+                const absValue = Math.abs(value);
+                const scaledValue = absValue / 2;
+
+                if (value < 0) {
+                    valueBar.style.right = '50%';
+                    valueBar.style.left = 'auto';
+                    valueBar.style.width = `${scaledValue}%`;
+                } else {
+                    valueBar.style.left = '50%';
+                    valueBar.style.right = 'auto';
+                    valueBar.style.width = `${scaledValue}%`;
+                }
+            }, 300);
+        }
+    }
+
+    function goToHistory() {
+        window.location.href = 'http://localhost:8080/children/history';
+    }
+
+    function showDeleteConfirmation() {
+        document.getElementById('deleteModal').style.display = 'block';
+    }
+
+    function hideDeleteConfirmation() {
+        document.getElementById('deleteModal').style.display = 'none';
+    }
+
+    function deleteData() {
+        fetch("http://localhost:8080/api/mbti/delete", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            }
+        })
+            .then(response => {
+                if (response.ok) {
+                    alert("MBTI, MBTI 히스토리, 카테고리, 좋아요가 삭제되었습니다.");
+                    location.reload();
+                } else {
+                    alert("삭제에 실패했습니다. 다시 시도하세요.");
+                }
+            })
+            .catch(error => {
+                console.error("삭제 요청 중 오류 발생:", error);
+                alert("삭제 요청 중 문제가 발생했습니다.");
+            });
+        hideDeleteConfirmation();
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        displayResults();
+    });
+</script>
+</body>
+</html>
