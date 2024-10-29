@@ -6,6 +6,7 @@ import com.mycom.myapp.naviya.domain.lottery.repository.LotteryRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Primary;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -21,11 +22,12 @@ import java.util.stream.Collectors;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class LotteryServiceImpl implements LotteryService {
+public class HashLotteryService implements LotteryService {
 
     private final LotteryRepository lotteryRepository;
     private final StringRedisTemplate redisTemplate;
 
+    private static final String LOTTERY_HASH_KEY = "lottery:entries";
     private static final String LOTTERY_COUNT_KEY = "lottery:count";
     private static final String LOTTERY_WINNERS_LIST = "lottery:winners";
 
@@ -39,21 +41,35 @@ public class LotteryServiceImpl implements LotteryService {
         try {
             String phone = request.getPhone();
             String name = request.getName();
+            String entryKey = phone;
             String entryData = name + ":" + phone;
 
             log.info("새로운 응모 요청 처리 중 - 이름: {}, 전화번호: {}", name, phone);
 
             // Redis에서 중복 체크 (LOTTERY_WINNERS_LIST 안에 전화번호가 있는지 확인)
-            List<String> winnersList = redisTemplate.opsForList().range(LOTTERY_WINNERS_LIST, 0, -1);
-            if (winnersList != null && winnersList.stream().anyMatch(data -> data.endsWith(":" + phone))) {
+            Boolean isDuplicate = redisTemplate.opsForHash().hasKey(LOTTERY_HASH_KEY, entryKey);
+            if (Boolean.TRUE.equals(isDuplicate)) {
                 log.warn("중복 응모 시도 - 전화번호: {}", phone);
                 return "이미 응모한 전화번호입니다.";
             }
 
-            // 응모 카운트 확인
-            Long currentCount = redisTemplate.opsForValue().get(LOTTERY_COUNT_KEY) != null
-                    ? Long.parseLong(redisTemplate.opsForValue().get(LOTTERY_COUNT_KEY))
-                    : 0;
+            // Redis에서 응모자 수 확인 (문자열로 반환되므로 변환 과정 필요)
+            String countStr = redisTemplate.opsForValue().get(LOTTERY_COUNT_KEY);
+            Long currentCount = 0L;
+
+            // countStr이 null이라면 초기값 0을 설정, 숫자 변환 가능 여부 확인
+            if (countStr == null) {
+                // Redis에 키가 없으면 0으로 초기화
+                redisTemplate.opsForValue().set(LOTTERY_COUNT_KEY, "0");
+            } else {
+                try {
+                    currentCount = Long.valueOf(countStr);
+                } catch (NumberFormatException e) {
+                    log.warn("Invalid count value in Redis. Resetting count to 0.");
+                    currentCount = 0L;
+                    redisTemplate.opsForValue().set(LOTTERY_COUNT_KEY, "0");  // 잘못된 값일 경우 초기화
+                }
+            }
 
             if (currentCount >= 100) {
                 log.info("응모 마감 - 현재 응모자 수가 100명을 초과하였습니다.");
@@ -61,8 +77,10 @@ public class LotteryServiceImpl implements LotteryService {
             }
 
             // 성공한 응모 처리: 이름과 전화번호를 Redis 리스트에 추가
-            redisTemplate.opsForList().rightPush(LOTTERY_WINNERS_LIST, entryData);
-            redisTemplate.opsForValue().increment(LOTTERY_COUNT_KEY);
+            redisTemplate.opsForHash().put(LOTTERY_HASH_KEY, entryKey, entryData);
+
+            // 응모 리스트에 추가 후 카운트 증가
+            redisTemplate.opsForValue().increment(LOTTERY_COUNT_KEY, 1);
 
             log.info("응모가 접수되었습니다 - 이름: {}, 전화번호: {}", name, phone);
             return "응모가 접수되었습니다. 결과는 내일 오후 1시에 발표됩니다.";
@@ -75,40 +93,33 @@ public class LotteryServiceImpl implements LotteryService {
 
     @Override
     @Transactional
-    @Scheduled(cron = "0 55 12 * * ?")
+    @Scheduled(cron = "0 02 10 * * ?")
     public void processLotteryResults() {
 
         log.info("응모 결과 처리 시작.");
 
         // Redis에서 성공한 100명 응모자 정보 가져오기
-        Long winnerCount = redisTemplate.opsForList().size(LOTTERY_WINNERS_LIST);
-        if (winnerCount == null || winnerCount == 0) {
+        List<Object> winnersList = redisTemplate.opsForHash().values((LOTTERY_HASH_KEY));
+        if (winnersList.isEmpty()){
             log.info("응모자 정보가 없습니다.");
             return;
         }
 
-        for (int i = 0; i < winnerCount; i++) {
-            String entryData = redisTemplate.opsForList().index(LOTTERY_WINNERS_LIST, i);
-            if (entryData == null) {
-                continue;
-            }
-
-            // 이름과 전화번호를 분리
-            String[] parts = entryData.split(":");
+        for (Object entryData : winnersList) {
+            String[] parts = entryData.toString().split(":");
             if (parts.length != 2) {
-                log.warn("잘못된 형식의 데이터: {}", entryData);
+                log.warn("잘못된 응모 데이터 형식: {}", entryData);
                 continue;
             }
             String name = parts[0];
             String phone = parts[1];
 
-            // LotteryEntry 생성 및 저장
             LotteryEntry entry = new LotteryEntry(name, phone);
             lotteryRepository.save(entry);
         }
 
         // Redis에서 응모 데이터 삭제
-        redisTemplate.delete(LOTTERY_WINNERS_LIST);
+        redisTemplate.delete(LOTTERY_HASH_KEY);
         redisTemplate.delete(LOTTERY_COUNT_KEY);
 
         log.info("응모 데이터가 MySQL로 이전되었습니다. 이벤트가 종료되었습니다.");
