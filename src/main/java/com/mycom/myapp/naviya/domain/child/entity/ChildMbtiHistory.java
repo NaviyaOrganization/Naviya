@@ -20,7 +20,7 @@ public class ChildMbtiHistory {
     @Column(name = "code_new_mbti")
     private String codeNewMbti;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "child_id", nullable = false)
     private Child child;
 

@@ -31,9 +31,8 @@ public class BookServiceImpl implements BookService {
     private final ChildRepository childRepository;
     private final ChildFavorCategoryRepository childFavorCategoryRepository;
     private final ChildMbtiRepository childMbtiRepository;
-    @Autowired
-    private final RedisTemplate<String, Object> redisTemplate;
-    private final String QUEUE_NAME = "likeDislikeQueue";
+    private final LikeDislikeProcessor likeDislikeProcessor;
+
 
 
     @Override
@@ -201,21 +200,13 @@ public class BookServiceImpl implements BookService {
             return bookResultDto;
         }
     }
-    public void enqueueLike(Long childId, Long bookId, String type) {
-        // 요청을 큐에 추가
-        redisTemplate.opsForList().rightPush(QUEUE_NAME, new LikeDislikeTaskDto("like",childId, bookId,type));
-    }
-    public void enqueueDisLike(Long childId, Long bookId,String type) {
-        // 요청을 큐에 추가
-        redisTemplate.opsForList().rightPush(QUEUE_NAME, new LikeDislikeTaskDto("dislike",childId, bookId,type));
-    }
+
     @Override
    @Transactional
     public BookResultDto ChildBookLike(long ChildId, long BookId,String Type) {
         BookResultDto bookResultDto=new BookResultDto();
         try{
-            enqueueLike(ChildId,BookId,Type);
-
+            likeDislikeProcessor.enqueueLike(ChildId,BookId,Type);
             return bookResultDto;
         }
         catch(Exception e){
@@ -229,7 +220,7 @@ public class BookServiceImpl implements BookService {
     public BookResultDto ChildBookDisLike(long ChildId, long BookId,String Type) {
         BookResultDto bookResultDto=new BookResultDto();
         try{
-            enqueueDisLike(ChildId,BookId,Type);
+            likeDislikeProcessor.enqueueDisLike(ChildId,BookId,Type);
             return bookResultDto;
         }
         catch(Exception e){
@@ -238,11 +229,7 @@ public class BookServiceImpl implements BookService {
             return bookResultDto;
         }
     }
-    /*
-    모두 가중치 동적 조정법 적용
-    <a> mbti 별 추천에 대한 싫어요는 가중치를 1.2를 곱해서 크게 빼준다.
-    <b> 일반책은 0.7곱해서 나눠서 빼준다.
-    <c>mbti 반대별 싫어요는 당연한거니 0.5 곱해서 빼준다.*/
+
     @Override
     public BookResultDto DelChildBookLike(long BookId, long ChildId) {
         BookResultDto bookResultDto=new BookResultDto();

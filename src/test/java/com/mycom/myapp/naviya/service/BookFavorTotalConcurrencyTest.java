@@ -27,26 +27,6 @@ public class BookFavorTotalConcurrencyTest {
     @Autowired
     private ChildRepository childRepository;
 
-   /* @BeforeEach
-    @Transactional
-    public void setUp() {
-        // 1부터 1000까지의 아이들 삽입
-        for (int i = 150; i <= 1000; i++) {
-            Child child = new Child();
-            User user = new User();
-            user.setUserId(1L);
-            child.setUser(user);
-            child.setChildName("Child " + i);
-            child.setChildAge(10);
-            child.setChildGender('M');
-            child.setCodeMbti("INTJ");
-            child.setChildImage("image_path.jpg");
-            child.setChildAgeRange("Children");
-            child.setCreatedAt(LocalDateTime.now());
-            childRepository.save(child);
-        }
-    }*/
-
     @Test
 
     public void testConcurrentLikesAndDislikes() throws InterruptedException {
@@ -59,19 +39,15 @@ public class BookFavorTotalConcurrencyTest {
 
         long startTime = System.nanoTime(); // 시작 시간 기록
 
-        for (int i = 1; i <= 72; i++) {
+        for (int i = 1; i <= 1000; i++) {
             long childId = i;
             executor.submit(() -> {
                 // 스레드 동기화 및 실행
-                bookServiceImpl.enqueueLike(childId, bookId, mbti);
+                bookServiceImpl.ChildBookLike(childId,bookId,mbti);
+                bookServiceImpl.ChildBookDisLike(childId, bookId, mbti);
             });
         }
-        for (int i = 1; i <= 72; i++) {
-             long childId = i;
-            executor.submit(() -> {
-                bookServiceImpl.enqueueDisLike(childId,bookId,mbti);
-            });
-        }
+
 
 
         executor.shutdown();

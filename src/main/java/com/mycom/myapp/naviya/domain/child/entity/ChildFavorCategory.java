@@ -18,7 +18,7 @@ public class ChildFavorCategory {
     @Column(name = "child_favor_category_weight")
     private Long childFavorCategoryWeight;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "child_id", nullable = false)
     private Child child;
 
