@@ -175,7 +175,6 @@
 
     async function ListFavorBook(selectedChildId,cateogryId) {
         try {
-            //const longCategoryId = parseInt(categoryId, 10); // 문자열을 정수로 변환
             const response = await fetch(`/Book/BookCategoryOne?childId=${selectedChildId}&Ctegory=${cateogryId}`);
             const data = await response.json();
             console.log(cateogryId);

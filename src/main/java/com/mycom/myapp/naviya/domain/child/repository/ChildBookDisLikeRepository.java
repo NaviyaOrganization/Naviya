@@ -15,8 +15,13 @@ public interface ChildBookDisLikeRepository extends JpaRepository<ChildBookDisli
 
     @Modifying
     @Transactional // 이 메서드에 트랜잭션이 필요합니다.
-    @Query("DELETE FROM ChildBookDislike d WHERE d.child.childId = :childId AND d.book.bookId = :bookId")
+    @Query("DELETE FROM ChildBookDislike d WHERE d.child.childId = :childId AND d.book.bookId = :bookId AND d.deletedAt IS NULL")
     void deleteByChild_ChildIdAndBook_BookId(@Param("childId") Long childId, @Param("bookId") Long bookId);
+
+
+    @Query("SELECT CASE WHEN COUNT(cbl) > 0 THEN true ELSE false END FROM ChildBookDislike cbl " +
+            "WHERE cbl.child.childId = :childId AND cbl.book.bookId = :bookId AND cbl.deletedAt IS NULL")
+    boolean CHildBookDislkeIsExistDelDateIsNull(@Param("childId") Long childId, @Param("bookId") Long bookId);
 
     @Modifying
     @Transactional

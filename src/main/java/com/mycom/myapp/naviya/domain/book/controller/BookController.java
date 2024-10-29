@@ -58,12 +58,12 @@ public class BookController {
     @GetMapping("/BookLike")
     public BookResultDto BookLike(@RequestParam long bookId,@RequestParam long childId, @RequestParam String Type)
     {
-        return bookServiceImpl.ChildBookLike(bookId,childId,Type);
+        return bookServiceImpl.ChildBookLike(childId,bookId,Type);
     }
     @GetMapping("/BookDisLike")
     public BookResultDto BookDisLike(@RequestParam long bookId,@RequestParam long childId ,@RequestParam String Type)
     {
-        return bookServiceImpl.ChildBookDisLike(bookId,childId,Type);
+        return bookServiceImpl.ChildBookDisLike(childId,bookId,Type);
     }
     @DeleteMapping("/DelBookLike")
     public BookResultDto DelBookLike(@RequestParam long bookId,@RequestParam long childId)
