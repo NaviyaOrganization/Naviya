@@ -234,5 +234,9 @@ public class ChildMbtiServiceImpl implements ChildMbtiService {
         updateDeletedAtForExistingRecords(child);
     }
 
+    @Override
+    public boolean existsChildMbti(Long childId){
+        return childMbtiRepository.isDeletedByChildId(childId).orElse(false);
+    }
 }
 

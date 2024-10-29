@@ -24,12 +24,12 @@ public class MbtiRecommendServiceImpl implements MbtiRecommendService {
 
     public int calculateWeightedScore(ChildMbti mbti, BookDto book) {
         int score = 0;
-        int[] childMbti = new int[4];
+        double[] childMbti = new double[4];
         if (mbti.getMbti() != null) {
-            childMbti[0] = mbti.getMbti().getEiType();
-            childMbti[1] = mbti.getMbti().getSnType();
-            childMbti[2] = mbti.getMbti().getTfType();
-            childMbti[3] = mbti.getMbti().getJpType();
+            childMbti[0] = (double) mbti.getMbti().getEiType() / 10;
+            childMbti[1] = (double) mbti.getMbti().getSnType() / 10;
+            childMbti[2] = (double) mbti.getMbti().getTfType() / 10;
+            childMbti[3] = (double) mbti.getMbti().getJpType() / 10;
         } else {
             childMbti[0] = 0;
             childMbti[1] = 0;
@@ -46,16 +46,16 @@ public class MbtiRecommendServiceImpl implements MbtiRecommendService {
 
         // 각 MBTI 요소별로 가중치 계산 ( 같을 때, 차이가 3 이내, 5 이내, 7 이내인 경우)
         for (int i = 0; i < 4; i++) {
-            int diff = Math.abs(childMbti[i] - bookMbti[i]); // 차이 계산
+            double diff = Math.abs(childMbti[i] - bookMbti[i]); // 차이 계산
 
-            if (diff == 0) {
-                score += 5; // 완전히 같을 때
-            } else if (diff <= 3) {
-                score += 3; // 차이가 3 이내일 때
-            } else if (diff <= 5) {
-                score += 2; // 차이가 5 이내일 때
-            } else if (diff <= 7) {
-                score += 1; // 차이가 7 이내일 때
+            if (diff <= 1.5) {
+                score += 5; // 차이가 1.5 이내일 때
+            } else if (diff <= 3.5) {
+                score += 3; // 차이가 3.5 이내일 때
+            } else if (diff <= 5.5) {
+                score += 2; // 차이가 5.5 이내일 때
+            } else if (diff <= 7.5) {
+                score += 1; // 차이가 7.5 이내일 때
             }
 
         }
@@ -69,7 +69,7 @@ public class MbtiRecommendServiceImpl implements MbtiRecommendService {
     public List<BookDto> recommendBooks(Long childId) {
         Child child = childRepository.findById(childId)
                 .orElseThrow(() -> new IllegalArgumentException("자식을 찾을 수 없습니다."));
-        List<BookDto> books = bookRepository.findAllBookDto();  // 좋아요, 싫어요, 자녀 연령 필터링해서 가져오기
+        List<BookDto> books = bookRepository.ChildAgefindAllBookDto(childId);  // 좋아요, 싫어요, 자녀 연령 필터링해서 가져오기
 
         ChildMbti childMbti = new ChildMbti();
         for (ChildMbti childMbti_temp : child.getChildMbti()) {
@@ -100,7 +100,7 @@ public class MbtiRecommendServiceImpl implements MbtiRecommendService {
         Child child = childRepository.findById(childId)
                 .orElseThrow(() -> new IllegalArgumentException("자식을 찾을 수 없습니다."));
 
-        List<BookDto> books = bookRepository.findAllBookDto();  // 자녀 연령 필터링 및 좋아요/싫어요 고려하여 가져오기
+        List<BookDto> books = bookRepository.ChildAgefindAllBookDto(childId);  // 자녀 연령 필터링 및 좋아요/싫어요 고려하여 가져오기
         List<BookDto> SNrecommendedBooks = new ArrayList<>();
         List<BookDto> FTrecommendedBooks = new ArrayList<>();
 

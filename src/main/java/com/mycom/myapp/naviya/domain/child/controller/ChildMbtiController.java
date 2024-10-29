@@ -62,4 +62,9 @@ public class ChildMbtiController {
         }
     }
 
+    @GetMapping("/exist")
+    public ResponseForm isChildMbtiDeleted(@RequestParam Long childId) {
+        boolean isDeleted = childMbtiService.existsChildMbti(childId);
+        return ResponseForm.of(ResponseCode.EXAMPLE_SUCCESS, isDeleted);
+    }
 }
