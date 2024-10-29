@@ -1,16 +1,18 @@
 package com.mycom.myapp.naviya.domain.child.controller;
 
 import com.mycom.myapp.naviya.domain.book.dto.BookResultDto;
+import com.mycom.myapp.naviya.domain.child.dto.*;
 import com.mycom.myapp.naviya.domain.child.dto.ChildAddDto;
 import com.mycom.myapp.naviya.domain.child.dto.ChildDto;
 import com.mycom.myapp.naviya.domain.child.dto.ChildResultDto;
 import com.mycom.myapp.naviya.domain.child.dto.ChildWithMbtiHistoryDto;
-import com.mycom.myapp.naviya.domain.child.dto.*;
 import com.mycom.myapp.naviya.domain.child.entity.Child;
 import com.mycom.myapp.naviya.domain.child.repository.ChildRepository;
 import com.mycom.myapp.naviya.domain.child.service.ChildMbtiService;
 import com.mycom.myapp.naviya.domain.user.entity.User;
 import com.mycom.myapp.naviya.domain.user.repository.UserRepository;
+
+import com.mycom.myapp.naviya.global.mbti.service.MbtiTypeService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -26,6 +28,8 @@ import com.mycom.myapp.naviya.domain.child.service.ChildService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
+
 @Controller
 @RequestMapping("/children")
 @RequiredArgsConstructor
@@ -36,39 +40,77 @@ public class ChildController {
     private final ChildService childService;
     private final Logger LOGGER = LoggerFactory.getLogger(ChildController.class);
     private final UserRepository userRepository;
+    private final MbtiTypeService mbtiTypeService;
 
-    @GetMapping("/{childId}/mbti-history")
-    public String getChildMbtiHistory(@PathVariable Long childId, Model model) {
-        ChildWithMbtiHistoryDto childWithMbtiHistory = childMbtiService.getChildMbtiHistory(childId);
-        model.addAttribute("childWithMbtiHistory", childWithMbtiHistory);
-        model.addAttribute("expanded", false);
-        return "mbtiHistory"; // 반환하는 뷰 이름 (예: childMbtiHistory.html)
-    }
-
-
-    @GetMapping("/{childId}/diagnosisForm")
-    public String getDiagnosisForm(@PathVariable Long childId, Model model) {
-        model.addAttribute("childId", childId);
-        return "diagnosisForm";
-    }
-
-    // 테스트 용도
+    // 자녀 성향 진단 히스토리 테스트 by HttpSession
     @GetMapping("/history")
-    public String getChildMbtiHistory2(HttpSession session, Model model) {
+    public String getChildMbtiHistory(HttpSession session, Model model) {
         Long selectedChildId = (Long) session.getAttribute("selectedChildId");
+        if (selectedChildId == null) {
+            model.addAttribute("errorMessage", "선택된 아이 정보가 없습니다.");
+            return "index"; // 같은 페이지에서 에러 메시지를 표시하도록 설정
+        }
         ChildWithMbtiHistoryDto childWithMbtiHistory = childMbtiService.getChildMbtiHistory(selectedChildId);
 
         model.addAttribute("expanded", false);
         model.addAttribute("childWithMbtiHistory", childWithMbtiHistory);
+        childMbtiService.navbarInfo(session, model);
 
         return "mbtiHistory"; // 반환하는 뷰 이름 (예: childMbtiHistory.html)
     }
 
-    // 테스트 용도
+    // diagnosisForm by HttpSession
     @GetMapping("/diagnosisForm")
-    public String getDiagnosisForm() {
+    public String getDiagnosisForm(HttpSession session, Model model) {
+        Long selectedChildId = (Long) session.getAttribute("selectedChildId");
+        // selectedChildId가 없는 경우 - 에러 메시지를 모델에 추가하고 기본 페이지 반환
+        if (selectedChildId == null) {
+            model.addAttribute("errorMessage", "선택된 아이 정보가 없습니다.");
+            return "index"; // 같은 페이지에서 에러 메시지를 표시하도록 설정
+        }
+        model.addAttribute("ChildId", selectedChildId);
+        childMbtiService.navbarInfo(session, model);
         return "diagnosisForm";
     }
+
+
+    @GetMapping("/childMBTIResult")
+    public String getChildMBTIResult(HttpSession session, Model model) {
+        // 1. 세션에서 selectedChildId를 가져옴
+        Long selectedChildId = (Long) session.getAttribute("selectedChildId");
+
+        // 2. selectedChildId가 없는 경우 - 에러 메시지를 모델에 추가하고 기본 페이지 반환
+        if (selectedChildId == null) {
+            model.addAttribute("errorMessage", "선택된 아이 정보가 없습니다.");
+            return "index"; // 같은 페이지에서 에러 메시지를 표시하도록 설정
+        }
+
+        // 3. ChildMbti 정보 조회
+        Optional<ChildMbtiDto> childMbtiDtoOpt = childMbtiService.getChildMbtiInfo(selectedChildId);
+
+        // 4. ChildMbti 정보가 있는 경우 - MBTI 결과를 모델에 추가
+        if (childMbtiDtoOpt.isPresent()) {
+            ChildMbtiDto childMbtiDto = childMbtiDtoOpt.get();
+            model.addAttribute("childMbti", childMbtiDto);
+            model.addAttribute("responseMessage", "MBTI 조회가 성공적으로 완료되었습니다.");
+
+            // MBTI 타입 정보 추가 (codeMbti가 빈 문자열이 아닌 경우에만)
+            if (!childMbtiDto.getCodeMbti().isEmpty()) {
+                model.addAttribute("mbtiType", mbtiTypeService.getMbtiTypeDtoByType(childMbtiDto.getCodeMbti()));
+            }
+        } else {
+            // ChildMbti 정보가 없는 경우 - 에러 메시지를 모델에 추가
+            model.addAttribute("errorMessage", "아이의 MBTI 정보가 없습니다.");
+        }
+
+        // 5. 네비게이션 정보 추가
+        childMbtiService.navbarInfo(session, model);
+
+        // 6. 결과 페이지로 이동
+        return "childMBTIResult";
+    }
+
+
 
     // 자녀 프로필 선택
     @GetMapping("/select")

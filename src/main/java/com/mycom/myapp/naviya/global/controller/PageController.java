@@ -1,7 +1,11 @@
 package com.mycom.myapp.naviya.global.controller;
 
+import com.mycom.myapp.naviya.domain.book.dto.BookDetailDto;
+import com.mycom.myapp.naviya.domain.book.dto.BookResultDto;
+import com.mycom.myapp.naviya.domain.book.service.BookService;
 import com.mycom.myapp.naviya.domain.child.entity.Child;
 import com.mycom.myapp.naviya.domain.child.repository.ChildRepository;
+import com.mycom.myapp.naviya.domain.child.service.ChildService;
 import com.mycom.myapp.naviya.domain.common.entity.Admin;
 import com.mycom.myapp.naviya.domain.common.repository.AdminRepository;
 import com.mycom.myapp.naviya.domain.user.entity.User;
@@ -11,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 
@@ -21,6 +26,8 @@ public class PageController {
     private final UserRepository userRepository;
     private final ChildRepository childRepository;
     private final AdminRepository adminRepository;
+    private final ChildService childService;
+    private final BookService bookService;
 
     @GetMapping("/login")
     public String loginPage() {
@@ -134,5 +141,36 @@ public class PageController {
         User user = userRepository.findByEmail(email);
         model.addAttribute("user", user);
         return "search";
+    }
+
+    @GetMapping("/detail")
+    public String detailBook(@RequestParam long bookId, Model model, HttpSession session) {
+        Long selectedChildId = (Long) session.getAttribute("selectedChildId");
+
+        // 책의 상세 정보를 가져옴
+        BookResultDto bookResultDto = new BookResultDto();
+
+        // 좋아요 여부 확인
+        boolean isLiked = childService.existsLike(selectedChildId, bookId);
+
+        // 싫어요 여부 확인
+        boolean isDisliked = childService.existsDislike(selectedChildId, bookId);
+
+        // 새로 만든 DTO에 정보 저장
+        BookDetailDto bookDetailDto = bookService.detailBook(bookId,selectedChildId).getBookDetail();
+        bookDetailDto.setLiked(isLiked);
+        bookDetailDto.setDisliked(isDisliked);
+
+        // 모델에 추가
+        model.addAttribute("book", bookDetailDto);
+        session.setAttribute("book", bookDetailDto);
+
+        return "BookDetailPage";
+    }
+    @GetMapping("/read")
+    public String readBook(Model model, HttpSession session) {
+        BookDetailDto bookDetailDto = (BookDetailDto) session.getAttribute("book");
+        model.addAttribute("book", bookDetailDto);
+        return "BookReadPage";
     }
 }

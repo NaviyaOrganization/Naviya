@@ -1,23 +1,26 @@
 package com.mycom.myapp.naviya.domain.child.service;
 
-import com.mycom.myapp.naviya.domain.child.dto.ChildDto;
-import com.mycom.myapp.naviya.domain.child.dto.ChildMbtiHistoryDto;
-import com.mycom.myapp.naviya.domain.child.dto.ChildWithMbtiHistoryDto;
-import com.mycom.myapp.naviya.domain.child.dto.MBTIScoresDto;
+import com.mycom.myapp.naviya.domain.child.dto.*;
 import com.mycom.myapp.naviya.domain.child.entity.Child;
 import com.mycom.myapp.naviya.domain.child.entity.ChildMbti;
 import com.mycom.myapp.naviya.domain.child.entity.ChildMbtiHistory;
 import com.mycom.myapp.naviya.domain.child.repository.*;
+import com.mycom.myapp.naviya.domain.user.entity.User;
+import com.mycom.myapp.naviya.domain.user.repository.UserRepository;
 import com.mycom.myapp.naviya.global.mbti.entity.Mbti;
 import com.mycom.myapp.naviya.global.mbti.service.MbtiDiagnosisDataQuartzService;
 import com.mycom.myapp.naviya.global.mbti.repository.MbtiRepository;
+import jakarta.servlet.http.HttpSession;
 import lombok.AllArgsConstructor;
 import org.quartz.SchedulerException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @AllArgsConstructor
@@ -39,6 +42,8 @@ public class ChildMbtiServiceImpl implements ChildMbtiService {
 
     private MbtiDiagnosisDataQuartzService mbtiDiagnosisDataQuartzService;
 
+    private UserRepository userRepository;
+
     /**
      * 자녀의 MBTI 성향을 진단하고 저장하는 메서드 (ChildMbti와 ChildMbtiHistory에 저장).
      *
@@ -51,8 +56,10 @@ public class ChildMbtiServiceImpl implements ChildMbtiService {
         Child child = childRepository.findById(childId)
                 .orElseThrow(() -> new RuntimeException("아이를 찾을 수 없습니다."));
 
-        // 기존 데이터 처리: ChildMbti와 ChildMbtiHistory의 deletedAt 필드 업데이트(논리적 삭제)
-        updateDeletedAtForExistingRecords(child);
+        if (child.getCodeMbti() != null){
+            // 기존 데이터 처리: ChildMbti와 ChildMbtiHistory의 deletedAt 필드 업데이트(논리적 삭제)
+            updateDeletedAtForExistingRecords(child);
+        }
 
         // 새로운 MBTI 데이터 저장
         saveNewMbti(child, scores);
@@ -69,9 +76,10 @@ public class ChildMbtiServiceImpl implements ChildMbtiService {
     @Transactional
     public void updateDeletedAtForExistingRecords(Child child) {
         // 현재 시간 기준으로 30일 뒤 시간 설정
-        // LocalDateTime futureLocalDateTime = LocalDateTime.now().plusDays(30);
-        // 현재 시간 기준으로 2분 뒤 시간 설정
-        LocalDateTime futureLocalDateTime = LocalDateTime.now().plusMinutes(1);
+         LocalDateTime futureLocalDateTime = LocalDateTime.now().plusDays(30);
+        // 현재 시간 기준으로 1분 뒤 시간 설정
+//        LocalDateTime futureLocalDateTime = LocalDateTime.now().plusMinutes(1);
+        child.setCodeMbti(null);
 
         // ChildMbti의 deletedAt 업데이트
         childMbtiRepository.updateDeletedAtForChild(child, futureLocalDateTime);
@@ -88,6 +96,7 @@ public class ChildMbtiServiceImpl implements ChildMbtiService {
         // ChildFavorCategory의 deletedAt 업데이트
         childFavorCategoryRepository.updateDeletedAtForChild(child, futureLocalDateTime);
 
+        childRepository.save(child);
         // 스케줄러를 이용하여 30일 뒤에 실제 삭제 수행
         try {
             mbtiDiagnosisDataQuartzService.
@@ -105,25 +114,29 @@ public class ChildMbtiServiceImpl implements ChildMbtiService {
      */
     private void saveNewMbti(Child child, MBTIScoresDto scores) {
         // 새로운 ChildMbti 및 Mbti 생성
-        ChildMbti childMbti = new ChildMbti();
         Mbti mbti = new Mbti();
 
-        // 연관 관계 설정
-        childMbti.setChild(child);
-        childMbti.setMbti(mbti);
-
         // MBTI 성향 업데이트 (점수에 따른 설정)
-        int minusScore = -5;
-        int plusScore = 5;
+        int minusScore = -20;
+        int plusScore = 20;
         mbti.setEiType(scores.getEiScore().equals("I") ? minusScore : plusScore); // I - / E +
         mbti.setSnType(scores.getSnScore().equals("S") ? minusScore : plusScore); // S - / N +
         mbti.setTfType(scores.getTfScore().equals("T") ? minusScore : plusScore); // T - / F +
         mbti.setJpType(scores.getJpScore().equals("J") ? minusScore : plusScore); // J - / P +
 
+        // MBTI 저장
+        mbtiRepository.save(mbti);
+
+        ChildMbti childMbti = new ChildMbti();
+
+        // 연관 관계 설정
+        childMbti.setChild(child);
+        childMbti.setMbti(mbti);
+
         child.setCodeMbti(calculateMBTI(scores));
         childMbtiRepository.save(childMbti);
-        // MBTI 및 ChildMbti 저장
-        mbtiRepository.save(mbti);
+        // ChildMbti 저장
+
         childMbtiRepository.save(childMbti);
     }
 
@@ -234,5 +247,26 @@ public class ChildMbtiServiceImpl implements ChildMbtiService {
         updateDeletedAtForExistingRecords(child);
     }
 
+    @Override
+    public boolean existsChildMbti(Long childId){
+        return childMbtiRepository.isDeletedByChildId(childId).orElse(false);
+    }
+    @Override
+    public Optional<ChildMbtiDto> getChildMbtiInfo(Long childId) {
+        return childRepository.findChildMbtiById(childId);
+    }
+
+    @Override
+    public void navbarInfo(HttpSession session, Model model) {
+        // 세션에서 사용자 이메일, 자녀 아이디를 가져옴
+        String email = (String) session.getAttribute("userEmail");
+
+        if (email != null) {  // 세션에 저장된 이메일이 있을 경우
+            User user = userRepository.findByEmail(email);
+            model.addAttribute("user", user);
+        } else {
+            model.addAttribute("user", null);
+        }
+    }
 }
 

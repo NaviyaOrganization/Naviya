@@ -10,14 +10,21 @@ export let options = {
     },
 };
 
+// 프로그램 목록 정의
+const programs = ['창의력', '논리력', '사회성', '신체'];
+
 export default function () {
     let url = 'http://host.docker.internal:8080/lottery/submit';
 
     // 1부터 100까지 반복하면서 각기 다른 유저 정보로 요청
     for (let userId = 1; userId <= 100; userId++) {
+        // 랜덤하게 프로그램 선택
+        let selectedProgram = programs[Math.floor(Math.random() * programs.length)];
+
         let payload = JSON.stringify({
             name: `User${userId}`,
-            phone: `0101234567${String(userId).padStart(2, '0')}`  // 각 유저에 대해 고유한 전화번호
+            phone: `0101234567${String(userId).padStart(2, '0')}`,  // 각 유저에 대해 고유한 전화번호
+            selectedProgram: selectedProgram
         });
 
         let params = {
