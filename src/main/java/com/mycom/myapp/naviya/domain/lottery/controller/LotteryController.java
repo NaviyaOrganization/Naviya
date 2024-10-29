@@ -4,7 +4,6 @@ import com.mycom.myapp.naviya.domain.lottery.dto.LotteryEntryRequest;
 import com.mycom.myapp.naviya.domain.lottery.service.LotteryService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -44,7 +43,7 @@ public class LotteryController {
     @GetMapping("/form")
     public String showLotteryForm(Model model) {
         model.addAttribute("lotteryRequest", new LotteryEntryRequest());
-        return "lotteryform";
+        return "lotteryForm";
     }
 
     // Thymeleaf 페이지에서 응모 폼 제출 처리
