@@ -4,6 +4,8 @@ import com.mycom.myapp.naviya.domain.lottery.dto.LotteryEntryRequest;
 import com.mycom.myapp.naviya.domain.lottery.service.LotteryService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,9 +28,16 @@ public class LotteryController {
     // API 방식으로 응모 요청 (JSON 데이터 처리)
     @PostMapping("/submit")
     @ResponseBody
-    public String submitLotteryEntry(@RequestBody LotteryEntryRequest request) {
-        log.info("API 요청으로 응모 처리 중 - 전화번호: {}", request.getPhone());
-        return lotteryService.submitLotteryEntry(request);
+    public ResponseEntity<String> submitLotteryEntry(@RequestBody LotteryEntryRequest request) {
+        String resultMessage = lotteryService.submitLotteryEntry(request);
+
+        if (resultMessage.equals("이미 응모한 전화번호입니다.")) {
+            return ResponseEntity.ok(resultMessage);
+        } else if (resultMessage.equals("응모가 마감되었습니다.")) {
+            return ResponseEntity.ok(resultMessage);
+        } else {
+            return ResponseEntity.ok(resultMessage);
+        }
     }
 
     // Thymeleaf 페이지에서 응모 폼 렌더링
