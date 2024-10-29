@@ -23,17 +23,17 @@
           <a class="nav-link" href="/">메인페이지</a>
         </li>
         <!-- 로그인 상태 확인 -->
-        <li class="nav-item" th:if="${user == null}">
+        <li class="nav-item" th:if="${admin == null}">
           <a class="nav-link" href="/login">로그인</a>
         </li>
-        <li class="nav-item" th:if="${user == null}">
+        <li class="nav-item" th:if="${admin == null}">
           <a class="nav-link" href="/signup">회원가입</a>
         </li>
         <!-- 로그인한 사용자 정보 -->
-        <li class="nav-item" th:if="${user != null}">
-          <a class="nav-link" th:text="${user.name + '님'}"></a>
+        <li class="nav-item" th:if="${admin != null}">
+          <a class="nav-link" th:text="${admin.name + '님'}"></a>
         </li>
-        <li class="nav-item" th:if="${user != null}">
+        <li class="nav-item" th:if="${admin != null}">
           <a class="nav-link" href="/logout">로그아웃</a>
         </li>
       </ul>

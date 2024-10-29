@@ -4,9 +4,11 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Data
-public class BookFavorTotalDto {
-    private Long count;
+public class BookDetailWithLikeDto {
+    private BookDetailDto book;
+    private boolean isLiked;
+    private boolean isDisliked;
 }

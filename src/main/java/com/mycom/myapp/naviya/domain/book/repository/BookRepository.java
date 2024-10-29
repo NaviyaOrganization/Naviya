@@ -238,7 +238,7 @@ public interface BookRepository extends JpaRepository<Book, Long> {
             "b.author, b.createdAt, b.fullStory, b.bookImage, b.categoryCode, " +
             "m.mbtiId, m.eiType, m.snType, m.tfType, m.jpType, f.count")
     List<BookDto> findBookDtoOneCateogory(@Param("categoryCodes")String categoryCodes,@Param("childId") long childId);
-    @Query("SELECT b.bookId FROM Book b")
-    List<Long> findAllBookIds();
+    Book findBookByBookId(Long bookId);
+
 
 }

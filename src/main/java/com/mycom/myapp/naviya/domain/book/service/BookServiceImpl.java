@@ -1,17 +1,11 @@
 package com.mycom.myapp.naviya.domain.book.service;
-import com.mycom.myapp.naviya.domain.book.dto.BookDetailDto;
-import com.mycom.myapp.naviya.domain.book.dto.LikeDislikeTaskDto;
-import com.mycom.myapp.naviya.domain.book.entity.Book;
-import com.mycom.myapp.naviya.domain.book.dto.BookDto;
-import com.mycom.myapp.naviya.domain.book.dto.BookResultDto;
-import com.mycom.myapp.naviya.domain.book.entity.BookMbti;
+import com.mycom.myapp.naviya.domain.book.dto.*;
 import com.mycom.myapp.naviya.domain.book.repository.BookFavorTotalRepository;
 import com.mycom.myapp.naviya.domain.book.repository.BookMbtiRepository;
 import com.mycom.myapp.naviya.domain.book.repository.BookRepository;
 import com.mycom.myapp.naviya.domain.child.dto.ChildFavCategoryDto;
 import com.mycom.myapp.naviya.domain.child.entity.*;
 import com.mycom.myapp.naviya.domain.child.repository.*;
-import com.mycom.myapp.naviya.global.mbti.entity.Mbti;
 import com.mycom.myapp.naviya.global.mbti.repository.MbtiRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
@@ -19,16 +13,14 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Isolation;
 
 import java.sql.Timestamp;
 import java.util.*;
 import java.util.stream.Collectors;
-import org.springframework.transaction.annotation.Isolation;
 
 @Service
 @RequiredArgsConstructor
-public class BookServiceImpl implements BookSerive {
+public class BookServiceImpl implements BookService {
 
     private final BookRepository bookRepository;
     private final MbtiRepository mbtiRepository;
@@ -75,10 +67,6 @@ public class BookServiceImpl implements BookSerive {
         }
     }
 
-    //to 유성 일단 서비스에서는 mbti 값 그대로 내리고 프론트  or 컨트롤러에서 추가 구현 및 조정 생각하고 구현해놨음
-    //추후 구현방식 협의 후 수정 가능
-    //일대일 관계에서는 lazy를 걸어도 eager로 적용되어
-    //n+1 이슈로 밀고 dto쿼리로 바꿨음
     @Override
     public BookResultDto listBook() {
         BookResultDto bookResultDto=new BookResultDto();
@@ -94,6 +82,17 @@ public class BookServiceImpl implements BookSerive {
             return bookResultDto;
         }
     }
+
+    @Override
+    public BookResultDto updateBook(BookInsertDto bookInsertDto) {
+        return null;
+    }
+
+    @Override
+    public BookResultDto insertBook(BookInsertDto bookInsertDto) {
+        return null;
+    }
+
     @Override
     public BookResultDto ChildALLlistBook(Long childId) {
         BookResultDto bookResultDto=new BookResultDto();
@@ -110,15 +109,6 @@ public class BookServiceImpl implements BookSerive {
         }
     }
 
-    @Override
-    public BookResultDto updateBook(BookDto bookDto) {
-        return null;
-    }
-
-    @Override
-    public BookResultDto insertBook(BookDto bookDto) {
-        return null;
-    }
 
     @Override
     public BookResultDto listbookOrderByCreateDate(long childId) {
@@ -225,6 +215,7 @@ public class BookServiceImpl implements BookSerive {
         BookResultDto bookResultDto=new BookResultDto();
         try{
             enqueueLike(ChildId,BookId,Type);
+
             return bookResultDto;
         }
         catch(Exception e){

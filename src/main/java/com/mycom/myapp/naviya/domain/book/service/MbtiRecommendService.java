@@ -1,7 +1,6 @@
 package com.mycom.myapp.naviya.domain.book.service;
 
 import com.mycom.myapp.naviya.domain.book.dto.BookDto;
-import com.mycom.myapp.naviya.domain.book.dto.BookResultDto;
 
 import java.util.List;
 import java.util.Map;

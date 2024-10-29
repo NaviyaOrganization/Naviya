@@ -1,45 +1,34 @@
 package com.mycom.myapp.naviya.global.security.dto;
 
-import com.mycom.myapp.naviya.domain.user.entity.User;
+import com.mycom.myapp.naviya.domain.common.entity.Admin;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
-public class CustomUserDetails implements UserDetails {
+public class CustomAdminDetails implements UserDetails {
 
-    private User user;
-    public CustomUserDetails(User user) {
-        this.user = user;
+    private Admin admin;
+    public CustomAdminDetails(Admin admin) {
+        this.admin = admin;
     }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         Collection<GrantedAuthority> collection = new ArrayList<>();
-
-        collection.add(new GrantedAuthority() {
-
-            @Override
-            public String getAuthority() {
-
-                return user.getRole();
-            }
-        });
-
+        collection.add(() -> admin.getRole()); // admin.getRole()이 "ROLE_ADMIN"인지 확인
         return collection;
-//        return null;
     }
 
     @Override
     public String getPassword() {
-        return user.getPassword();
+        return admin.getAdminPassword();
     }
 
     @Override
     public String getUsername() {
-        return user.getEmail();
+        return admin.getAdminEmail();
     }
 
     @Override

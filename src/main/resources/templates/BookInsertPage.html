@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>책 정보 입력</title>
+</head>
+<body>
+
+<h1>책 정보 입력</h1>
+
+<form action="/book/save" method="post">
+    <label>제목:</label>
+    <input type="text" name="title" th:value="${book.title}" readonly /><br/>
+
+    <label>저자:</label>
+    <input type="text" name="author" th:value="${book.author}" readonly /><br/>
+
+    <label>출판사:</label>
+    <input type="text" name="publisher" th:value="${book.publisher}" readonly /><br/>
+
+    <label>카테고리:</label>
+    <input type="text" name="category" th:value="${book.category}" readonly /><br/>
+
+    <label>줄거리:</label>
+    <textarea name="summary" readonly th:text="${book.summary}"></textarea><br/>
+
+    <label>MBTI</label><br/>
+    <label>EI:</label>
+    <input type="number" name="eiType" th:value="${book.eiType}" readonly /><br/>
+    <label>SN:</label>
+    <input type="number" name="snType" th:value="${book.snType}" readonly /><br/>
+    <label>TF:</label>
+    <input type="number" name="tfType" th:value="${book.tfType}" readonly /><br/>
+    <label>JP:</label>
+    <input type="number" name="jpType" th:value="${book.jpType}" readonly /><br/>
+
+    <label>전체 내용:</label>
+    <textarea name="fullStory" readonly th:text="${book.fullStory}"></textarea><br/>
+
+    <button type="submit">저장하기</button>
+</form>
+
+</body>
+</html>
