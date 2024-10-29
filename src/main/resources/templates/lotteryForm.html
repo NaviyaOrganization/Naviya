@@ -4,98 +4,453 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>응모 제출</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/heroicons@2.0.18/24/solid/esm/index.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Jua&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
     <style>
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #fff9e6;
+            font-family: 'Jua', sans-serif;
+            overflow-x: hidden;
         }
-        .animate-fadeInUp {
-            animation: fadeInUp 0.5s ease-out;
+
+        .navbar {
+            background-color: #ffe066;
+            border-radius: 0 0 20px 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            padding: 15px 20px;
         }
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
+
+        #sidebar {
+            height: 100%;
+            width: 250px;
+            position: fixed;
+            top: 0;
+            left: -250px;
+            background-color: #fff3b0;
+            border-radius: 0 25px 25px 0;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            padding-top: 80px;
+            z-index: 1000;
+            box-shadow: 4px 0 15px rgba(0,0,0,0.1);
         }
-        .animate-fadeIn {
-            animation: fadeIn 0.3s ease-out;
+
+        #sidebar a {
+            padding: 15px 25px;
+            text-decoration: none;
+            font-size: 18px;
+            color: #5a4d41;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 8px 15px;
+            border-radius: 15px;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        #sidebar a:hover {
+            background-color: #ffe066;
+            transform: scale(1.05);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        #main-content {
+            position: relative;
+            max-width: 750px;
+            margin: 20px auto;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .form-container {
+            background-color: #ffffff;
+            border-radius: 25px;
+            padding: 35px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            animation: float 3s ease-in-out infinite;
+            border: 5px solid #ffe066;
+            box-sizing: border-box;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+
+        h1 {
+            color: #5a4d41;
+            font-size: 2.2rem;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        label {
+            color: #5a4d41;
+            font-size: 1.5rem;  /* 1.2rem에서 1.5rem으로 증가 */
+            font-weight: 600;
+            margin-bottom: 12px;  /* 8px에서 12px로 증가하여 여백 조정 */
+            display: block;
+        }
+
+        input {
+            font-size: 1.3rem;  /* 1.1rem에서 1.3rem으로 증가 */
+            color: #5a4d41;
+            padding: 15px 20px;  /* 패딩도 약간 증가시켜 입력 영역 확대 */
+            border: 2.5px solid #ffe066;
+            border-radius: 15px;
+            transition: all 0.3s ease;
+            background-color: #fff9e6;
+            width: 100%;
+            font-weight: 500;
+            margin-bottom: 20px;  /* 15px에서 20px로 증가하여 간격 조정 */
+            box-sizing: border-box;
+        }
+
+        input:focus {
+            border-color: #ffd43b;
+            box-shadow: 0 0 0 3px rgba(255, 208, 66, 0.3);
+            transform: scale(1.02);
+            outline: none;
+        }
+
+        button {
+            background-color: #ffe066;
+            color: #5a4d41;
+            font-size: 1.3rem;
+            font-weight: bold;
+            padding: 15px 30px;
+            border-radius: 20px;
+            border: none;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            width: 100%;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+
+        button:hover {
+            background-color: #ffd43b;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.2);
+        }
+
+        #toggleSidebar {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background-color: #ffe066;
+            border-radius: 50%;
+            width: 55px;
+            height: 55px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 1100;
+            border: 3px solid #fff;
+        }
+
+        #toggleSidebar:hover {
+            transform: scale(1.1) rotate(180deg);
+            background-color: #ffd43b;
+        }
+
+        #toggleButton {
+            background-color: #fff3b0;
+            color: #5a4d41;
+            padding: 15px 25px;
+            border-radius: 20px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: 2px solid #ffe066;
+            margin-top: 30px;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+        }
+
+        #toggleButton:hover {
+            background-color: #ffe066;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        #entries {
+            max-height: 0;
+            transition: max-height 0.4s ease-in-out;
+            overflow: hidden;
+        }
+
+        #entries.active {
+            max-height: 500px;
+        }
+
+        .entry-item {
+            background-color: #fff3b0;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 15px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transform: translateY(20px);
+            opacity: 0;
+            transition: all 0.3s ease;
+            color: #5a4d41;
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
+
+        .entry-item.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        @media (max-width: 768px) {
+            .form-container {
+                padding: 25px;
+                margin: 10px;
+            }
+
+            #main-content {
+                padding: 10px;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+
+            #sidebar {
+                width: 100%;
+                left: -100%;
+                border-radius: 0;
+            }
+        }
+        .program-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .program-card {
+            background-color: #fff9e6;
+            border: 2.5px solid #ffe066;
+            border-radius: 15px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: left;
+        }
+
+        .program-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+            background-color: #fff3b0;
+        }
+
+        .program-card.selected {
+            background-color: #ffe066;
+            border-color: #ffd43b;
+            transform: scale(1.02);
+        }
+
+        .program-card h3 {
+            color: #5a4d41;
+            margin: 0 0 10px 0;
+            font-size: 1.2rem;
+        }
+
+        .program-card p {
+            color: #666;
+            margin: 0;
+            font-size: 0.9rem;
+        }
+
+        .selection-error {
+            color: #e74c3c;
+            font-size: 0.9rem;
+            margin-top: 5px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .selection-error.show {
+            opacity: 1;
         }
     </style>
 </head>
-<body class="min-h-screen bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center p-4">
-<div class="w-full max-w-md bg-white rounded-lg shadow-xl overflow-hidden animate-fadeInUp">
-    <div class="p-8">
-        <h1 class="text-3xl font-bold text-gray-800 mb-6">*응모 이벤트*</h1>
+<body>
+<div id="toggleSidebar" onclick="toggleSidebar()">
+    <i class="fas fa-bars"></i>
+</div>
 
-        <!-- 응모 제출 폼 -->
-        <form th:action="@{/lottery/submit-form}" th:object="${lotteryRequest}" method="post" class="space-y-6">
+<div id="sidebar">
+    <a href="/children/select"><i class="fas fa-child"></i> 아이 프로필 변경</a>
+    <a href="/children/page"><i class="fas fa-edit"></i> 아이 정보 수정</a>
+    <a href="/userpage"><i class="fas fa-user"></i> 계정보기</a>
+    <a href="#"><i class="fas fa-history"></i> 최근 책 보기</a>
+    <a href="/ChildFavorBookList.html"><i class="fas fa-heart"></i> 좋아요 누른 책 보기</a>
+    <a href="#"><i class="fas fa-tags"></i> 카테고리 별 책보기</a>
+    <a href="/lottery/form"><i class="fas fa-gift"></i> 선착순 이벤트</a>
+</div>
+
+<div id="main-content">
+    <div class="form-container">
+        <h1>🎉 자녀 성향 맞춤형 체험 프로그램 응모 🎉</h1>
+
+        <!-- 프로그램 선택 섹션 추가 -->
+        <div class="program-grid">
+            <div class="program-card" data-program="창의력">
+                <h3>창의력 발달 프로그램</h3>
+                <p>상상력과 창의력을 키우는 활동 중심 프로그램</p>
+            </div>
+            <div class="program-card" data-program="논리력">
+                <h3>논리력 향상 프로그램</h3>
+                <p>문제 해결 능력을 키우는 체계적인 프로그램</p>
+            </div>
+            <div class="program-card" data-program="사회성">
+                <h3>사회성 증진 프로그램</h3>
+                <p>또래와의 상호작용을 통한 사회성 발달 프로그램</p>
+            </div>
+            <div class="program-card" data-program="신체">
+                <h3>신체 활동 프로그램</h3>
+                <p>건강한 신체 발달을 위한 활동 중심 프로그램</p>
+            </div>
+        </div>
+        <div class="selection-error">프로그램을 선택해주세요!</div>
+
+        <!-- 기존 폼 -->
+        <form th:action="@{/lottery/submit-form}" th:object="${lotteryRequest}" method="post">
             <div>
-                <label for="name" class="block text-sm font-medium text-gray-700 mb-1">이름</label>
-                <input type="text" id="name" th:field="*{name}"
-                       class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 ease-in-out"
-                       required minlength="1">
+                <label for="name">이름</label>
+                <input type="text" id="name" th:field="*{name}" required minlength="1">
             </div>
             <div>
-                <label for="phone" class="block text-sm font-medium text-gray-700 mb-1">전화번호</label>
-                <input type="text" id="phone" th:field="*{phone}"
-                       class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 ease-in-out"
-                       required pattern="\d{11}" title="전화번호는 11자리 숫자여야 합니다.">
+                <label for="phone">전화번호</label>
+                <input type="text" id="phone" th:field="*{phone}" required pattern="\d{11}" title="전화번호는 11자리 숫자여야 합니다.">
             </div>
-            <button type="submit"
-                    class="w-full bg-blue-600 text-white font-semibold py-3 rounded-md shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 ease-in-out">
-                Submit
-            </button>
+            <input type="hidden" id="selectedProgram" th:field="*{selectedProgram}">
+            <button type="submit">응모하기</button>
         </form>
 
-        <!-- 어제 응모 내역 토글 버튼 -->
-        <div class="mt-6">
-            <button onclick="toggleEntries()" id="toggleButton"
-                    class="w-full bg-gray-100 text-gray-800 font-semibold py-3 px-4 rounded-md shadow-sm hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-300 focus:ring-offset-2 transition-all duration-200 ease-in-out flex items-center justify-between">
-                <span>어제의 이벤트 당첨자! (1시마다 업데이트)</span>
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                     stroke="currentColor" class="w-5 h-5 transform transition-transform duration-200" id="toggleIcon">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5"/>
-                </svg>
-            </button>
-        </div>
-        <div id="entries" class="mt-4 hidden space-y-2 overflow-hidden">
-            <div id="entriesList" class="space-y-2"></div>
+        <!-- 어제의 당첨자 섹션 -->
+        <button onclick="toggleEntries()" id="toggleButton">
+            <span>어제의 이벤트 당첨자! (1시마다 업데이트)</span>
+            <i class="fas fa-chevron-down"></i>
+        </button>
+        <div id="entries">
+            <div id="entriesList"></div>
         </div>
     </div>
 </div>
 
 <script>
-    function toggleEntries() {
-        const entriesDiv = document.getElementById("entries");
-        const toggleIcon = document.getElementById("toggleIcon");
-        const toggleButton = document.getElementById("toggleButton");
+    function toggleSidebar() {
+        const sidebar = document.getElementById("sidebar");
+        const mainContent = document.getElementById("main-content");
+        const sidebarWidth = 250;
+        const thresholdDistance = sidebarWidth + 20;
 
-        if (entriesDiv.classList.contains("hidden")) {
+        if (sidebar.style.left === "0px") {
+            sidebar.style.left = "-250px";
+            mainContent.style.marginLeft = "auto";
+        } else {
+            sidebar.style.left = "0px";
+            if (window.innerWidth / 2 - mainContent.offsetWidth / 2 > thresholdDistance) {
+                mainContent.style.marginLeft = "auto";
+            } else {
+                mainContent.style.marginLeft = `${thresholdDistance}px`;
+            }
+        }
+    }
+
+    window.addEventListener("resize", () => {
+        const sidebar = document.getElementById("sidebar");
+        const mainContent = document.getElementById("main-content");
+        const sidebarWidth = 250;
+        const thresholdDistance = sidebarWidth + 20;
+
+        if (sidebar.style.left === "0px") {
+            if (window.innerWidth / 2 - mainContent.offsetWidth / 2 > thresholdDistance) {
+                mainContent.style.marginLeft = "auto";
+            } else {
+                mainContent.style.marginLeft = `${thresholdDistance}px`;
+            }
+        } else {
+            mainContent.style.marginLeft = "auto";
+        }
+    });
+
+    function toggleEntries() {
+        const entriesDiv = document.getElementById('entries');
+        const toggleIcon = document.querySelector('#toggleButton i');
+        const toggleButton = document.getElementById('toggleButton');
+
+        if (!entriesDiv.classList.contains('active')) {
             fetch('/lottery/yesterday-entries')
                 .then(response => response.json())
                 .then(data => {
-                    const entriesList = document.getElementById("entriesList");
+                    const entriesList = document.getElementById('entriesList');
                     entriesList.innerHTML = '';
-                    data.forEach(entry => {
-                        const entryDiv = document.createElement("div");
-                        entryDiv.className = "bg-gray-50 p-3 rounded-md shadow-sm animate-fadeIn";
+
+                    data.forEach((entry, index) => {
+                        const entryDiv = document.createElement('div');
+                        entryDiv.className = 'entry-item';
                         entryDiv.textContent = entry;
                         entriesList.appendChild(entryDiv);
+
+                        setTimeout(() => {
+                            entryDiv.classList.add('show');
+                        }, index * 100);
                     });
-                    entriesDiv.classList.remove("hidden");
-                    toggleIcon.classList.add("rotate-180");
-                    toggleButton.classList.remove("bg-gray-100", "text-gray-800");
-                    toggleButton.classList.add("bg-gray-700", "text-white");
+
+                    entriesDiv.classList.add('active');
+                    toggleIcon.classList.add('fa-rotate-180');
+                    toggleButton.style.backgroundColor = '#ffd43b';
                 })
-                .catch(error => console.error("응모 내역을 불러오는 중 오류가 발생했습니다:", error));
+                .catch(error => {
+                    console.error("응모 내역을 불러오는 중 오류가 발생했습니다:", error);
+                    alert("응모 내역을 불러오는데 실패했습니다. 잠시 후 다시 시도해주세요.");
+                });
         } else {
-            entriesDiv.classList.add("hidden");
-            toggleIcon.classList.remove("rotate-180");
-            toggleButton.classList.add("bg-gray-100", "text-gray-800");
-            toggleButton.classList.remove("bg-gray-700", "text-white");
+            entriesDiv.classList.remove('active');
+            toggleIcon.classList.remove('fa-rotate-180');
+            toggleButton.style.backgroundColor = '#fff3b0';
         }
     }
+
+    // 프로그램 선택 관련 스크립트 추가
+    const programCards = document.querySelectorAll('.program-card');
+    const selectedProgramInput = document.getElementById('selectedProgram');
+    const selectionError = document.querySelector('.selection-error');
+
+    programCards.forEach(card => {
+        card.addEventListener('click', function() {
+            programCards.forEach(c => c.classList.remove('selected'));
+            this.classList.add('selected');
+            selectedProgramInput.value = this.dataset.program;
+            selectionError.classList.remove('show');
+        });
+    });
+
+    // 폼 제출 전 프로그램 선택 확인
+    document.querySelector('form').addEventListener('submit', function(e) {
+        if (!selectedProgramInput.value) {
+            e.preventDefault();
+            selectionError.classList.add('show');
+            programCards[0].scrollIntoView({ behavior: 'smooth' });
+        }
+    });
 </script>
 </body>
 </html>

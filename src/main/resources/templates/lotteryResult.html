@@ -1,25 +1,132 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lottery Submission Result</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>응모 결과</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Jua&display=swap');
+
+        body {
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #fff9e6;
+            font-family: 'Jua', sans-serif;
+        }
+
+        .result-container {
+            background-color: white;
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            border: 5px solid #ffe066;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+
+        h1 {
+            color: #5a4d41;
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+        }
+
+        .icon {
+            font-size: 5rem;
+            color: #ffe066;
+            margin-bottom: 20px;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        p {
+            color: #5a4d41;
+            font-size: 1.5rem;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
+        button {
+            background: #ffe066;
+            color: #5a4d41;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.2rem;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+            font-family: 'Jua', sans-serif;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        button:hover {
+            background: #ffd43b;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.2);
+        }
+
+        #confetti-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1000;
+        }
+    </style>
 </head>
-<body class="min-h-screen bg-gray-100 flex items-center justify-center">
-<div class="p-8 bg-white rounded-lg shadow-lg">
-    <h1 class="text-2xl font-bold text-center text-gray-800">Lottery Submission Result</h1>
-    <p class="text-center text-gray-600 mt-4" th:text="${resultMessage}"></p>
-    <div class="mt-6 flex justify-center">
-        <button onclick="goBack()" class="bg-blue-600 text-white font-semibold py-2 px-4 rounded-md shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 ease-in-out">
-            Go Back
-        </button>
+<body>
+<div class="result-container">
+    <h1>응모 결과</h1>
+    <div class="icon" th:if="${resultMessage == '응모가 접수되었습니다. 결과는 내일 오후 1시에 발표됩니다.'}">🎉</div>
+    <div class="icon" th:unless="${resultMessage == '응모가 접수되었습니다. 결과는 내일 오후 1시에 발표됩니다.'}">❌</div>
+
+    <div th:if="${resultMessage == '응모가 접수되었습니다. 결과는 내일 오후 1시에 발표됩니다.'}">
+        <p>응모가 접수되었습니다.</p>
+        <p>결과는 내일 오후 1시에 발표됩니다.</p>
     </div>
+    <p th:unless="${resultMessage == '응모가 접수되었습니다. 결과는 내일 오후 1시에 발표됩니다.'}"
+       th:text="${resultMessage}">
+    </p>
+    <button onclick="goBack()">돌아가기</button>
 </div>
 
-<script>
+<canvas id="confetti-canvas"></canvas>
+
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+<script th:inline="javascript">
     function goBack() {
-        window.history.back();
+        const successMessage = '응모가 접수되었습니다. 결과는 내일 오후 1시에 발표됩니다.';
+        const resultMessage = [[${resultMessage}]];
+
+        if (resultMessage === successMessage) {
+            confetti({
+                particleCount: 100,
+                spread: 70,
+                origin: { y: 0.6 }
+            });
+            setTimeout(() => {
+                window.history.back();
+            }, 1000);
+        } else {
+            window.history.back();
+        }
     }
 </script>
 </body>

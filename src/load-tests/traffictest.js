@@ -13,12 +13,20 @@ export let options = {
     },
 };
 
+// 프로그램 목록 정의
+const programs = ['창의력', '논리력', '사회성', '신체'];
+
 export default function () {
     let userId = __VU;  // 각 가상 유저별 고유 ID 사용
     let url = 'http://host.docker.internal:8080/lottery/submit';
+
+    // VU별로 고정된 프로그램 선택 (부하 테스트의 일관성을 위해)
+    let selectedProgram = programs[userId % programs.length];
+
     let payload = JSON.stringify({
         name: `User${userId}`,
-        phone: `0101234567${String(userId).padStart(2, '0')}`
+        phone: `0101234567${String(userId).padStart(2, '0')}`,
+        selectedProgram: selectedProgram
     });
 
     let params = {
