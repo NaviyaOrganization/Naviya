@@ -82,7 +82,7 @@ public class SecurityConfig {
                 .authenticationProvider(userAuthenticationProvider()) // 사용자 인증 프로바이더 설정
                 .authorizeHttpRequests(authorizeHttpRequests -> authorizeHttpRequests
                         .requestMatchers("/", "/login", "/signup", "/signupProc", "/children/**",
-                                "/static/**","/assets/img/**", "/css/**", "/js/**", "/images/**", "/Book/**", "templates/BookCategoryHtml.html/**", "lottery/**").permitAll() // 사용자 접근 경로 허용
+                                "/static/**","/assets/img/**", "/css/**", "/js/**", "/images/**", "/Book/**", "/search", "templates/BookCategoryHtml.html/**", "lottery/**").permitAll() // 사용자 접근 경로 허용
                         .anyRequest().authenticated() // 모든 다른 요청은 인증 요구
                 )
                 .formLogin(formLogin -> formLogin
