@@ -4,17 +4,16 @@ import com.mycom.myapp.naviya.global.mbti.entity.Mbti;
 import jakarta.persistence.*;
 import lombok.Data;
 
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
 @Data
 @Entity
-@Table(name = "ChildMbti")
+@Table(name = "child_mbti")
 public class ChildMbti {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "MbtiId")
+    @Column(name = "childmbti_id") // 기본 키이자 AUTO_INCREMENT 컬럼
     private Long mbtiId;
 
     @ManyToOne

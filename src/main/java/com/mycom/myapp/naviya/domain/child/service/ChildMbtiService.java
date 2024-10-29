@@ -1,9 +1,15 @@
 package com.mycom.myapp.naviya.domain.child.service;
 
+import com.mycom.myapp.naviya.domain.child.dto.ChildMbtiDto;
 import com.mycom.myapp.naviya.domain.child.dto.ChildWithMbtiHistoryDto;
 import com.mycom.myapp.naviya.domain.child.dto.MBTIScoresDto;
 import com.mycom.myapp.naviya.domain.child.entity.Child;
 import com.mycom.myapp.naviya.global.mbti.entity.Mbti;
+import jakarta.servlet.http.HttpSession;
+import org.springframework.ui.Model;
+
+import java.util.List;
+import java.util.Optional;
 
 public interface ChildMbtiService {
 
@@ -74,4 +80,20 @@ public interface ChildMbtiService {
 
     boolean existsChildMbti(Long childId);
 
+    /**
+     * 자녀의 mbti 점수, 현재 mbti, 이름만을 조회하는 메서드
+     *
+     * @param childId 자녀의 ID
+     * @return 특정 자녀의 mbti 점수, 현재 mbti, 이름을 담은 ChildMbtiDto
+     */
+    Optional<ChildMbtiDto> getChildMbtiInfo(Long childId);
+
+    /**
+     * navebar 생성을 위해 유저를 조회하는 메서드
+     *
+     * @param session 데이터를 가져오기 위한 세션,
+     * @param model 데이터를 담기 위한 모델
+     * @return 특정 자녀의 mbti 점수, 현재 mbti, 이름을 담은 ChildMbtiDto
+     */
+    void navbarInfo(HttpSession session, Model model);
 }

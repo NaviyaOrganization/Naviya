@@ -20,11 +20,13 @@ public interface ChildMbtiHistoryRepository extends JpaRepository<ChildMbtiHisto
     @Query("UPDATE ChildMbtiHistory cmh SET cmh.deletedAt = :futureDate WHERE cmh.child = :child AND cmh.deletedAt IS NULL")
     void updateDeletedAtForChild(@Param("child") Child child, @Param("futureDate") LocalDateTime futureDate);
 
-    // 특정 아이의 MBTI 히스토리에서 deletedAt이 null인 경우만 조회
+    // 특정 아이의 MBTI 히스토리에서 deletedAt이 null인 경우만 조회, updatedAt을 기준으로 최근 값이 먼저 나오도록 정렬
     @Query("SELECT new com.mycom.myapp.naviya.domain.child.dto.ChildMbtiHistoryDto(h.mbtiHistoryId, h.updatedAt, h.codeNewMbti) " +
             "FROM ChildMbtiHistory h " +
-            "WHERE h.child.childId = :childId AND h.deletedAt IS NULL")
+            "WHERE h.child.childId = :childId AND h.deletedAt IS NULL " +
+            "ORDER BY h.updatedAt DESC")
     List<ChildMbtiHistoryDto> findMbtiHistoryByChildId(Long childId);
+
 
     @Transactional
     @Modifying
