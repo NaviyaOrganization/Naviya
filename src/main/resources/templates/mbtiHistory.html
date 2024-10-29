@@ -1,143 +1,308 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:x-transition="http://www.w3.org/1999/xhtml">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>아이 성향 히스토리</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
-  <style>
-    @keyframes fadeInUp {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    .animate-fadeInUp {
-      animation: fadeInUp 0.5s ease-out;
-    }
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
-    }
-    .animate-fadeIn {
-      animation: fadeIn 0.3s ease-out;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>아이 성향 히스토리</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <link href="/assets/css/newSidebar.css" rel="stylesheet">
+    <style>
+        /* 기존 스타일 유지 */
+        body {
+            background-color: #fff9e6;
+            font-family: 'Arial Rounded MT Bold', Arial, sans-serif;
+        }
+        .main-container {
+            min-height: 90vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .results-container {
+            background-color: #fffbe6;
+            border-radius: 25px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1),
+            0 8px 12px -3px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+            width: 100%;
+            max-width: 768px;
+            padding: 0;
+            margin: 20px;
+            border: 8px solid #ffe066;
+        }
+        .results-header {
+            background-color: #ffe066;
+            color: #5a4d41;
+            padding: 2rem;
+            text-align: center;
+            border-radius: 17px 17px 0 0;
+            border-bottom: 4px dashed #fff9e6;
+        }
+        h1 {
+            color: #5a4d41;
+            font-weight: bold;
+            margin: 20px 0;
+            text-shadow: 2px 2px 0 #fff9e6;
+            font-size: 2.8rem;
+            letter-spacing: 2px;
+        }
+        .mbti-history {
+            background-color: #fff3b0;
+            border-radius: 20px;
+            padding: 1.5rem;
+            margin: 1.5rem;
+            border: 4px solid #ffe066;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            background-image: url("data:image/svg+xml,%3Csvg width='52' height='26' viewBox='0 0 52 26' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffe066' fill-opacity='0.4'%3E%3Cpath d='M10 10c0-2.21-1.79-4-4-4-3.314 0-6-2.686-6-6h2c0 2.21 1.79 4 4 4 3.314 0 6 2.686 6 6 0 2.21 1.79 4 4 4 3.314 0 6 2.686 6 6 0 2.21 1.79 4 4 4v2c-3.314 0-6-2.686-6-6 0-2.21-1.79-4-4-4-3.314 0-6-2.686-6-6zm25.464-1.95l8.486 8.486-1.414 1.414-8.486-8.486 1.414-1.414z' /%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
+        .history-item {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+        .history-bar {
+            position: absolute;
+            left: 1.5rem;
+            top: 0;
+            bottom: -1.5rem;
+            width: 4px;
+            background-color: #ffe066;
+        }
+        .history-content {
+            flex-grow: 1;
+            padding-left: 2rem;
+            transition: transform 0.3s ease;
+        }
+        .history-content:hover {
+            transform: translateX(5px);
+        }
+        .history-icon {
+            width: 3rem;
+            height: 3rem;
+            background-color: #ffe066;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #5a4d41;
+            margin-right: 1rem;
+            z-index: 1;
+        }
+        .history-date {
+            font-size: 0.9rem;
+            color: #5a4d41;
+            margin-bottom: 0.5rem;
+        }
+        .history-mbti {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #5a4d41;
+            margin-bottom: 0.5rem;
+        }
+        .history-change {
+            font-size: 1rem;
+            color: #5a4d41;
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fadeInUp {
+            animation: fadeInUp 0.5s ease-out;
+        }
+        .load-more-btn {
+            background-color: #f3e49b;
+            color: #5A4D41;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            display: inline-block;
+            margin: 1rem auto;
+            border: none;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            font-size: 16px;
+        }
+        .load-more-btn:hover {
+            background-color: #FFD43B;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .collapse {
+            visibility: visible !important;
+            display: block !important;
+        }
+        .empty-history {
+            text-align: center;
+            padding: 2rem;
+            color: #5a4d41;
+        }
+        .empty-history-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+        .info-box {
+            background-color: #FFE066;
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-top: 2rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .info-box h3 {
+            color: #5A4D41;
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+        }
+        .info-box p {
+            color: #5A4D41;
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .info-box {
+            background-color: #fff3b0;
+            border-radius: 15px;
+            padding: 2rem;
+            margin: 2rem 1.5rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            border: 3px dashed #ffe066;
+        }
+
+        .info-box h3 {
+            color: #5a4d41;
+            font-size: 1.4rem;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            font-weight: bold;
+            text-shadow: 1px 1px 0 #fff9e6;
+        }
+
+        .info-box p {
+            color: #5a4d41;
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+            padding-left: 1.5rem;
+            position: relative;
+        }
+
+        .info-box p::before {
+            content: "•";
+            position: absolute;
+            left: 0.5rem;
+            color: #ffe066;
+            font-size: 1.5rem;
+            line-height: 1;
+        }
+    </style>
 </head>
-<body class="min-h-screen bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center p-4">
-<div class="w-full max-w-4xl bg-white rounded-lg shadow-3xl overflow-hidden animate-fadeInUp"
-     x-data="{ expanded: false, showDeleteConfirm: false }">
-  <div class="p-8">
-    <h1 class="text-3xl font-bold text-gray-800 mb-6">아이 성향 히스토리</h1>
+<body>
 
-    <div class="flex flex-wrap -mx-2">
-      <div class="w-full lg:w-1/3 px-2 mb-4 mt-15">
-        <div class="bg-gray-50 rounded-lg shadow-3xl p-4 flex flex-col"> <!-- 더 강한 그림자 효과 추가 -->
-          <div class="flex-grow mt-4">
-            <div class="bg-purple-50 p-4 rounded-lg shadow-xl mt-4">
-              <div>
-                <img src="https://via.placeholder.com/128" alt="아이 사진" class="w-24 h-24 rounded-full mx-auto mb-3 mt-6 object-cover">
-                <h2 class="text-xl font-semibold text-center mb-4 text-gray-800" th:text="${childWithMbtiHistory.child.childName}"></h2>
-              </div>
-              <div>
-                <h3 class="font-semibold text-purple-800 text-lg mb-1">최근 성향 변화</h3>
-                <div class="flex items-center">
-                  <span class="text-gray-600 font-medium">이전: </span>
-                  <span class="ml-2 px-3 py-1 bg-gray-300 text-gray-800 rounded-lg"
-                        th:text="${#lists.size(childWithMbtiHistory.mbtiHistory) > 1 ? childWithMbtiHistory.mbtiHistory[1].codeNewMbti : '없음'}">
-                  </span>
-                </div>
-                <div class="flex items-center mt-2">
-                  <span class="text-purple-800 font-medium">현재: </span>
-                  <span class="ml-2 px-3 py-1 bg-purple-300 text-purple-900 rounded-lg"
-                        th:text="${#lists.isEmpty(childWithMbtiHistory.mbtiHistory) ? '없음' : childWithMbtiHistory.mbtiHistory[0].codeNewMbti}">
-                  </span>
-                </div>
-              </div>
+<!-- Navigation Bar -->
+<nav class="navbar navbar-expand-lg">
+    <div class="container-fluid">
+        <span id="toggleSidebar" class="navbar-toggler-icon"></span>
+        <div class="collapse navbar-collapse justify-content-end">
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link" href="/"><i class="fas fa-home"></i> 메인페이지</a>
+                </li>
+                <li class="nav-item" th:if="${user == null}">
+                    <a class="nav-link" href="/login"><i class="fas fa-sign-in-alt"></i> 로그인</a>
+                </li>
+                <li class="nav-item" th:if="${user == null}">
+                    <a class="nav-link" href="/signup"><i class="fas fa-user-plus"></i> 회원가입</a>
+                </li>
+                <li class="nav-item" th:if="${user != null}">
+                    <a class="nav-link" th:text="${user.name + '님'}"><i class="fas fa-user-plus"></i></a>
+                </li>
+                <li class="nav-item" th:if="${user != null}">
+                    <a class="nav-link" href="/logout"><i class="fas fa-sign-out-alt"></i> 로그아웃</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<!-- Sidebar with Icons -->
+<div id="sidebar">
+    <a href="/children/select"><i class="fas fa-child"></i> 아이 프로필 변경</a>
+    <a href="/children/page"><i class="fas fa-edit"></i> 아이 정보 수정</a>
+    <a href="/userpage"><i class="fas fa-user"></i> 계정보기</a>
+    <a href="#"><i class="fas fa-history"></i> 최근 책 보기</a>
+    <a href="/ChildFavorBookList.html"><i class="fas fa-heart"></i> 좋아요 누른 책 보기</a>
+    <a href="#"><i class="fas fa-tags"></i> 카테고리 별 책보기</a>
+    <a href="/lottery/form"><i class="fas fa-gift"></i> 선착순 이벤트</a>
+</div>
+
+<!--nav바 , 토글 관련 JS-->
+<script src="/assets/js/newSidebar.js"></script>
+
+<div class="main-container">
+    <div class="results-container" x-data="{ expanded: false, historyCount: $store.mbtiHistory.length }">
+        <div class="results-header">
+            <h1 th:text="${childWithMbtiHistory.child.childName} + '의 성향 히스토리'" style="font-size: 2.8rem;">아이 성향 히스토리</h1>
+            <p th:text="'MBTI 변경 횟수: ' + ${childWithMbtiHistory.mbtiHistory.size()}">MBTI 변경 횟수: 0</p>
+            <div th:if="${!childWithMbtiHistory.mbtiHistory.isEmpty()}">
+                <a href="/children/childMBTIResult" class="load-more-btn">성향 확인하러 가기</a>
             </div>
-          </div>
-          <!-- 프로필 버튼 추가 -->
-          <button class="mt-4 bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">
-            프로필
-          </button>
-          <!-- 삭제 버튼 추가 -->
-          <button @click="showDeleteConfirm = true" class="mt-4 bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded">
-            삭제
-          </button>
         </div>
-      </div>
 
-      <div class="w-full lg:w-2/3 px-2">
-        <div class="bg-white rounded-lg shadow-md p-4 mb-4">
-          <h3 class="text-xl font-semibold mb-3 text-gray-800">MBTI 성향 변화 타임라인</h3>
-          <div class="space-y-8">
+        <!-- info-box를 mbti-history 앞으로 이동 -->
+        <div th:if="${!childWithMbtiHistory.mbtiHistory.isEmpty()}" class="info-box">
+            <h3>📚 히스토리를 쌓는 방법 📚</h3>
+            <p>추천해준 책 중 마음에 드는 책을 골라주세요!</p>
+            <p>책에 좋아요를 눌러주세요!</p>
+            <p>아이가 책에 대해 좋아요를 누를수록 성향에 영향이 갑니다!</p>
+            <p>성향이 변하게 되면 히스토리에 기록 됩니다!</p>
+        </div>
+
+        <div class="mbti-history">
+            <div th:if="${childWithMbtiHistory.mbtiHistory.isEmpty()}" class="empty-history">
+                <i class="fas fa-history empty-history-icon"></i>
+                <h2>아직 MBTI 히스토리가 없습니다</h2>
+                <p>아이의 MBTI를 측정하고 변화를 기록해보세요!</p>
+                <a href="/children/diagnosisForm" class="load-more-btn">지금 진단하러 가기</a>
+            </div>
             <template x-for="(history, index) in $store.mbtiHistory" :key="index">
-              <div x-show="index < 4 || expanded" class="flex animate-fadeIn">
-                <div class="flex flex-col items-center mr-4">
-                  <div class="flex items-center justify-center w-8 h-8 bg-blue-500 rounded-full">
-                    <span class="text-lg text-white" x-text="$store.mbtiHistory.length - index"></span>
-                  </div>
-                  <div x-show="index !== $store.mbtiHistory.length - 1" class="w-px h-full bg-blue-300"></div>
+                <div x-show="index < 4 || expanded"
+                     x-transition:enter="transition ease-out duration-300"
+                     x-transition:enter-start="opacity-0 transform translate-y-4"
+                     x-transition:enter-end="opacity-100 transform translate-y-0"
+                     class="history-item animate-fadeInUp">
+                    <div class="history-bar"></div>
+                    <div class="history-icon" x-text="$store.mbtiHistory.length - index"></div>
+                    <div class="history-content">
+                        <div class="history-date" x-text="new Date(history.updatedAt).toLocaleString('ko-KR')"></div>
+                        <div class="history-mbti" x-text="history.codeNewMbti"></div>
+                        <div class="history-change">
+                            MBTI 성향이
+                            <span x-text="index < $store.mbtiHistory.length - 1 ? $store.mbtiHistory[index + 1].codeNewMbti : '이전 성향'"></span>에서
+                            <span x-text="history.codeNewMbti"></span>로 변경되었습니다.
+                        </div>
+                    </div>
                 </div>
-                <div class="pb-8">
-                  <div class="flex items-center mb-1">
-                    <div class="bg-blue-100 text-blue-800 text-sm font-medium mr-2 px-2.5 py-0.5 rounded" x-text="history.codeNewMbti"></div>
-                    <time class="block mb-2 text-sm font-normal leading-none text-gray-400" x-text="new Date(history.updatedAt).toLocaleString('ko-KR')"></time>
-                  </div>
-                  <p class="text-base font-normal text-gray-500">
-                    MBTI 성향이
-                    <span x-text="index < $store.mbtiHistory.length - 1 ? $store.mbtiHistory[index + 1].codeNewMbti : '이전 성향'"></span>에서
-                    <span x-text="history.codeNewMbti"></span>로 변경되었습니다.
-                  </p>
-                </div>
-              </div>
             </template>
-          </div>
-          <button x-show="$store.mbtiHistory.length > 4"
-                  @click="expanded = !expanded"
-                  class="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
-                  x-text="expanded ? '접기' : '더 보기'">
-          </button>
+            <button x-show="$store.mbtiHistory.length > 4"
+                    @click="expanded = !expanded"
+                    class="load-more-btn"
+                    x-text="expanded ? '접기' : '더 보기'">
+            </button>
         </div>
-      </div>
     </div>
-  </div>
-
-  <!-- 삭제 확인 모달 -->
-  <div x-show="showDeleteConfirm" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full" x-cloak>
-    <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
-      <div class="mt-3 text-center">
-        <h3 class="text-lg leading-6 font-medium text-gray-900">정말 삭제하시겠습니까?</h3>
-        <div class="mt-2 px-7 py-3">
-          <p class="text-sm text-gray-500">
-            이 작업은 되돌릴 수 없습니다. 아이의 모든 MBTI 히스토리가 삭제됩니다.
-          </p>
-        </div>
-        <div class="items-center px-4 py-3">
-          <button id="deleteButton" @click="showDeleteConfirm = false" class="px-4 py-2 bg-red-500 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-300">
-            삭제
-          </button>
-          <button @click="showDeleteConfirm = false" class="mt-3 px-4 py-2 bg-gray-300 text-gray-800 text-base font-medium rounded-md w-full shadow-sm hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-300">
-            취소
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
 </div>
 
 <script th:inline="javascript">
-  /*<![CDATA[*/
-  document.addEventListener('alpine:init', () => {
-    Alpine.store('mbtiHistory', /*[[${childWithMbtiHistory.mbtiHistory}]]*/ []);
-  });
-
-  // 삭제 기능 구현 (서버 요청 필요)
-  document.getElementById('deleteButton').addEventListener('click', function() {
-    // 여기에 삭제 API 호출 로직 구현
-    console.log('삭제 요청 보냄');
-    // 삭제 후 리다이렉트 또는 페이지 새로고침
-  });
-  /*]]>*/
+    /*<![CDATA[*/
+    document.addEventListener('alpine:init', () => {
+        Alpine.store('mbtiHistory', /*[[${childWithMbtiHistory.mbtiHistory}]]*/ []);
+    });
+    /*]]>*/
 </script>
+
 </body>
 </html>

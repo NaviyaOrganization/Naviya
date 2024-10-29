@@ -46,6 +46,10 @@ public enum ResponseCode {
     MBTI_HISTORY_SUCCESS(200, "M003", "MBTI 히스토리가 성공적으로 조회되었습니다."),
     MBTI_HISTORY_FAIL(400, "M004", "MBTI 히스토리 조회에 실패했습니다."),
 
+    // MBTI 조회 관련 응답
+    MBTI_RETRIEVE_SUCCESS(200, "M005", "MBTI 조회가 성공적으로 완료되었습니다."),
+    MBTI_RETRIEVE_FAIL(400, "M006", "MBTI 조회에 실패했습니다."),
+
     // MBTI 히스토리 관련 응답
     MBTI_DELETE_SUCCESS(200, "M003", "MBTI 삭제가 성공적으로 실행되었습니다."),
     MBTI_DELETE_FAIL(400, "M004", "MBTI 삭제에 실패했습니다.")
