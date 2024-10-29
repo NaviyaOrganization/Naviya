@@ -72,6 +72,6 @@ public interface ChildMbtiService {
      */
     void softdelete(Long childId);
 
-
+    boolean existsChildMbti(Long childId);
 
 }
