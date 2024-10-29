@@ -536,7 +536,7 @@
 
   // 자녀 삭제 요청을 처리하는 함수 추가
   function deleteChild() {
-    const childId = sessionStorage.getItem('selectedChildId');
+    const childId = document.getElementById('childId').value;
     if (confirm("해당 자녀를 삭제하시겠습니까?")) {
       fetch(`/children/detailPage/delete?childId=${childId}`, {
         method: 'DELETE',
