@@ -17,13 +17,4 @@ public class MbtiDto {
     private int snType;
     private int tfType;
     private int jpType;
-    /*public MbtiDto(){}
-    public MbtiDto(Long mbtiId, int eiType, int snType, int tfType, int jpType) {
-        this.mbtiId = mbtiId;
-        this.eiType = eiType;
-        this.snType = snType;
-        this.tfType = tfType;
-        this.jpType = jpType;
-    }*/
-
 }

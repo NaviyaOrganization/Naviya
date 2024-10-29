@@ -1,33 +1,17 @@
 package com.mycom.myapp.naviya.domain.book.service;
-import com.mycom.myapp.naviya.domain.book.dto.BookDetailDto;
-import com.mycom.myapp.naviya.domain.book.dto.BookInsertDto;
-import com.mycom.myapp.naviya.domain.book.entity.Book;
-import com.mycom.myapp.naviya.domain.book.dto.BookDto;
-import com.mycom.myapp.naviya.domain.book.dto.BookResultDto;
-import com.mycom.myapp.naviya.domain.book.entity.BookFavorTotal;
-import com.mycom.myapp.naviya.domain.book.entity.BookMbti;
+import com.mycom.myapp.naviya.domain.book.dto.*;
 import com.mycom.myapp.naviya.domain.book.repository.BookFavorTotalRepository;
 import com.mycom.myapp.naviya.domain.book.repository.BookMbtiRepository;
 import com.mycom.myapp.naviya.domain.book.repository.BookRepository;
-import com.mycom.myapp.naviya.domain.child.entity.Child;
-import com.mycom.myapp.naviya.domain.child.entity.ChildBookDislike;
-import com.mycom.myapp.naviya.domain.child.entity.ChildBookLike;
-import com.mycom.myapp.naviya.domain.child.entity.ChildMbti;
-import com.mycom.myapp.naviya.domain.child.repository.ChildBookDisLikeRepository;
-import com.mycom.myapp.naviya.domain.child.repository.ChildBookLikeRepository;
-import com.mycom.myapp.naviya.domain.child.repository.ChildMbtiRepository;
-import com.mycom.myapp.naviya.domain.child.repository.ChildRepository;
-import com.mycom.myapp.naviya.domain.common.entity.Code;
-import com.mycom.myapp.naviya.domain.common.repository.CodeRepository;
-import com.mycom.myapp.naviya.global.mbti.Dto.MbtiDto;
 import com.mycom.myapp.naviya.domain.child.dto.ChildFavCategoryDto;
 import com.mycom.myapp.naviya.domain.child.entity.*;
 import com.mycom.myapp.naviya.domain.child.repository.*;
-import com.mycom.myapp.naviya.global.mbti.entity.Mbti;
 import com.mycom.myapp.naviya.global.mbti.repository.MbtiRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
@@ -47,16 +31,10 @@ public class BookServiceImpl implements BookService {
     private final ChildRepository childRepository;
     private final ChildFavorCategoryRepository childFavorCategoryRepository;
     private final ChildMbtiRepository childMbtiRepository;
-    private final CodeRepository codeRepository;
-    /*삭제순서 to 유성,정슈선
-    연관관계 수정으로 book->bookmbti->mbti 한 방에 삭제
+    private final LikeDislikeProcessor likeDislikeProcessor;
 
-    Book (부모)↔ BookMbti (자식) ↔ Mbti (부모)
-     book에  cascaed ->bookmbti 자식에서 -> mbti에게 cascaed으로
-    일대일 양방향에서 자식이 부모에게 casecaed 걸 수 있음
-    기술적으로 가능은함
-    우리는 일부로 childmbti와 bookmbti를 동시에 사용하기 때문에 자식에게 casecade를 걸어도 무방
-      */
+
+
     @Override
     @Transactional
     public BookResultDto delBook(Long bookId) {
@@ -75,38 +53,8 @@ public class BookServiceImpl implements BookService {
         // BookRepository의 findAll() 메서드를 통해 모든 Book을 가져옴
 
         BookResultDto bookResultDto = new BookResultDto();
-        BookDetailDto bookDetailDto = new BookDetailDto();
         try {
-            Book book = bookRepository.findBookByBookId(bookId);
-            bookDetailDto.setBookId(book.getBookId());
-            bookDetailDto.setTitle(book.getTitle());
-            bookDetailDto.setSummary(book.getSummary());
-            bookDetailDto.setRecommendedAge(book.getRecommendedAge());
-            bookDetailDto.setPublisher(book.getPublisher());
-            bookDetailDto.setAuthor(book.getAuthor());
-            bookDetailDto.setCreatedAt(book.getCreatedAt());
-            bookDetailDto.setFullStory(book.getFullStory());
-            bookDetailDto.setBookImage(book.getBookImage());
-
-            // 카테고리 코드로 Code 엔티티에서 codeName 조회
-            String categoryCode = book.getCategoryCode();  // Book의 categoryCode 필드
-            Optional<Code> codeOptional = codeRepository.findByCode(categoryCode);
-
-            if (codeOptional.isPresent()) {
-                String codeName = codeOptional.get().getCodeName();  // codeName 가져오기
-                bookDetailDto.setCategory(codeName);  // Category 이름 설정
-            } else {
-                bookDetailDto.setCategory("Unknown Category");  // 코드가 없을 경우 기본값
-            }
-            // Mbti 정보 매핑
-            if (book.getBookMbti() != null) {
-                MbtiDto mbtiDto = new MbtiDto();
-                mbtiDto.setEiType(book.getBookMbti().getMbti().getEiType());
-                mbtiDto.setSnType(book.getBookMbti().getMbti().getSnType());
-                mbtiDto.setTfType(book.getBookMbti().getMbti().getTfType());
-                mbtiDto.setJpType(book.getBookMbti().getMbti().getJpType());
-                bookDetailDto.setBookMbti(mbtiDto);
-            }
+            BookDetailDto bookDetailDto=bookRepository.findBookDetailDtoByBookId(bookId,childId);
             bookResultDto.setBookDetail(bookDetailDto);
             bookResultDto.setSuccess("success");
             return bookResultDto;
@@ -118,30 +66,11 @@ public class BookServiceImpl implements BookService {
         }
     }
 
-    //to 유성 일단 서비스에서는 mbti 값 그대로 내리고 프론트  or 컨트롤러에서 추가 구현 및 조정 생각하고 구현해놨음
-    //추후 구현방식 협의 후 수정 가능
-    //일대일 관계에서는 lazy를 걸어도 eager로 적용되어
-    //n+1 이슈로 밀고 dto쿼리로 바꿨음
     @Override
     public BookResultDto listBook() {
         BookResultDto bookResultDto=new BookResultDto();
         try{
             List<BookDto> bookDto = bookRepository.findAllBookDto();
-            bookResultDto.setBooks(bookDto);  // Book 리스트를 BookResultDto에 설정
-            bookResultDto.setSuccess("success");
-            return bookResultDto;
-        }
-        catch(Exception e){
-            e.printStackTrace();
-            bookResultDto.setSuccess("fail");
-            return bookResultDto;
-        }
-    }
-    @Override
-    public BookResultDto ChildALLlistBook(Long childId) {
-        BookResultDto bookResultDto=new BookResultDto();
-        try{
-            List<BookDto> bookDto = bookRepository.ChildAgefindAllBookDto(childId);
             bookResultDto.setBooks(bookDto);  // Book 리스트를 BookResultDto에 설정
             bookResultDto.setSuccess("success");
             return bookResultDto;
@@ -162,6 +91,23 @@ public class BookServiceImpl implements BookService {
     public BookResultDto insertBook(BookInsertDto bookInsertDto) {
         return null;
     }
+
+    @Override
+    public BookResultDto ChildALLlistBook(Long childId) {
+        BookResultDto bookResultDto=new BookResultDto();
+        try{
+            List<BookDto> bookDto = bookRepository.ChildAgefindAllBookDto(childId);
+            bookResultDto.setBooks(bookDto);  // Book 리스트를 BookResultDto에 설정
+            bookResultDto.setSuccess("success");
+            return bookResultDto;
+        }
+        catch(Exception e){
+            e.printStackTrace();
+            bookResultDto.setSuccess("fail");
+            return bookResultDto;
+        }
+    }
+
 
     @Override
     public BookResultDto listbookOrderByCreateDate(long childId) {
@@ -254,120 +200,13 @@ public class BookServiceImpl implements BookService {
             return bookResultDto;
         }
     }
-    public int weightCal(int calWeight,int weight,int sign)
-    {
-        Double baseAdjustment = (double) calWeight;
-        Double currentWeight = (double) weight;
-        //절대값이라 현재 mbti 가중치가 음수여도 상관 없음
-        int dynamicAdjustment = (int) (baseAdjustment * (1.2 - Math.abs(currentWeight / 100)));
-        int newWeight = Math.max(-100, Math.min(100, (int)(currentWeight + (dynamicAdjustment*sign))));
-        return newWeight;
-    }
 
     @Override
-    @Transactional
-    public BookResultDto ChildBookLike(long BookId, long ChildId,String Type) {
+   @Transactional
+    public BookResultDto ChildBookLike(long ChildId, long BookId,String Type) {
         BookResultDto bookResultDto=new BookResultDto();
         try{
-            Optional child=childRepository.findById(ChildId);
-            Child child1=new Child();
-            if(child.isPresent()){
-                child1=(Child)child.get();
-            }
-            else
-            {
-                bookResultDto.setSuccess("fail1");
-                return bookResultDto;
-            }
-            Optional book=bookRepository.findById(BookId);
-            Book book1=new Book();
-            if(book.isPresent()){
-                book1=(Book)book.get();
-            }
-            else
-            {
-                bookResultDto.setSuccess("fail2");
-                return bookResultDto;
-            }
-
-
-            List<ChildMbti> childMbtis= child1.getChildMbti();
-            ChildMbti childMbti_val =new ChildMbti();
-            int flag=0;
-
-            for( ChildMbti childMbti_Temp : childMbtis)
-            {
-                if(childMbti_Temp.getDeletedAt()==null)
-                {
-                    childMbti_val=childMbti_Temp;
-                    flag=1;
-                    break;
-                }
-            }
-            if (flag==0) {
-                bookResultDto.setSuccess("fail3");
-                return bookResultDto;
-            }
-            //상대편에 싫어요 있으면 빼주기
-            childBookDisLikeRepository.deleteByChild_ChildIdAndBook_BookId(ChildId, BookId);
-            //일대다여서 확인해야함
-            //좋아요 토탈 카운트 올려주기 && 이미 deldate없는 좋아요는 올려주지 않기
-            if(!childBookLikeRepository.existsByChildIdAndBookIdAndDelDateIsNull(ChildId, BookId))
-            {
-                bookFavorTotalRepository.incrementCountByBookId(BookId);
-            }
-            else
-            {
-                bookResultDto.setSuccess("duplicate");
-                return bookResultDto;
-                //이미 있음
-            }
-
-            BookMbti bookMbti = book1.getBookMbti();
-            Mbti book2Mbti=bookMbti.getMbti();
-            Mbti mbti=childMbti_val.getMbti();
-
-            int EI;
-            int SN;
-            int TF;
-            int JP;
-            if (Type!=null &&Objects.equals(Type, "MBTI"))
-            {
-                EI =weightCal(book2Mbti.getEiType(),mbti.getEiType(),1);
-                SN= weightCal(book2Mbti.getSnType(),mbti.getSnType(),1);
-                TF= weightCal(book2Mbti.getTfType(),mbti.getTfType(),1);
-                JP=weightCal(book2Mbti.getJpType(),mbti.getJpType(),1);
-            } else if (Type!=null &&Objects.equals(Type, "REVERSE")) {
-                EI =weightCal((int)(book2Mbti.getEiType()*1.2),mbti.getEiType(),1);
-                SN= weightCal((int)(book2Mbti.getSnType()*1.2),mbti.getSnType(),1);
-                TF= weightCal((int)(book2Mbti.getTfType()*1.2),mbti.getTfType(),1);
-                JP=weightCal((int)(book2Mbti.getJpType()*1.2),mbti.getJpType(),1);
-            }
-            else if (Type!=null &&Objects.equals(Type, "NOMAL")) {
-                EI =weightCal((int)(book2Mbti.getEiType()*0.7),mbti.getEiType(),1);
-                SN= weightCal((int)(book2Mbti.getSnType()*0.7),mbti.getSnType(),1);
-                TF= weightCal((int)(book2Mbti.getTfType()*0.7),mbti.getTfType(),1);
-                JP=weightCal((int)(book2Mbti.getJpType()*0.7),mbti.getJpType(),1);
-            }
-            else
-            {
-                bookResultDto.setSuccess("fail5");
-                return bookResultDto;
-            }
-
-            ChildBookLike childBookLike = new ChildBookLike();
-            childBookLike.setChild(child1);
-            childBookLike.setBook(book1);
-            childBookLike.setDeletedAt(null);
-            childBookLikeRepository.save(childBookLike); // ChildBookLike만 명시적으로 저장
-
-            // mbti는 이미 조회된 상태에서 변경되었으므로, save 없이도 트랜잭션이 끝나면 자동 반영
-            mbti.setEiType(EI);
-            mbti.setSnType(SN);
-            mbti.setTfType(TF);
-            mbti.setJpType(JP);
-            mbtiRepository.save(mbti);
-            bookResultDto.setSuccess("success");
+            likeDislikeProcessor.enqueueLike(ChildId,BookId,Type);
             return bookResultDto;
         }
         catch(Exception e){
@@ -376,99 +215,12 @@ public class BookServiceImpl implements BookService {
             return bookResultDto;
         }
     }
-    @Override
-    @Transactional
-    /*
-    모두 동적 조정법 적용
-*     <a> mbti 별 추천은 그냥 현재 가중치로 한다.
-    <b> 일반책은 0.7곱해서 더해준다
-    <c>mbti 반대별 좋아요는 의미가 있는거니 1.2 곱해서 더해준다.*/
-    public BookResultDto ChildBookDisLike(long BookId, long ChildId,String Type) {
+
+
+    public BookResultDto ChildBookDisLike(long ChildId, long BookId,String Type) {
         BookResultDto bookResultDto=new BookResultDto();
         try{
-            Optional child=childRepository.findById(ChildId);
-            Child child1=new Child();
-            if(child.isPresent()){
-                child1=(Child)child.get();
-            }
-            else
-            {
-                bookResultDto.setSuccess("fail1");
-                return bookResultDto;
-            }
-            Optional book=bookRepository.findById(BookId);
-            Book book1=new Book();
-            if(book.isPresent()){
-                book1=(Book)book.get();
-            }
-            else
-            {
-                bookResultDto.setSuccess("fail2");
-                return bookResultDto;
-            }
-            List<ChildMbti> childMbtis= child1.getChildMbti();
-            ChildMbti childMbti_val =new ChildMbti();
-            int flag=0;
-
-            for( ChildMbti childMbti_Temp : childMbtis)
-            {
-                if(childMbti_Temp.getDeletedAt()==null)
-                {
-                    childMbti_val=childMbti_Temp;
-                    flag=1;
-                    break;
-                }
-            }
-            if (flag==0) {
-                bookResultDto.setSuccess("fail3");
-                return bookResultDto;
-            }
-            Mbti mbti = childMbti_val.getMbti();
-            childBookLikeRepository.deleteByChildIdAndBookIdAndDelDateIsNull(ChildId, BookId);
-            //상대편 토탈 좋아요 카운트 내려야함
-            bookFavorTotalRepository.decrementCountByBookId(BookId);
-            BookMbti bookMbti = book1.getBookMbti();
-            Mbti book2Mbti=bookMbti.getMbti();
-
-            int EI;
-            int SN;
-            int TF;
-            int JP;
-            if (Type!=null &&Objects.equals(Type, "MBTI"))
-            {
-                EI =weightCal(book2Mbti.getEiType(),mbti.getEiType(),-1);
-                SN= weightCal(book2Mbti.getSnType(),mbti.getSnType(),-1);
-                TF= weightCal(book2Mbti.getTfType(),mbti.getTfType(),-1);
-                JP=weightCal(book2Mbti.getJpType(),mbti.getJpType(),-1);
-            } else if (Type!=null &&Objects.equals(Type, "REVERSE")) {
-                EI =weightCal((int)(book2Mbti.getEiType()*1.2),mbti.getEiType(),-1);
-                SN= weightCal((int)(book2Mbti.getSnType()*1.2),mbti.getSnType(),-1);
-                TF= weightCal((int)(book2Mbti.getTfType()*1.2),mbti.getTfType(),-1);
-                JP=weightCal((int)(book2Mbti.getJpType()*1.2),mbti.getJpType(),-1);
-            }
-            else if (Type!=null &&Objects.equals(Type, "NOMAL")) {
-                EI =weightCal((int)(book2Mbti.getEiType()*0.7),mbti.getEiType(),-1);
-                SN= weightCal((int)(book2Mbti.getSnType()*0.7),mbti.getSnType(),-1);
-                TF= weightCal((int)(book2Mbti.getTfType()*0.7),mbti.getTfType(),-1);
-                JP=weightCal((int)(book2Mbti.getJpType()*0.7),mbti.getJpType(),-1);
-            }
-            else
-            {
-                bookResultDto.setSuccess("fail5");
-                return bookResultDto;
-            }
-
-            ChildBookDislike childBookDislike = new ChildBookDislike();
-            childBookDislike.setChild(child1);
-            childBookDislike.setBook(book1);
-            childBookDisLikeRepository.save(childBookDislike);
-
-            mbti.setEiType(EI);
-            mbti.setSnType(SN);
-            mbti.setTfType(TF);
-            mbti.setJpType(JP);
-            mbtiRepository.save(mbti);
-            bookResultDto.setSuccess("success");
+            likeDislikeProcessor.enqueueDisLike(ChildId,BookId,Type);
             return bookResultDto;
         }
         catch(Exception e){
@@ -477,11 +229,7 @@ public class BookServiceImpl implements BookService {
             return bookResultDto;
         }
     }
-    /*
-    모두 가중치 동적 조정법 적용
-    <a> mbti 별 추천에 대한 싫어요는 가중치를 1.2를 곱해서 크게 빼준다.
-    <b> 일반책은 0.7곱해서 나눠서 빼준다.
-    <c>mbti 반대별 싫어요는 당연한거니 0.5 곱해서 빼준다.*/
+
     @Override
     public BookResultDto DelChildBookLike(long BookId, long ChildId) {
         BookResultDto bookResultDto=new BookResultDto();

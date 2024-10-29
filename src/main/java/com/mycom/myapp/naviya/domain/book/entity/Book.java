@@ -52,8 +52,8 @@ public class Book {
     @OneToOne(cascade =CascadeType.ALL ,mappedBy = "book")
     private BookMbti bookMbti;
 
-    @OneToOne(mappedBy = "book")
-    private ChildBookDislike childBookDislike;
+    @OneToMany(cascade = CascadeType.ALL,mappedBy = "book")
+    private List<ChildBookDislike> childBookDislike;
 
     @OneToOne(cascade = CascadeType.ALL,mappedBy = "book")
     private BookFavorTotal bookFavorTotal;

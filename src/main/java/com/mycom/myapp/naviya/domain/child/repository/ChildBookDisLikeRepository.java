@@ -15,8 +15,13 @@ public interface ChildBookDisLikeRepository extends JpaRepository<ChildBookDisli
 
     @Modifying
     @Transactional // 이 메서드에 트랜잭션이 필요합니다.
-    @Query("DELETE FROM ChildBookDislike d WHERE d.child.childId = :childId AND d.book.bookId = :bookId")
+    @Query("DELETE FROM ChildBookDislike d WHERE d.child.childId = :childId AND d.book.bookId = :bookId AND d.deletedAt IS NULL")
     void deleteByChild_ChildIdAndBook_BookId(@Param("childId") Long childId, @Param("bookId") Long bookId);
+
+
+    @Query("SELECT CASE WHEN COUNT(cbl) > 0 THEN true ELSE false END FROM ChildBookDislike cbl " +
+            "WHERE cbl.child.childId = :childId AND cbl.book.bookId = :bookId AND cbl.deletedAt IS NULL")
+    boolean CHildBookDislkeIsExistDelDateIsNull(@Param("childId") Long childId, @Param("bookId") Long bookId);
 
     @Modifying
     @Transactional
@@ -25,10 +30,21 @@ public interface ChildBookDisLikeRepository extends JpaRepository<ChildBookDisli
 
     @Transactional
     @Modifying
-    @Query("DELETE FROM ChildBookDislike cbd WHERE cbd.child.childId = :childId AND cbd.deletedAt = :deleteAt")
-    void deleteByChildAndDeletedAt(Long childId, LocalDateTime deleteAt);
-
-
+    @Query("DELETE FROM ChildBookDislike cbd WHERE cbd.child = :child AND cbd.deletedAt = :deleteAt")
+    void deleteByChildAndDeletedAt(Long child, LocalDateTime deleteAt);
+    @Modifying
+    @Transactional
+    @Query(value = """
+    INSERT INTO child_book_dislike (child_id, book_id, deleted_at) 
+    SELECT :childId, :bookId, NULL
+    WHERE NOT EXISTS (
+        SELECT 1 FROM child_book_dislike 
+        WHERE child_id = :childId 
+        AND book_id = :bookId 
+        AND deleted_at IS NULL
+    )
+""", nativeQuery = true)
+    int saveChildBookDislike(@Param("childId") Long childId, @Param("bookId") Long bookId);
 
 }
 
