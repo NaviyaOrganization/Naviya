@@ -85,30 +85,30 @@
 
         h1 {
             color: #5a4d41;
-            font-size: 2.5rem;
+            font-size: 2.2rem;
             margin-bottom: 30px;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
         }
 
         label {
             color: #5a4d41;
-            font-size: 1.2rem;
+            font-size: 1.5rem;  /* 1.2rem에서 1.5rem으로 증가 */
             font-weight: 600;
-            margin-bottom: 8px;
+            margin-bottom: 12px;  /* 8px에서 12px로 증가하여 여백 조정 */
             display: block;
         }
 
         input {
-            font-size: 1.1rem;
+            font-size: 1.3rem;  /* 1.1rem에서 1.3rem으로 증가 */
             color: #5a4d41;
-            padding: 12px 15px;
+            padding: 15px 20px;  /* 패딩도 약간 증가시켜 입력 영역 확대 */
             border: 2.5px solid #ffe066;
             border-radius: 15px;
             transition: all 0.3s ease;
             background-color: #fff9e6;
             width: 100%;
             font-weight: 500;
-            margin-bottom: 15px;
+            margin-bottom: 20px;  /* 15px에서 20px로 증가하여 간격 조정 */
             box-sizing: border-box;
         }
 
@@ -235,6 +235,58 @@
                 border-radius: 0;
             }
         }
+        .program-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .program-card {
+            background-color: #fff9e6;
+            border: 2.5px solid #ffe066;
+            border-radius: 15px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: left;
+        }
+
+        .program-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+            background-color: #fff3b0;
+        }
+
+        .program-card.selected {
+            background-color: #ffe066;
+            border-color: #ffd43b;
+            transform: scale(1.02);
+        }
+
+        .program-card h3 {
+            color: #5a4d41;
+            margin: 0 0 10px 0;
+            font-size: 1.2rem;
+        }
+
+        .program-card p {
+            color: #666;
+            margin: 0;
+            font-size: 0.9rem;
+        }
+
+        .selection-error {
+            color: #e74c3c;
+            font-size: 0.9rem;
+            margin-top: 5px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .selection-error.show {
+            opacity: 1;
+        }
     </style>
 </head>
 <body>
@@ -254,8 +306,30 @@
 
 <div id="main-content">
     <div class="form-container">
-        <h1>🎉 응모 이벤트 🎉</h1>
+        <h1>🎉 자녀 성향 맞춤형 체험 프로그램 응모 🎉</h1>
 
+        <!-- 프로그램 선택 섹션 추가 -->
+        <div class="program-grid">
+            <div class="program-card" data-program="창의력">
+                <h3>창의력 발달 프로그램</h3>
+                <p>상상력과 창의력을 키우는 활동 중심 프로그램</p>
+            </div>
+            <div class="program-card" data-program="논리력">
+                <h3>논리력 향상 프로그램</h3>
+                <p>문제 해결 능력을 키우는 체계적인 프로그램</p>
+            </div>
+            <div class="program-card" data-program="사회성">
+                <h3>사회성 증진 프로그램</h3>
+                <p>또래와의 상호작용을 통한 사회성 발달 프로그램</p>
+            </div>
+            <div class="program-card" data-program="신체">
+                <h3>신체 활동 프로그램</h3>
+                <p>건강한 신체 발달을 위한 활동 중심 프로그램</p>
+            </div>
+        </div>
+        <div class="selection-error">프로그램을 선택해주세요!</div>
+
+        <!-- 기존 폼 -->
         <form th:action="@{/lottery/submit-form}" th:object="${lotteryRequest}" method="post">
             <div>
                 <label for="name">이름</label>
@@ -265,9 +339,11 @@
                 <label for="phone">전화번호</label>
                 <input type="text" id="phone" th:field="*{phone}" required pattern="\d{11}" title="전화번호는 11자리 숫자여야 합니다.">
             </div>
+            <input type="hidden" id="selectedProgram" th:field="*{selectedProgram}">
             <button type="submit">응모하기</button>
         </form>
 
+        <!-- 어제의 당첨자 섹션 -->
         <button onclick="toggleEntries()" id="toggleButton">
             <span>어제의 이벤트 당첨자! (1시마다 업데이트)</span>
             <i class="fas fa-chevron-down"></i>
@@ -352,6 +428,29 @@
             toggleButton.style.backgroundColor = '#fff3b0';
         }
     }
+
+    // 프로그램 선택 관련 스크립트 추가
+    const programCards = document.querySelectorAll('.program-card');
+    const selectedProgramInput = document.getElementById('selectedProgram');
+    const selectionError = document.querySelector('.selection-error');
+
+    programCards.forEach(card => {
+        card.addEventListener('click', function() {
+            programCards.forEach(c => c.classList.remove('selected'));
+            this.classList.add('selected');
+            selectedProgramInput.value = this.dataset.program;
+            selectionError.classList.remove('show');
+        });
+    });
+
+    // 폼 제출 전 프로그램 선택 확인
+    document.querySelector('form').addEventListener('submit', function(e) {
+        if (!selectedProgramInput.value) {
+            e.preventDefault();
+            selectionError.classList.add('show');
+            programCards[0].scrollIntoView({ behavior: 'smooth' });
+        }
+    });
 </script>
 </body>
 </html>
