@@ -20,7 +20,7 @@ public class ChildMbti {
     @JoinColumn(name = "child_id", nullable = false)
     private Child child;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "mbti_id", nullable = false)
     private Mbti mbti;
 

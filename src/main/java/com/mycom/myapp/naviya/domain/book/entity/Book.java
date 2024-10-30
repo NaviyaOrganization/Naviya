@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.List;
 @Entity
 @Table(name = "Book")
@@ -31,13 +32,13 @@ public class Book {
     private String author;
 
     @Column(name = "created_at")
-    private Timestamp createdAt;
+    private LocalDateTime createdAt;
 
     @Column(name = "full_story", columnDefinition = "TEXT")
     private String fullStory;
 
-    @Column(name = "book_image", columnDefinition = "BLOB")
-    private byte[] bookImage;
+    @Column(name = "book_image", columnDefinition = "LONGTEXT")
+    private String bookImage;
 
     @Column(name = "category_code")
     private String categoryCode;
@@ -57,4 +58,5 @@ public class Book {
 
     @OneToOne(cascade = CascadeType.ALL,mappedBy = "book")
     private BookFavorTotal bookFavorTotal;
+
 }

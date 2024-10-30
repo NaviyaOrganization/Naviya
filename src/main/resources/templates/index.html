@@ -313,6 +313,7 @@
     <a href="/children/select"><i class="fas fa-child"></i> 아이 프로필 변경</a>
     <a href="/children/page"><i class="fas fa-edit"></i> 아이 정보 수정</a>
     <a href="/userpage"><i class="fas fa-user"></i> 계정보기</a>
+    <a href="/children/childMBTIResult"><i class="fas fa-user-circle"></i> 아이 성향 확인하기</a>
     <a href="/ChildRecentReadBook"><i class="fas fa-history"></i> 최근 책 보기</a>
     <a href="/ChildFavorBookList"><i class="fas fa-heart"></i> 좋아요 누른 책 보기</a>
     <a href="/BookCategoryHtml"><i class="fas fa-tags"></i> 카테고리 별 책보기</a>
@@ -344,6 +345,16 @@
             <button class="nav-button next" onclick="navigateBooks('popularBooks', 1)"><i class="fas fa-chevron-right"></i></button>
         </div>
     </div>
+
+    <div id="categorySection" style="display: none;" class="book-section">
+        <h2 class="mb-4">카테고리 별 추천 도서</h2>
+        <div class="book-container">
+            <div id="categoryBooks" class="book-slider"></div>
+            <button class="nav-button prev" onclick="navigateBooks('categoryBooks', -1)"><i class="fas fa-chevron-left"></i></button>
+            <button class="nav-button next" onclick="navigateBooks('categoryBooks', 1)"><i class="fas fa-chevron-right"></i></button>
+        </div>
+    </div>
+
     <div id="loggedInSections" style="display: none;">
         <div class="book-section">
             <h2 class="mb-4">자녀의 성향에 맞는 추천 도서</h2>
@@ -407,32 +418,21 @@
 
 <!-- JavaScript for sidebar toggle -->
 <script>
-    // // 사이드바 토글 기능
-    // document.getElementById('toggleSidebar').addEventListener('click', function() {
-    //     const sidebar = document.getElementById('sidebar');
-    //     const toggleBtn = document.getElementById('toggleSidebar');
-    //     const mainContent = document.getElementById('main-content');
-    //
-    //     if (sidebar.style.left === '0px') {
-    //         sidebar.style.left = '-250px';
-    //         toggleBtn.classList.remove('toggle-active');
-    //         mainContent.style.marginLeft = '150px'; // 콘텐츠를 중앙으로 이동
-    //     } else {
-    //         sidebar.style.left = '0px';
-    //         toggleBtn.classList.add('toggle-active');
-    //         mainContent.style.marginLeft = '250px';
-    //     }
-    // });
+
     // 로그인 상태 확인 및 섹션 표시/숨김 처리
     async function checkLoginStatus() {
         const childId = sessionStorage.getItem('selectedChildId');
         if (childId) { // 회원
             fetchBooksOrderedByDate(childId);
-            fetchGuestBookFavorCount(childId);
+            fetchBookFavorCount(childId);
             if (await checkIfChildMbtiDeleted(childId)) {
                 document.getElementById('loggedInSections').style.display = 'block';
                 fetchRecommendedBooks(childId);
                 fetchSNTFRecommendedBooks(childId);
+            }
+            if (await checkIfChildCategory(childId)) {
+                document.getElementById('categorySection').style.display = 'block';
+                fetchCategoryBooks(childId);
             }
 
         } else { // 비회원
@@ -450,6 +450,7 @@
     const sliderStates = {
         popularBooks: { currentIndex: 0 },
         recommendedBooks: { currentIndex: 0 },
+        categoryBooks: { currentIndex: 0 },
         oppositeBooks: { currentIndex: 0 },
         tfoppositeBooks: { currentIndex: 0 },
         newBooks: { currentIndex: 0 }
@@ -586,9 +587,27 @@
         }
     }
 
+    async function checkIfChildCategory(childId) {
+        try {
+            // API 호출
+            const response = await fetch(`/api/mbti/CategoryExist?childId=${childId}`);
+            const data = await response.json();
+
+            // 응답이 성공적이지 않으면 에러를 발생시킴
+            if (!response.ok) {
+                throw new Error('Failed to fetch data');
+            }
+            return data.data;
+        } catch (error) {
+            console.error('Error checking if ChildMbti is deleted:', error);
+            return false; // 에러 발생 시 기본값으로 false 반환
+        }
+    }
+
     let popularBooks = [];
 
     let recommendedBooks = [];
+    let categoryBooks = [];
 
     let oppositeBooks = [];
 
@@ -682,7 +701,6 @@
         try {
             const response = await fetch(`/Book/NoChildListOrderDate`);
             const data = await response.json();
-
             if (data.success === "success") {
                 newBooks = data.books; // 받은 책 데이터를 recommendedBooks에 할당
                 bookSections['newBooks'] = newBooks; // bookSections 업데이트
@@ -700,7 +718,6 @@
         try {
             const response = await fetch(`/Book/NoChildlistBookChildFavor`);
             const data = await response.json();
-
             if (data.success === "success") {
                 popularBooks = data.books; // 받은 책 데이터를 popularBooks 할당
                 bookSections['popularBooks'] = popularBooks; // bookSections 업데이트
@@ -713,10 +730,29 @@
         }
     }
 
+    // 카테고리 별 책 추천
+    async function fetchCategoryBooks(childId) {
+        try {
+            const response = await fetch(`/Book/CategoryList?childId=${childId}`);
+            const data = await response.json();
+
+            if (data.success === "success") {
+                popularBooks = data.books; // 받은 책 데이터를 popularBooks 할당
+                bookSections['categoryBooks'] = categoryBooks; // bookSections 업데이트
+                displayBooks('categoryBooks');
+            } else {
+                console.error('Failed to fetch category books:', data.message);
+            }
+        } catch (error) {
+            console.error('Error fetching category books:', error);
+        }
+    }
+
     // bookSections 객체 추가
     const bookSections = {
         popularBooks: popularBooks,
         recommendedBooks: recommendedBooks,
+        categoryBooks: categoryBooks,
         oppositeBooks: oppositeBooks,
         tfoppositeBooks: tfoppositeBooks,
         newBooks: newBooks

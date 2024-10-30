@@ -45,6 +45,7 @@ public interface ChildRepository extends JpaRepository<Child, Long> {
             "AND (cm IS NULL OR cm.deletedAt IS NULL)")
     Optional<ChildMbtiDto> findChildMbtiById(Long childId);
 
-
+    @Query("SELECT CASE WHEN c.deletedAt IS NULL THEN true ELSE false END FROM ChildMbti c WHERE c.child.childId = :childId")
+    Optional<Boolean> isDeletedByChildId(@Param("childId") Long childId);
 
 }
