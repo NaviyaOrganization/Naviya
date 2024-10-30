@@ -73,18 +73,17 @@ public class PageController {
         return "admin";
     }
 
-    @Controller
-    public class BookController {
 
-        @GetMapping("/book/image/{bookId}")
-        @ResponseBody
-        public ResponseEntity<byte[]> getBookImage(@PathVariable Long bookId) {
-            byte[] imageBytes = bookService.getImageBytesByBookId(bookId);
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.IMAGE_JPEG); // PNG 형식이라면 IMAGE_PNG 사용
-            return new ResponseEntity<>(imageBytes, headers, HttpStatus.OK);
-        }
+
+    @GetMapping("/book/image/{bookId}")
+    @ResponseBody
+    public ResponseEntity<byte[]> getBookImage(@PathVariable Long bookId) {
+        byte[] imageBytes = bookService.getImageBytesByBookId(bookId);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.IMAGE_JPEG); // PNG 형식이라면 IMAGE_PNG 사용
+        return new ResponseEntity<>(imageBytes, headers, HttpStatus.OK);
     }
+
 
 
     @GetMapping("/")
@@ -126,7 +125,7 @@ public class PageController {
         User user = userRepository.findByEmail(email);
         model.addAttribute("user", user);
 
-        return "BookCategoryHtml";
+        return "ChildFavorBookList";
     }
 
     @GetMapping("/ChildRecentReadBook")
@@ -164,6 +163,11 @@ public class PageController {
     @GetMapping("/detail")
     public String detailBook(@RequestParam long bookId, Model model, HttpSession session) {
         Long selectedChildId = (Long) session.getAttribute("selectedChildId");
+        // 세션에서 사용자 이메일을 가져옴
+        String email = (String) session.getAttribute("userEmail");
+
+        User user = userRepository.findByEmail(email);
+        model.addAttribute("user", user);
 
         // 책의 상세 정보를 가져옴
         BookResultDto bookResultDto = new BookResultDto();
@@ -198,6 +202,12 @@ public class PageController {
     public String readBook(Model model, HttpSession session) {
         BookDetailDto bookDetailDto = (BookDetailDto) session.getAttribute("book");
         model.addAttribute("book", bookDetailDto);
+
+        // 세션에서 사용자 이메일을 가져옴
+        String email = (String) session.getAttribute("userEmail");
+
+        User user = userRepository.findByEmail(email);
+        model.addAttribute("user", user);
         return "BookReadPage";
     }
 

@@ -262,7 +262,7 @@
 
             const cardImage = document.createElement('img');
             cardImage.className = 'card-img-top';
-            cardImage.src = book.bookImage || '/img.png';
+            cardImage.src = `/book/image/${book.bookId}`;
             cardImage.alt = book.title;
             cardImage.style.height = '200px';
             cardImage.style.objectFit = 'cover';
