@@ -240,4 +240,6 @@ public interface BookRepository extends JpaRepository<Book, Long> {
     List<BookDto> findBookDtoOneCateogory(@Param("childId") long childId,@Param("categoryCode")String categoryCode);
 
 
+
+
 }

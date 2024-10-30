@@ -1,5 +1,6 @@
 package com.mycom.myapp.naviya.domain.book.service;
 
+import com.mycom.myapp.naviya.domain.book.dto.BookDetailDto;
 import com.mycom.myapp.naviya.domain.book.dto.BookDto;
 import com.mycom.myapp.naviya.domain.book.dto.BookInsertDto;
 import com.mycom.myapp.naviya.domain.book.dto.BookResultDto;
@@ -10,8 +11,8 @@ public interface BookService {
     BookResultDto delBook(Long bookId);
     BookResultDto detailBook(Long bookId, Long childId);
     BookResultDto listBook();
-    BookResultDto updateBook(BookInsertDto bookInsertDto);
-    BookResultDto insertBook(BookInsertDto bookInsertDto);
+    BookInsertDto updateBook(BookInsertDto bookInsertDto);
+    BookInsertDto insertBook(BookInsertDto bookInsertDto);
     BookResultDto listbookOrderByCreateDate(long childId);
     BookResultDto listBookChildFavor(long childId);
     BookResultDto listBookFavorCount(long childId);
@@ -29,5 +30,7 @@ public interface BookService {
     BookResultDto ChildALLlistBook(Long childId);
     BookResultDto NoCHildlistbookOrderByCreateDate();
     BookResultDto NoChildlistBookChildFavor();
+    BookDetailDto adminBookDetail(Long bookId);
+    byte[] getImageBytesByBookId(Long bookId);
 
 }

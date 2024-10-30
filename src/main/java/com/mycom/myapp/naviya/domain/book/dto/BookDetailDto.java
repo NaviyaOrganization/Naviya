@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -17,9 +18,9 @@ public class BookDetailDto {
     private String recommendedAge;
     private String publisher;
     private String author;
-    private Timestamp createdAt;
+    private LocalDateTime createdAt;
     private String fullStory;
-    private byte[] bookImage;
+    private String bookImage;
     private String category;
     private MbtiDto bookMbti;
     private BookFavorTotalDto booktotalfavor;

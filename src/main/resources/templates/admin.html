@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>관리자 페이지</title>
+    <title>Main Page with Sidebar</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
@@ -128,6 +128,10 @@
 <!-- Main Content -->
 <div id="main-content" class="container mt-5">
     <h1>메인페이지</h1>
+
+    <!-- 도서추가 버튼 -->
+    <button class="btn btn-primary mb-3" onclick="window.location.href='/ai/admin/book/insert'">도서추가</button>
+
     <p>모든 책 목록:</p>
     <table id="bookTable" class="table table-bordered">
         <thead>
@@ -136,13 +140,12 @@
             <th>제목</th>
             <th>저자</th>
             <th>출판사</th>
-            <th></th>
-            <th></th>
-            <th></th>
-            <th></th>
-            <th></th>
-            <th></th>
-            <th></th>
+            <th>권장연령</th>
+            <th>줄거리</th>
+            <th>외향/내향</th>
+            <th>감각/직관</th>
+            <th>사고/감정</th>
+            <th>판단/인식</th>
         </tr>
         </thead>
         <tbody>
@@ -200,7 +203,7 @@
                             <input type="text" class="form-control" id="editBookJpType" name="jpType">
                         </div>
                         <div class="mb-3">
-                            <label for="editBookCategoryId" class="form-label">카테고리 ID</label>
+                            <label for="editBookCategoryId" class="form-label">카테고리</label>
                             <input type="number" class="form-control" id="editBookCategoryId" name="categoryId">
                         </div>
                     </form>
@@ -246,26 +249,23 @@
             const row = document.createElement('tr');
 
             row.innerHTML = `
-        <td>${book.bookId}</td>
-        <td>${book.title}</td>
-        <td>${book.author}</td>
-        <td>${book.publisher}</td>
-        <td>${book.recommendedAge}</td>
-        <td>${book.summary}</td>
-        <td>${book.count}</td>
-        <td>${book.eiType}</td>
-        <td>${book.snType}</td>
-        <td>${book.tfType}</td>
-        <td>${book.jpType}</td>
-        <td>${book.categoryBookDto ? book.categoryBookDto.categoryName : ''}</td>
-        <td>${book.categoryBookDto ? book.categoryBookDto.categoryId : ''}</td>
-        <td>${book.createDate ? new Date(book.createDate).toLocaleDateString() : 'N/A'}</td>
-        <td>
-            <button class="btn btn-warning btn-sm" onclick="editBook(${book.bookId}, '${book.title}', '${book.author}', '${book.publisher}')">수정</button>
-        </td>
-        <td>
-            <button class="btn btn-danger btn-sm" onclick="deleteBook(${book.bookId})">삭제</button>
-        </td>
+            <td>${book.bookId}</td>
+            <td><a href="/adminBookDetail?bookId=${book.bookId}">${book.title}</a></td>
+            <td>${book.author}</td>
+            <td>${book.publisher}</td>
+            <td>${book.recommendedAge}</td>
+            <td>${book.summary}</td>
+            <td>${book.bookMbti ? book.bookMbti.eiType : ''}</td>
+            <td>${book.bookMbti ? book.bookMbti.snType : ''}</td>
+            <td>${book.bookMbti ? book.bookMbti.tfType : ''}</td>
+            <td>${book.bookMbti ? book.bookMbti.jpType : ''}</td>
+            <td>${book.category}</td>
+            <td>
+                <button class="btn btn-warning btn-sm" onclick="editBook(${JSON.stringify(book).replace(/"/g, '&quot;')})">수정</button>
+            </td>
+            <td>
+                <button class="btn btn-danger btn-sm" onclick="deleteBook(${book.bookId})">삭제</button>
+            </td>
         `;
 
             tableBody.appendChild(row);
@@ -274,94 +274,97 @@
 
     // 책 삭제하기
     function deleteBook(bookId) {
-        if (confirm('정말로 이 책을 삭제하시겠습니까?')) {
-            fetch(`${baseUrl}/BookDel?bookId=${bookId}`, {
-                method: 'DELETE'
+        if (confirm('도서를 삭제하시겠습니까?')) {
+            fetch(`/BookDel?bookId=${bookId}`, {
+                method: 'GET'
             })
                 .then(response => response.json())
                 .then(data => {
                     console.log('책 삭제 결과:', data);
-                    // 삭제 후 테이블을 업데이트
-                    fetchAllBooks();
+                    alert('책이 성공적으로 삭제되었습니다.');
+
                 })
+            setTimeout(() => {
+                location.reload(); // 삭제 후 페이지 새로고침
+            }, 100)
                 .catch(error => console.error('에러 발생:', error));
         }
     }
 
-    // 사이드바 토글 기능
-    document.getElementById('toggleSidebar').addEventListener('click', function() {
-        const sidebar = document.getElementById('sidebar');
-        const toggleBtn = document.getElementById('toggleSidebar');
+    function editBook(book) {
+        console.log('Editing book:', book); // 디버깅을 위한 로그
 
-        if (sidebar.style.left === '0px') {
-            sidebar.style.left = '-250px'; // 사이드바 숨기기
-            toggleBtn.classList.remove('toggle-active');
-        } else {
-            sidebar.style.left = '0px'; // 사이드바 보이기
-            toggleBtn.classList.add('toggle-active');
-        }
-    });
+        document.getElementById('editBookId').value = book.bookId;
+        document.getElementById('editBookTitle').value = book.title || '';
+        document.getElementById('editBookAuthor').value = book.author || '';
+        document.getElementById('editBookPublisher').value = book.publisher || '';
+        document.getElementById('editBookSummary').value = book.summary || '';
+        document.getElementById('editBookRecommendedAge').value = book.recommendedAge || '';
+        document.getElementById('editBookCount').value = book.count || '0';
 
-    // 로그아웃 시 세션에서 adminEmail 제거
-    document.addEventListener('DOMContentLoaded', function() {
-        // Get the logout link element
-        const logoutLink = document.querySelector('a[href="/admin/logout"]');
+        // MBTI 필드 설정 - 없으면 0으로 설정
+        const mbti = book.bookMbti || {};
+        document.getElementById('editBookEiType').value = mbti.eiType || '0';
+        document.getElementById('editBookSnType').value = mbti.snType || '0';
+        document.getElementById('editBookTfType').value = mbti.tfType || '0';
+        document.getElementById('editBookJpType').value = mbti.jpType || '0';
 
-        // Add a click event listener to the logout link
-        if (logoutLink) {
-            logoutLink.addEventListener('click', function() {
-                // Remove only 'adminEmail' from sessionStorage
-                sessionStorage.removeItem('adminEmail');
-                console.log("adminEmail removed from session storage on logout.");
-            });
-        }
-    });
+        // 카테고리 설정 - categoryId 사용
+        document.getElementById('editBookCategoryId').value = book.category || '';
 
-    // editBook 함수: 수정 모달에 값 채우기
-    function editBook(bookId, title, author, publisher) {
-        document.getElementById('editBookId').value = bookId;
-        document.getElementById('editBookTitle').value = decodeURIComponent(title);
-        document.getElementById('editBookAuthor').value = decodeURIComponent(author);
-        document.getElementById('editBookPublisher').value = decodeURIComponent(publisher);
-        // 추가 필드들도 동일하게 설정
-        // 모달 열기
+        // 디버깅용 로그
+        console.log('Category ID:', book.categoryId);
+        console.log('Category Name:', book.categoryName);
+
         const editBookModal = new bootstrap.Modal(document.getElementById('editBookModal'));
         editBookModal.show();
     }
+
 
     // 책 수정 제출 함수
     function submitEditBook() {
         const bookId = document.getElementById('editBookId').value;
         const updatedBook = {
+            bookId: parseInt(bookId),
             title: document.getElementById('editBookTitle').value,
             author: document.getElementById('editBookAuthor').value,
             publisher: document.getElementById('editBookPublisher').value,
             recommendedAge: document.getElementById('editBookRecommendedAge').value,
             summary: document.getElementById('editBookSummary').value,
-            count: document.getElementById('editBookCount').value,
-            eiType: document.getElementById('editBookEiType').value,
-            snType: document.getElementById('editBookSnType').value,
-            tfType: document.getElementById('editBookTfType').value,
-            jpType: document.getElementById('editBookJpType').value,
-            categoryId: document.getElementById('editBookCategoryId').value
+            count: parseInt(document.getElementById('editBookCount').value) || null,
+            eiType: parseInt(document.getElementById('editBookEiType').value) || null,
+            snType: parseInt(document.getElementById('editBookSnType').value) || null,
+            tfType: parseInt(document.getElementById('editBookTfType').value) || null,
+            jpType: parseInt(document.getElementById('editBookJpType').value) || null,
+            category: parseInt(document.getElementById('editBookCategoryId').value) || null
         };
 
-        // PUT 요청을 통해 수정된 책 정보를 서버로 전송
-        fetch(`${baseUrl}/BookEdit?bookId=${bookId}`, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json'
-            },
+        // Null fields 삭제
+        Object.keys(updatedBook).forEach(key => {
+            if (updatedBook[key] === null) delete updatedBook[key];
+        });
+
+        fetch('/update', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(updatedBook)
         })
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) throw new Error('Network response was not ok');
+                return response.text();
+            })
             .then(data => {
                 console.log('책 수정 결과:', data);
-                location.reload(); // 페이지를 새로고침하여 변경 사항 적용
+                alert('책이 성공적으로 수정되었습니다.');
+                location.reload();
             })
-            .catch(error => console.error('에러 발생:', error));
+            .catch(error => {
+                console.error('에러 발생:', error);
+                alert('책 수정 중 오류가 발생했습니다: ' + error.message);
+            });
     }
 </script>
+
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 </body>

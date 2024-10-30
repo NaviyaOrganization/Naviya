@@ -1,10 +1,12 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>책 상세 페이지</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+  <link href="/assets/css/newSidebar.css" rel="stylesheet">
   <style>
     body {
       overflow-x: hidden;
@@ -12,77 +14,79 @@
       font-family: 'Jua', Arial, sans-serif;
     }
 
+    /* Navigation Bar styles */
     .navbar {
       background-color: #ffe066;
       border-radius: 0 0 20px 20px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
     }
 
     .navbar-nav .nav-link {
       color: #5a4d41 !important;
-      font-size: 1.3rem;
-      margin: 0 15px;
-      border-radius: 25px;
-      padding: 10px 20px;
-      transition: all 0.3s ease;
+      font-size: 1.1rem;
+      margin: 0 10px;
+      border-radius: 20px;
+      padding: 8px 15px;
     }
 
     .navbar-nav .nav-link:hover {
-      background-color: #ffd43b;
-      transform: scale(1.1);
+      background-color: #fff3b0;
+      transform: scale(1.05);
+      transition: all 0.3s ease;
     }
 
+    /* Sidebar styles */
     #sidebar {
       height: 100%;
-      width: 260px;
+      width: 250px;
       position: fixed;
-      top: 0;
-      left: -260px;
-      background-color: #ffd43b;
+      top: 60px;
+      left: -250px;
+      background-color: #fff3b0;
       border-radius: 0 20px 20px 0;
       transition: left 0.3s ease;
       padding-top: 20px;
       z-index: 1000;
-      box-shadow: 2px 0 15px rgba(0,0,0,0.1);
+      box-shadow: 2px 0 10px rgba(0,0,0,0.1);
     }
 
     #sidebar a {
       padding: 15px 25px;
       text-decoration: none;
-      font-size: 1.1rem;
+      font-size: 18px;
       color: #5a4d41;
       display: block;
       transition: all 0.3s ease;
-      margin: 8px 10px;
-      border-radius: 20px;
+      margin: 5px 10px;
+      border-radius: 15px;
     }
 
     #sidebar a:hover {
       background-color: #ffe066;
-      transform: scale(1.05);
+      transform: scale(1.02);
     }
 
-    #main-content {
-      transition: margin-left 0.3s ease;
-      padding: 30px;
-      max-width: 1200px;
-      margin: 0 auto;
-      text-align: left;
-    }
-
-    /* 책 제목 스타일 */
-    .book-title {
-      font-size: 2rem;
-      font-weight: bold;
-      color: #5a4d41;
-      text-shadow: 1px 1px 3px rgba(0,0,0,0.1);
-      margin-bottom: 10px;
+    /* Toggle Button */
+    #toggleSidebar {
+      background-color: #ffe066;
+      border-radius: 50%;
+      width: 45px;
+      height: 45px;
       display: flex;
       align-items: center;
-      gap: 10px;
+      justify-content: center;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      transition: left 0.3s ease;
+      z-index: 1100;
+      padding: 10px;
     }
 
-    /* 이미지와 제목을 나란히 배치 */
+    #toggleSidebar:hover {
+      transform: scale(1.1);
+      background-color: #ffd43b;
+    }
+
+    /* Book specific styles */
     .book-container {
       display: flex;
       align-items: flex-end;
@@ -99,11 +103,21 @@
 
     .book-container img.audio-button {
       width: 30px;
-      height:30px;
+      height: 30px;
       cursor: pointer;
     }
 
-    /* 책 내용 컴포넌트 스타일 */
+    .book-title {
+      font-size: 2rem;
+      font-weight: bold;
+      color: #5a4d41;
+      text-shadow: 1px 1px 3px rgba(0,0,0,0.1);
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
     .book-content {
       background-color: #fff;
       border-radius: 20px;
@@ -138,34 +152,37 @@
 <body>
 
 <!-- Navigation Bar -->
-<nav class="navbar navbar-expand-lg navbar">
+<nav class="navbar navbar-expand-lg">
   <div class="container-fluid">
     <!-- Toggle Button -->
     <span id="toggleSidebar" class="navbar-toggler-icon"></span>
-
-    <!-- Right-Side Links -->
-    <div class="collapse navbar-collapse justify-content-end">
+    <div class="navbar-collapse justify-content-end">
       <ul class="navbar-nav">
         <li class="nav-item">
-          <a class="nav-link" href="#">메인페이지</a>
+          <a class="nav-link" href="/"><i class="fas fa-home"></i> 메인페이지</a>
         </li>
-        <li class="nav-item">
-          <a class="nav-link" href="#">로그인</a>
+        <li class="nav-item" th:if="${user == null}">
+          <a class="nav-link" href="/login"><i class="fas fa-sign-in-alt"></i> 로그인</a>
         </li>
-        <li class="nav-item">
-          <a class="nav-link" href="#">회원가입</a>
+        <li class="nav-item" th:if="${user == null}">
+          <a class="nav-link" href="/signup"><i class="fas fa-user-plus"></i> 회원가입</a>
+        </li>
+        <li class="nav-item" th:if="${user != null}">
+          <a class="nav-link" th:text="${user.name + '님'}"><i class="fas fa-user-plus"></i></a>
+        </li>
+        <li class="nav-item" th:if="${user != null}">
+          <a class="nav-link" href="/logout"><i class="fas fa-sign-out-alt"></i> 로그아웃</a>
         </li>
       </ul>
     </div>
   </div>
 </nav>
 
-<!-- Sidebar with Icons -->
+<!-- Sidebar -->
 <div id="sidebar">
   <a href="/children/select"><i class="fas fa-child"></i> 아이 프로필 변경</a>
   <a href="/children/page"><i class="fas fa-edit"></i> 아이 정보 수정</a>
   <a href="/userpage"><i class="fas fa-user"></i> 계정보기</a>
-  <a href="/children/childMBTIResult"><i class="fas fa-user-circle"></i> 아이 성향 확인하기</a>
   <a href="/ChildRecentReadBook"><i class="fas fa-history"></i> 최근 책 보기</a>
   <a href="/ChildFavorBookList"><i class="fas fa-heart"></i> 좋아요 누른 책 보기</a>
   <a href="/BookCategoryHtml"><i class="fas fa-tags"></i> 카테고리 별 책보기</a>
@@ -177,7 +194,7 @@
   <!-- Book Image and Title + Audio Button -->
   <div class="book-container">
     <!-- Book Cover Image -->
-    <img src="/images/BookImage.png" alt="책 표지" class="book-cover">
+    <img th:src="@{'/book/image/' + ${book.bookId}}" alt="책 표지" class="book-cover">
 
     <!-- Title and Audio Button to the right of the image -->
     <div class="book-title-audio">
@@ -188,7 +205,7 @@
     </div>
   </div>
 
-  <!-- 통합된 책 내용 (책 내용 상자 크기 조정) -->
+  <!-- Book Content -->
   <div class="book-content" id="storyContent">
     <p th:text="${book.fullStory}">
       책의 내용이 여기에 들어갑니다. 루나는 달을 보며 속삭였습니다.
@@ -198,62 +215,29 @@
 
 <!-- JavaScript for sidebar toggle and TTS -->
 <script>
-  let isPlaying = false; // 재생 여부를 추적하는 변수
+  let isPlaying = false;
   let utterance;
 
-  document.getElementById('toggleSidebar').addEventListener('click', function() {
-    const sidebar = document.getElementById('sidebar');
-    const toggleBtn = document.getElementById('toggleSidebar');
-
-    // Toggle sidebar visibility
-    if (sidebar.style.left === '0px') {
-      sidebar.style.left = '-250px'; // Hide sidebar
-      toggleBtn.classList.remove('toggle-active'); // Move button back
-    } else {
-      sidebar.style.left = '0px'; // Show sidebar
-      toggleBtn.classList.add('toggle-active'); // Move button with sidebar
-    }
-  });
-
-  // TTS 기능 추가
+  // TTS 기능
   document.getElementById('readButton').addEventListener('click', function() {
     if (!isPlaying) {
       const storyContent = document.getElementById('storyContent').innerText;
       utterance = new SpeechSynthesisUtterance(storyContent);
-      utterance.lang = "ko-KR"; // 한국어 설정
+      utterance.lang = "ko-KR";
       speechSynthesis.speak(utterance);
       isPlaying = true;
+
+      utterance.onend = function() {
+        isPlaying = false;
+      };
     } else {
-      speechSynthesis.cancel(); // 재생 중이면 중지
+      speechSynthesis.cancel();
       isPlaying = false;
-    }
-
-    // 재생이 끝나면 상태를 변경
-    utterance.onend = function() {
-      isPlaying = false;
-    };
-  });
-
-  let isPlaying = false; // 재생 여부를 추적하는 변수
-  let utterance;
-  let isSidebarOpen = false; // 사이드바 열림 상태를 추적하는 변수
-
-  document.getElementById('toggleSidebar').addEventListener('click', function() {
-    const sidebar = document.getElementById('sidebar');
-    const toggleBtn = this; // 'this'는 클릭된 요소를 가리킵니다
-
-    if (isSidebarOpen) {
-      sidebar.style.left = '-260px'; // 사이드바 닫기
-      toggleBtn.style.left = '10px'; // 토글 버튼을 원래 위치로
-      isSidebarOpen = false;
-    } else {
-      sidebar.style.left = '0'; // 사이드바 열기
-      toggleBtn.style.left = '270px'; // 토글 버튼을 사이드바 옆으로 이동
-      isSidebarOpen = true;
     }
   });
 </script>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+<script src="/assets/js/newSidebar.js"></script>
 </body>
 </html>
