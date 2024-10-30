@@ -17,7 +17,6 @@
     body {
       overflow-x: hidden;
       background-color: #fff9e6;
-      font-family: 'Arial Rounded MT Bold', Arial, sans-serif;
       margin: 0; /* 기본 여백 제거 */
     }
 
@@ -207,7 +206,7 @@
         const bookList = document.getElementById("book-list");
         bookList.innerHTML = '';
         console.log(data);
-          displayResults(data.books)
+        displayResults(data.books)
       } else {
         console.error('Failed to fetch recommended books:', data.message);
       }
@@ -233,7 +232,7 @@
 
       const cardImage = document.createElement('img');
       cardImage.className = 'card-img-top';
-      cardImage.src = book.bookImage || '/img.png';
+      cardImage.src = `/book/image/${book.bookId}`;
       cardImage.alt = book.title;
       cardImage.style.height = '200px';
       cardImage.style.objectFit = 'cover';

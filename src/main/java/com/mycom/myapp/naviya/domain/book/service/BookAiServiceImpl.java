@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mycom.myapp.naviya.domain.book.dto.BookAiRequestDto;
 import com.mycom.myapp.naviya.domain.book.dto.BookAiResponseDto;
 import com.mycom.myapp.naviya.domain.book.dto.BookInsertDto;
-import com.mycom.myapp.naviya.domain.book.entity.Book;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;

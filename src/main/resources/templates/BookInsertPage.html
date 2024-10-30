@@ -6,7 +6,6 @@
     <style>
         body {
             background-color: #f8f9fa;
-            font-family: Arial, sans-serif;
             padding: 20px;
         }
         h1 {
@@ -53,7 +52,7 @@
         <img th:src="'data:image/jpeg;base64,' + ${book.bookImage}" alt="Book Cover Image" class="book-image" />
     </div>
 
-    <form action="/insert" method="post">
+    <form action="/admin/insert" method="post">
         <!-- Hidden field for bookImage -->
         <input type="hidden" name="bookImage" th:value="${book.bookImage}" />
 
