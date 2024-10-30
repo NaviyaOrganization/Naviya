@@ -26,4 +26,5 @@ public class ChildMbti {
 
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt; // 논리적 삭제를 위한 컬럼 추가
+
 }
