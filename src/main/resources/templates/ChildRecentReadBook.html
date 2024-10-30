@@ -11,8 +11,10 @@
 
     <!--  메인페이지 css 파일-->
     <link href="/assets/css/newSidebar.css" rel="stylesheet">
+    <script src="/assets/js/newSidebar.js"></script>
 
     <style>
+
         body {
             overflow-x: hidden;
             background-color: #fff9e6;
@@ -116,11 +118,34 @@
             border-radius: 25px;
             margin-bottom: 30px;
         }
+        #book-list {
+            display: flex; /* 플렉스 사용 */
+            flex-wrap: wrap; /* 카드가 줄 바꿈 */
+        }
+        .card-title {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .card {
+            border-radius: 10px;
+            transition: transform 0.2s;
+        }
+
+        .card:hover {
+            transform: scale(1.05);
+        }
+        .title-text {
+            font-size: 1.8rem; /* 타이틀 크기 */
+            margin-bottom: 20px; /* 타이틀과 콘텐츠 사이 여백 */
+            font-weight: bold;
+            color: #333;
+        }
+
     </style>
 </head>
 <body>
-
-
 <!-- Navigation Bar -->
 <nav class="navbar navbar-expand-lg">
     <div class="container-fluid">
@@ -159,15 +184,15 @@
     <a href="/lottery/form"><i class="fas fa-gift"></i> 선착순 이벤트</a>
 </div>
 
+<div class="container mt-4">
+    <h2 class="title-text text-center">최근 본 책</h2>
+    <div class="row" id="book-list"></div>
+</div>
 
-
-
-<!--nav바 , 토글 관련 JS-->
 <script src="/assets/js/newSidebar.js"></script>
-
-<div id="book-list" class="book-container"></div>
-
 <script>
+
+
     window.addEventListener('load', () => {
         const selectedChildId = sessionStorage.getItem("selectedChildId");
         ListFavorBook(selectedChildId);
@@ -183,42 +208,84 @@
                 const bookList = document.getElementById("book-list");
                 bookList.innerHTML = '';
                 console.log(data);
-                data.books.forEach(book => {
-                    const bookItem = document.createElement("div");
-                    bookItem.className = "book-item";
-
-                    const img = document.createElement("img");
-                    img.src = book.bookImage;
-                    img.alt = `${book.title}의 표지`;
-
-                    const title = document.createElement("h3");
-                    title.textContent = book.title;
-
-                    const author = document.createElement("p");
-                    author.textContent = `저자: ${book.author}`;
-
-                    const summary = document.createElement("p");
-                    summary.textContent = `${book.summary}`;
-
-                    // 책 정보를 담을 클릭 이벤트 추가
-                    bookItem.addEventListener("click", () => {
-                        // 예시 URL: /book/detail?id=bookId
-                        sessionStorage.setItem("bookId", book.bookId);
-                        window.location.href = `/book/detail?id=${book.bookId}`;
-                    });
-
-                    bookItem.appendChild(img);
-                    bookItem.appendChild(title);
-                    bookItem.appendChild(author);
-                    bookItem.appendChild(summary);
-                    bookList.appendChild(bookItem);
-                });
+                displayResults(data.books)
             } else {
                 console.error('Failed to fetch recommended books:', data.message);
             }
         } catch (error) {
             console.error('Error fetching recommended books:', error);
         }
+    }
+    function displayResults(books) {
+        const resultsContainer = document.getElementById("book-list");
+        resultsContainer.innerHTML = ''; // 이전 결과 삭제
+
+        if (books.length === 0) {
+            resultsContainer.innerHTML = '<p class="col-12">검색 결과가 없습니다.</p>';
+            return;
+        }
+
+        books.forEach(book => {
+            const col = document.createElement('div');
+            col.className = 'col-lg-3 col-md-4 col-sm-6 mb-4'; // 큰 화면 4개, 중간 화면 3개, 작은 화면 2개
+
+            const card = document.createElement('div');
+            card.className = 'card h-100 shadow-sm';
+
+            const cardImage = document.createElement('img');
+            cardImage.className = 'card-img-top';
+            cardImage.src = book.bookImage || '/img.png';
+            cardImage.alt = book.title;
+            cardImage.style.height = '200px';
+            cardImage.style.objectFit = 'cover';
+
+            const cardBody = document.createElement('div');
+            cardBody.className = 'card-body d-flex flex-column';
+
+            const cardTitle = document.createElement('h5');
+            cardTitle.className = 'card-title text-truncate';
+            cardTitle.textContent = book.title;
+
+            const cardAuthor = document.createElement('p');
+            cardAuthor.className = 'card-text text-muted';
+            cardAuthor.textContent = `저자: ${book.author}`;
+
+            const cardPublisher = document.createElement('p');
+            cardPublisher.className = 'card-text text-muted';
+            cardPublisher.textContent = `출판사: ${book.publisher}`;
+
+            const cardLink = document.createElement('a');
+            cardLink.href = '#';
+            cardLink.className = 'btn btn-primary mt-auto';
+            cardLink.textContent = '자세히 보기';
+
+            cardLink.addEventListener('click', function(e) {
+                e.preventDefault();
+                sessionStorage.setItem('Type', 'NORMAL');
+
+                const form = document.createElement('form');
+                form.method = 'GET';
+                form.action = '/detail';
+
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'bookId';
+                input.value = book.bookId;
+
+                form.appendChild(input);
+                document.body.appendChild(form);
+                form.submit();
+            });
+
+            cardBody.appendChild(cardTitle);
+            cardBody.appendChild(cardAuthor);
+            cardBody.appendChild(cardPublisher);
+            cardBody.appendChild(cardLink);
+            card.appendChild(cardImage);
+            card.appendChild(cardBody);
+            col.appendChild(card);
+            resultsContainer.appendChild(col);
+        });
     }
 </script>
 </body>
