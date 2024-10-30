@@ -16,7 +16,7 @@ public class UserRecentBooks {
     @Column(name = "viewed_at")
     private Timestamp viewedAt;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "child_id", nullable = false)
     private Child child;
 

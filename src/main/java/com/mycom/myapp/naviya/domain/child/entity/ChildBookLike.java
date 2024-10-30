@@ -16,7 +16,7 @@ public class ChildBookLike {
     @Column(name = "like_id")
     private Long likeId;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "child_id", nullable = false)
     private Child child;
 

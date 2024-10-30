@@ -16,14 +16,15 @@ public class ChildMbti {
     @Column(name = "childmbti_id") // 기본 키이자 AUTO_INCREMENT 컬럼
     private Long mbtiId;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "child_id", nullable = false)
     private Child child;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "mbti_id", nullable = false)
     private Mbti mbti;
 
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt; // 논리적 삭제를 위한 컬럼 추가
+
 }

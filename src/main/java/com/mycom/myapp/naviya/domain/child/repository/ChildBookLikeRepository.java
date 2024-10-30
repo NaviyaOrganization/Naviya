@@ -53,4 +53,18 @@ public interface ChildBookLikeRepository extends JpaRepository<ChildBookLike, Lo
     void deleteByChildAndDeletedAt(Child child, LocalDateTime deleteAt);
 
     boolean existsByChild_ChildIdAndBook_BookId(Long childId, Long bookId);
+
+    @Modifying
+    @Transactional
+    @Query(value = """
+    INSERT INTO child_book_like (child_id, book_id, deleted_at) 
+    SELECT :childId, :bookId, NULL
+    WHERE NOT EXISTS (
+        SELECT 1 FROM child_book_dislike 
+        WHERE child_id = :childId 
+        AND book_id = :bookId 
+        AND deleted_at IS NULL
+    )
+""", nativeQuery = true)
+    int saveChildBooklike(@Param("childId") Long childId, @Param("bookId") Long bookId);
 }

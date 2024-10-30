@@ -105,7 +105,7 @@ public class PageController {
         User user = userRepository.findByEmail(email);
         model.addAttribute("user", user);
 
-        return "BookCategoryHtml";
+        return "ChildFavorBookList";
     }
 
     @GetMapping("/ChildRecentReadBook")
