@@ -377,7 +377,6 @@ public class BookServiceImpl implements BookService {
             return bookResultDto;
         }
     }
-    //굳이 두개로 안나눠도 sign으로 해도 되는데 결합도 생각해서 나눠 놨음
     @Override
     public BookResultDto CategoryLike(long childId,String Ctegory) {
         BookResultDto bookResultDto=new BookResultDto();
