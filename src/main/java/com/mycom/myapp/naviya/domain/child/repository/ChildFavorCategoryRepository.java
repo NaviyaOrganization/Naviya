@@ -38,4 +38,6 @@ public interface ChildFavorCategoryRepository extends JpaRepository<ChildFavorCa
     List<ChildFavCategoryDto> findFavCategoriesByChildId(@Param("childId") Long childId);
     Optional<ChildFavorCategory> findByChild_ChildIdAndCategoryCode(Long childId, String categoryCode);
 
+    @Query("SELECT COUNT(c) > 0 FROM ChildFavorCategory c WHERE c.child.childId = :childId")
+    boolean existsByChildId(@Param("childId") Long childId);
 }

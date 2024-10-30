@@ -81,25 +81,25 @@ public class BookController {
     @GetMapping("/BookLike")
     public String BookLike(HttpSession session, Model model)
     {
-        /* BookDetailDto bookDetailDto = (BookDetailDto) session.getAttribute("book");
+        BookDetailDto bookDetailDto = (BookDetailDto) session.getAttribute("book");
         Long childId = (Long) session.getAttribute("selectedChildId");
         String type = (String)session.getAttribute("Type");
         bookDetailDto.setLiked(true);
         session.setAttribute("book",bookDetailDto);
-        model.addAttribute("book",bookDetailDto);i*/
-        bookService.ChildBookLike(1,1,"MBTI");
+        model.addAttribute("book",bookDetailDto);
+        bookService.ChildBookLike(bookDetailDto.getBookId(),childId,type);
         return "BookDetailPage";
     }
     @GetMapping("/BookDisLike")
     public String BookDisLike(HttpSession session, Model model)
     {
-        /*BookDetailDto bookDetailDto = (BookDetailDto) session.getAttribute("book");
+        BookDetailDto bookDetailDto = (BookDetailDto) session.getAttribute("book");
         Long childId = (Long) session.getAttribute("selectedChildId");
         String type = (String)session.getAttribute("Type");
         bookDetailDto.setDisliked(true);
         session.setAttribute("book",bookDetailDto);
-        model.addAttribute("book",bookDetailDto);*/
-        bookService.ChildBookDisLike(1,1,"MBTI");
+        model.addAttribute("book",bookDetailDto);
+        bookService.ChildBookDisLike(bookDetailDto.getBookId(),childId,type);
         return "BookDetailPage";
     }
     @GetMapping("/DelBookLike")
@@ -211,4 +211,6 @@ public class BookController {
     {
         return bookService.BookCategoryOne(childId,Ctegory);
     }
+
+
 }
