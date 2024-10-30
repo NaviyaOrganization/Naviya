@@ -236,4 +236,8 @@ public class ChildServiceImpl implements ChildService {
         return childBookDisLikeRepository.existsByChild_ChildIdAndBook_BookId(childId,bookId);
     }
 
+    @Override
+    public boolean CategoryExist(Long childId){
+        return childFavorCategoryRepository.existsByChildId(childId);
+    }
 }
