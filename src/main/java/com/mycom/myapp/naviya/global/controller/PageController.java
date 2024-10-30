@@ -164,7 +164,7 @@ public class PageController {
     @GetMapping("/detail")
     public String detailBook(@RequestParam long bookId, Model model, HttpSession session) {
         Long selectedChildId = (Long) session.getAttribute("selectedChildId");
-
+        String email = (String) session.getAttribute("userEmail");
         // 책의 상세 정보를 가져옴
         BookResultDto bookResultDto = new BookResultDto();
 
@@ -178,7 +178,8 @@ public class PageController {
         BookDetailDto bookDetailDto = bookService.detailBook(bookId,selectedChildId).getBookDetail();
         bookDetailDto.setLiked(isLiked);
         bookDetailDto.setDisliked(isDisliked);
-
+        User user = userRepository.findByEmail(email);
+        model.addAttribute("user", user);
         // 모델에 추가
         model.addAttribute("book", bookDetailDto);
         session.setAttribute("book", bookDetailDto);
