@@ -48,4 +48,6 @@ public interface ChildMbtiRepository extends JpaRepository<ChildMbti, Long> {
 
     @Query("SELECT cm from ChildMbti cm where cm.child = :child AND cm.deletedAt IS NULL")
     ChildMbti findChildMbtiBycChildAndDeletedAt(@Param("child") Child child);
+
+
 }

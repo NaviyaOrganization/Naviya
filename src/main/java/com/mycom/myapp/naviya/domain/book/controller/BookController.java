@@ -30,7 +30,7 @@ public class BookController {
     private final ChildService childService;
 
     @PostMapping("insert")
-    public BookResultDto InsertBook(BookInsertDto bookInsertDto){
+    public BookInsertDto InsertBook(BookInsertDto bookInsertDto){
         return bookService.insertBook(bookInsertDto);
     }
 
@@ -124,6 +124,7 @@ public class BookController {
         bookService.DelChildBookDisLike(bookDetailDto.getBookId(),1);
         return "BookDetailPage";
     }
+
 
     @GetMapping("/recommend")
     public ResponseForm recommendBook(@RequestParam Long childId) {

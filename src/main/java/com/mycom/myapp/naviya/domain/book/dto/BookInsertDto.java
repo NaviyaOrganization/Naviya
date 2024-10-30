@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Data
 public class BookInsertDto {
+    private Long bookId;
     private String title;
     private String summary;
     private String recommendedAge;
@@ -16,9 +17,9 @@ public class BookInsertDto {
     private String fullStory;
     private String bookImage;
     private String category;
-    private int eiType;
-    private int snType;
-    private int tfType;
-    private int jpType;
+    private Integer eiType;
+    private Integer snType;
+    private Integer tfType;
+    private Integer jpType;
 
 }

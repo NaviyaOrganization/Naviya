@@ -1,6 +1,7 @@
 package com.mycom.myapp.naviya.global.controller;
 
 import com.mycom.myapp.naviya.domain.book.dto.BookDetailDto;
+import com.mycom.myapp.naviya.domain.book.dto.BookInsertDto;
 import com.mycom.myapp.naviya.domain.book.dto.BookResultDto;
 import com.mycom.myapp.naviya.domain.book.service.BookService;
 import com.mycom.myapp.naviya.domain.child.entity.Child;
@@ -12,10 +13,16 @@ import com.mycom.myapp.naviya.domain.user.entity.User;
 import com.mycom.myapp.naviya.domain.user.repository.UserRepository;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
+
+import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 @Controller
 @RequiredArgsConstructor
@@ -66,6 +73,20 @@ public class PageController {
         return "admin";
     }
 
+    @Controller
+    public class BookController {
+
+        @GetMapping("/book/image/{bookId}")
+        @ResponseBody
+        public ResponseEntity<byte[]> getBookImage(@PathVariable Long bookId) {
+            byte[] imageBytes = bookService.getImageBytesByBookId(bookId);
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.IMAGE_JPEG); // PNG 형식이라면 IMAGE_PNG 사용
+            return new ResponseEntity<>(imageBytes, headers, HttpStatus.OK);
+        }
+    }
+
+
     @GetMapping("/")
     public String mainPage(HttpSession session, Model model) {
         // 세션에서 사용자 이메일, 자녀 아이디를 가져옴
@@ -105,7 +126,7 @@ public class PageController {
         User user = userRepository.findByEmail(email);
         model.addAttribute("user", user);
 
-        return "ChildFavorBookList";
+        return "BookCategoryHtml";
     }
 
     @GetMapping("/ChildRecentReadBook")
@@ -164,10 +185,94 @@ public class PageController {
 
         return "BookDetailPage";
     }
+
+    @GetMapping("/adminBookDetail")
+    public String adminDetailBook(@RequestParam Long bookId, Model model){
+        BookDetailDto bookDetailDto = new BookDetailDto();
+        bookDetailDto = bookService.adminBookDetail(bookId);
+        model.addAttribute("book",bookDetailDto);
+        return "adminBookDetailPage";
+    }
+
     @GetMapping("/read")
     public String readBook(Model model, HttpSession session) {
         BookDetailDto bookDetailDto = (BookDetailDto) session.getAttribute("book");
         model.addAttribute("book", bookDetailDto);
         return "BookReadPage";
+    }
+
+    @GetMapping("/BookLike")
+    public String BookLike(HttpSession session, Model model)
+    {
+        BookDetailDto bookDetailDto = (BookDetailDto) session.getAttribute("book");
+        //Long childId = (Long) session.getAttribute("selectedChildId");
+        String type = (String)session.getAttribute("Type");
+        bookDetailDto.setLiked(true);
+        session.setAttribute("book",bookDetailDto);
+        model.addAttribute("book",bookDetailDto);
+        bookService.ChildBookLike(bookDetailDto.getBookId(),1,"MBTI");
+        return "BookDetailPage";
+    }
+    @GetMapping("/BookDisLike")
+    public String BookDisLike(HttpSession session, Model model)
+    {
+        BookDetailDto bookDetailDto = (BookDetailDto) session.getAttribute("book");
+        //Long childId = (Long) session.getAttribute("selectedChildId");
+        bookDetailDto.setDisliked(true);
+        session.setAttribute("book",bookDetailDto);
+        model.addAttribute("book",bookDetailDto);
+        bookService.ChildBookDisLike(bookDetailDto.getBookId(),1,"MBTI");
+        return "BookDetailPage";
+    }
+    @GetMapping("/DelBookLike")
+    public String DelBookLike(HttpSession session,Model model)
+    {
+        BookDetailDto bookDetailDto = (BookDetailDto) session.getAttribute("book");
+        //Long childId = (Long) session.getAttribute("selectedChildId");
+        bookDetailDto.setLiked(false);
+        session.setAttribute("book",bookDetailDto);
+        model.addAttribute("book",bookDetailDto);
+        bookService.DelChildBookLike(bookDetailDto.getBookId(),1);
+        return "BookDetailPage";
+    }
+    @GetMapping("/DelBookDisLike")
+    public String DelBookDisLike(HttpSession session, Model model)
+    {
+        BookDetailDto bookDetailDto = (BookDetailDto) session.getAttribute("book");
+        //Long childId = (Long) session.getAttribute("selectedChildId");
+        bookDetailDto.setDisliked(false);
+        session.setAttribute("book",bookDetailDto);
+        model.addAttribute("book",bookDetailDto);
+        bookService.DelChildBookDisLike(bookDetailDto.getBookId(),1);
+        return "BookDetailPage";
+    }
+
+    @PostMapping("/insert")
+    public String InsertBook(@ModelAttribute BookInsertDto bookInsertDto){
+        bookService.insertBook(bookInsertDto);
+        return "admin";
+    }
+
+    @PostMapping("/update")
+    public String UpdateBook(@RequestBody BookInsertDto bookInsertDto){
+        bookService.updateBook(bookInsertDto);
+        return "admin";
+    }
+
+    @GetMapping("/BookDel")
+    public String DeleteBook(@RequestParam long bookId)
+    {
+        bookService.delBook(bookId);
+        return "admin";
+    }
+
+
+
+    @GetMapping("/List")
+    public String AllBookList(Model model)
+    {
+        BookResultDto bookResultDto = bookService.listBook();
+        model.addAttribute("books",bookResultDto.getBooks());
+        return "admin";
     }
 }
