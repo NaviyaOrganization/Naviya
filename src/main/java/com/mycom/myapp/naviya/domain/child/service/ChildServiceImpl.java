@@ -12,8 +12,10 @@ import com.mycom.myapp.naviya.domain.child.repository.ChildFavorCategoryReposito
 import com.mycom.myapp.naviya.domain.child.repository.ChildRepository;
 import com.mycom.myapp.naviya.domain.user.entity.User;
 import com.mycom.myapp.naviya.domain.user.repository.UserRepository;
+import com.mycom.myapp.naviya.global.mbti.service.MbtiDiagnosisDataQuartzService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -25,6 +27,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class ChildServiceImpl implements ChildService {
 
@@ -34,6 +37,7 @@ public class ChildServiceImpl implements ChildService {
     private final ChildBookLikeRepository childBookLikeRepository;
     private final ChildBookDisLikeRepository childBookDisLikeRepository;
     private final Logger LOGGER = LoggerFactory.getLogger(ChildService.class);
+    private final MbtiDiagnosisDataQuartzService mbtiDiagnosisDataQuartzService;
 
     // 나이에 맞는 나이 range 입력
     @Override
@@ -208,6 +212,7 @@ public class ChildServiceImpl implements ChildService {
         return childResultDto;
     }
 
+    @Transactional
     @Override
     public ChildResultDto deleteChildById(Long childId) {
         ChildResultDto childResultDto = new ChildResultDto();
@@ -219,9 +224,13 @@ public class ChildServiceImpl implements ChildService {
             // 부모 엔티티 삭제
             childRepository.deleteById(childId);
 
+            // Quartz 스케줄러에 예약된 Job 삭제
+            mbtiDiagnosisDataQuartzService.deleteAllJobsForChild(childId);
+            log.info("예약된 모든 삭제 작업이 취소되었습니다: childId={}", childId);
+
             childResultDto.setResult("success");
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("Child 삭제 중 오류 발생: childId={}, 에러 메시지: {}", childId, e.getMessage(), e);
             childResultDto.setResult("delete fail");
         }
 

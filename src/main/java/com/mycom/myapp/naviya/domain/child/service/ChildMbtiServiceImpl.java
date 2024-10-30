@@ -12,11 +12,9 @@ import com.mycom.myapp.naviya.global.mbti.service.MbtiDiagnosisDataQuartzService
 import com.mycom.myapp.naviya.global.mbti.repository.MbtiRepository;
 import jakarta.servlet.http.HttpSession;
 import lombok.AllArgsConstructor;
-import org.quartz.SchedulerException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -28,21 +26,21 @@ public class ChildMbtiServiceImpl implements ChildMbtiService {
 
     private final ChildMbtiRepository childMbtiRepository;
 
-    private ChildRepository childRepository;
+    private final ChildRepository childRepository;
 
-    private MbtiRepository mbtiRepository;
+    private final MbtiRepository mbtiRepository;
 
-    private ChildMbtiHistoryRepository childMbtiHistoryRepository;
+    private final ChildMbtiHistoryRepository childMbtiHistoryRepository;
 
-    private ChildBookLikeRepository childBookLikeRepository;
+    private final ChildBookLikeRepository childBookLikeRepository;
 
-    private ChildBookDisLikeRepository childBookDislikeRepository;
+    private final ChildBookDisLikeRepository childBookDislikeRepository;
 
-    private ChildFavorCategoryRepository childFavorCategoryRepository;
+    private final ChildFavorCategoryRepository childFavorCategoryRepository;
 
-    private MbtiDiagnosisDataQuartzService mbtiDiagnosisDataQuartzService;
+    private final MbtiDiagnosisDataQuartzService mbtiDiagnosisDataQuartzService;
 
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
 
     /**
      * 자녀의 MBTI 성향을 진단하고 저장하는 메서드 (ChildMbti와 ChildMbtiHistory에 저장).
@@ -56,7 +54,7 @@ public class ChildMbtiServiceImpl implements ChildMbtiService {
         Child child = childRepository.findById(childId)
                 .orElseThrow(() -> new RuntimeException("아이를 찾을 수 없습니다."));
 
-        if (child.getCodeMbti() != null){
+        if (childMbtiRepository.findChildMbtiBycChildAndDeletedAt(child) != null){
             // 기존 데이터 처리: ChildMbti와 ChildMbtiHistory의 deletedAt 필드 업데이트(논리적 삭제)
             updateDeletedAtForExistingRecords(child);
         }
@@ -98,12 +96,8 @@ public class ChildMbtiServiceImpl implements ChildMbtiService {
 
         childRepository.save(child);
         // 스케줄러를 이용하여 30일 뒤에 실제 삭제 수행
-        try {
-            mbtiDiagnosisDataQuartzService.
-                    scheduleChildDeletion(child, futureLocalDateTime);
-        } catch (SchedulerException e) {
-            throw new RuntimeException("Failed to schedule child deletion", e);
-        }
+        mbtiDiagnosisDataQuartzService.
+                scheduleChildDeletion(child, futureLocalDateTime);
     }
 
     /**
