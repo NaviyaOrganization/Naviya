@@ -167,9 +167,11 @@ public class PageController {
         String email = (String) session.getAttribute("userEmail");
         // 책의 상세 정보를 가져옴
         BookResultDto bookResultDto = new BookResultDto();
-
+        
+        String IsCategory =(String)session.getAttribute("IsCategory");
         // 좋아요 여부 확인
         boolean isLiked = childService.existsLike(selectedChildId, bookId);
+        System.out.println(IsCategory);
 
         // 싫어요 여부 확인
         boolean isDisliked = childService.existsDislike(selectedChildId, bookId);
@@ -182,8 +184,9 @@ public class PageController {
         model.addAttribute("user", user);
         // 모델에 추가
         model.addAttribute("book", bookDetailDto);
+        model.addAttribute("book", IsCategory);
+        model.addAttribute("IsCategory", IsCategory);
         session.setAttribute("book", bookDetailDto);
-
         return "BookDetailPage";
     }
 

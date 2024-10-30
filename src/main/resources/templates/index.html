@@ -525,6 +525,14 @@
                     } else {
                         type = 'NORMAL';
                     }
+                    if("categoryBooks"===containerId)
+                    {
+                        sessionStorage.setItem('IsCategory', "1");
+                    }
+                    else
+                    {
+                        sessionStorage.setItem('IsCategory', "0");
+                    }
 
                     sessionStorage.setItem('Type', type);
 
