@@ -87,8 +87,6 @@
 <!-- Navigation Bar -->
 <nav class="navbar navbar-expand-lg navbar">
     <div class="container-fluid">
-        <!-- Toggle Button -->
-        <span id="toggleSidebar" class="navbar-toggler-icon"></span>
 
         <!-- Right-Side Links -->
         <div class="collapse navbar-collapse justify-content-end">
@@ -116,14 +114,6 @@
 </nav>
 
 
-<!-- Sidebar -->
-<div id="sidebar">
-    <a href="#">관리 추가</a>
-    <a href="#">관리 추가</a>
-    <a href="#">관리 추가</a>
-    <a href="#">관리 추가</a>
-    <a href="#">관리 추가</a>
-</div>
 
 <!-- Main Content -->
 <div id="main-content" class="container mt-5">
@@ -250,7 +240,7 @@
 
             row.innerHTML = `
             <td>${book.bookId}</td>
-            <td><a href="/adminBookDetail?bookId=${book.bookId}">${book.title}</a></td>
+            <td><a href="/admin/adminBookDetail?bookId=${book.bookId}">${book.title}</a></td>
             <td>${book.author}</td>
             <td>${book.publisher}</td>
             <td>${book.recommendedAge}</td>
@@ -275,7 +265,7 @@
     // 책 삭제하기
     function deleteBook(bookId) {
         if (confirm('도서를 삭제하시겠습니까?')) {
-            fetch(`/BookDel?bookId=${bookId}`, {
+            fetch(`/admin/BookDel?bookId=${bookId}`, {
                 method: 'GET'
             })
                 .then(response => response.json())
@@ -344,7 +334,7 @@
             if (updatedBook[key] === null) delete updatedBook[key];
         });
 
-        fetch('/update', {
+        fetch('/admin/update', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(updatedBook)

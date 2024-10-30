@@ -186,7 +186,7 @@ public class PageController {
         return "BookDetailPage";
     }
 
-    @GetMapping("/adminBookDetail")
+    @GetMapping("/admin/adminBookDetail")
     public String adminDetailBook(@RequestParam Long bookId, Model model){
         BookDetailDto bookDetailDto = new BookDetailDto();
         bookDetailDto = bookService.adminBookDetail(bookId);
@@ -247,19 +247,19 @@ public class PageController {
         return "BookDetailPage";
     }
 
-    @PostMapping("/insert")
+    @PostMapping("/admin/insert")
     public String InsertBook(@ModelAttribute BookInsertDto bookInsertDto){
         bookService.insertBook(bookInsertDto);
-        return "admin";
+        return "redirect:/admin";
     }
 
-    @PostMapping("/update")
+    @PostMapping("/admin/update")
     public String UpdateBook(@RequestBody BookInsertDto bookInsertDto){
         bookService.updateBook(bookInsertDto);
         return "admin";
     }
 
-    @GetMapping("/BookDel")
+    @GetMapping("/admin/BookDel")
     public String DeleteBook(@RequestParam long bookId)
     {
         bookService.delBook(bookId);
@@ -268,7 +268,7 @@ public class PageController {
 
 
 
-    @GetMapping("/List")
+    @GetMapping("/admin/List")
     public String AllBookList(Model model)
     {
         BookResultDto bookResultDto = bookService.listBook();
