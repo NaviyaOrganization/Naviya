@@ -61,5 +61,4 @@ public class Child {
     @OneToMany(mappedBy = "child", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ChildMbtiHistory> childMbtiHistories = new ArrayList<>();
 
-
 }

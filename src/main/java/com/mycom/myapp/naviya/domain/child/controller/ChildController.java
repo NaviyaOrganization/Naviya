@@ -173,6 +173,7 @@ public class ChildController {
     @PostMapping("/addPage")
     @ResponseBody
     public ChildResultDto addChild(@RequestBody ChildAddDto childAddDto, HttpSession session) {
+        ChildResultDto childResultDto = new ChildResultDto();
         String email = (String) session.getAttribute("userEmail");
 
         User user = userRepository.findByEmail(email);  // 이메일로 사용자 정보 조회
@@ -185,9 +186,31 @@ public class ChildController {
         childDto.setUserId(userId);
         childAddDto.setChildDto(childDto); // 변경된 childDto를 다시 설정
 
-        return childService.addChild(childAddDto);
+        childResultDto = childService.addChild(childAddDto);
+        // 세션에 childId 저장
+        session.setAttribute("selectedChildId", childResultDto.getChildId());
+
+        System.out.println("-------------------------------------");
+        System.out.println(childResultDto.getChildId());
+        System.out.println(session.getAttribute("selectedChildId"));
+        System.out.println("-------------------------------------");
+
+        return childResultDto;
     }
 
+    @GetMapping("/askMbti")
+    public String askMbtiPage(HttpSession session, Model model) {
+
+        String email = (String) session.getAttribute("userEmail");
+
+        User user = userRepository.findByEmail(email);
+        model.addAttribute("user", user);
+
+        Long selectedChildId = (Long) session.getAttribute("selectedChildId");
+        model.addAttribute("selectedChildId", selectedChildId);
+
+        return "childAddAskMbti";
+    }
 
     // 자녀 인적사항 조회
     @GetMapping("/detailPage/{childId}")
