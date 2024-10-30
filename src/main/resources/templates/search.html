@@ -13,7 +13,6 @@
     body {
       overflow-x: hidden;
       background-color: #fff9e6;
-      font-family: 'Arial Rounded MT Bold', Arial, sans-serif;
     }
 
     .navbar {
@@ -321,7 +320,7 @@
 
       const cardImage = document.createElement('img');
       cardImage.className = 'card-img-top';
-      cardImage.src = book.bookImage || '/img.png'; // Use book image if available, otherwise use default
+      cardImage.src = `/book/image/${book.bookId}`;
       cardImage.alt = book.title;
 
       const cardBody = document.createElement('div');

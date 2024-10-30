@@ -81,8 +81,8 @@ public class SecurityConfig {
                 .securityMatcher(new NegatedRequestMatcher(new AntPathRequestMatcher("/admin/**"))) // 관리자가 아닌 모든 경로
                 .authenticationProvider(userAuthenticationProvider()) // 사용자 인증 프로바이더 설정
                 .authorizeHttpRequests(authorizeHttpRequests -> authorizeHttpRequests
-                        .requestMatchers("/**", "/login", "/signup", "/signupProc", "/children/**",
-                                "/static/**","/assets/img/**", "/css/**", "/js/**", "/images/**", "/Book/**", "templates/BookCategoryHtml.html/**").permitAll() // 사용자 접근 경로 허용
+                        .requestMatchers("/", "/login", "/signup", "/signupProc",
+                                "/static/**","/assets/img/**", "/css/**", "/js/**").permitAll() // 사용자 접근 경로 허용
                         .anyRequest().authenticated() // 모든 다른 요청은 인증 요구
                 )
                 .formLogin(formLogin -> formLogin

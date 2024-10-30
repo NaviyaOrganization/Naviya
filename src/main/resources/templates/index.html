@@ -14,7 +14,6 @@
         body {
             overflow-x: hidden;
             background-color: #fff9e6; /* 연한 파스텔 노란색 배경 */
-            font-family: 'Arial Rounded MT Bold', Arial, sans-serif;
         }
 
         /* Navigation Bar styles */
@@ -504,7 +503,7 @@
                 bookItem.className = 'book-item';
 
                 bookItem.innerHTML = `
-                <img src="/img.png" alt="${book.title}">
+                <img src="/book/image/${book.bookId}" alt="${book.title}">
                 <h3>${book.title}</h3>
                 <p>${book.author}</p>
             `;

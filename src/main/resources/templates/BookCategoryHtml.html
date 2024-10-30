@@ -39,7 +39,6 @@
         body {
             overflow-x: hidden;
             background-color: #fff9e6;
-            font-family: 'Arial Rounded MT Bold', Arial, sans-serif;
             margin: 0; /* 기본 여백 제거 */
         }
 
@@ -205,14 +204,14 @@
 </div>
 
 <div class="category-buttons">
-    <button class="category-button" onclick="selectCategory('001')">수학</button>
-    <button class="category-button" onclick="selectCategory('002')">과학</button>
-    <button class="category-button" onclick="selectCategory('003')">소설</button>
-    <button class="category-button" onclick="selectCategory('004')">전래동화</button>
-    <button class="category-button" onclick="selectCategory('005')">역사</button>
-    <button class="category-button" onclick="selectCategory('006')">동물</button>
-    <button class="category-button" onclick="selectCategory('007')">문학</button>
-    <button class="category-button" onclick="selectCategory('008')">자연</button>
+    <button class="category-button" onclick="selectCategory('010')">소설</button>
+    <button class="category-button" onclick="selectCategory('020')">전래동화</button>
+    <button class="category-button" onclick="selectCategory('030')">과학</button>
+    <button class="category-button" onclick="selectCategory('040')">수학</button>
+    <button class="category-button" onclick="selectCategory('050')">역사</button>
+    <button class="category-button" onclick="selectCategory('060')">동물</button>
+    <button class="category-button" onclick="selectCategory('070')">문학</button>
+    <button class="category-button" onclick="selectCategory('080')">자연</button>
 </div>
 
 <div class="container mt-4">
@@ -263,7 +262,7 @@
 
             const cardImage = document.createElement('img');
             cardImage.className = 'card-img-top';
-            cardImage.src = book.bookImage || '/img.png';
+            cardImage.src = `/book/image/${book.bookId}`;
             cardImage.alt = book.title;
             cardImage.style.height = '200px';
             cardImage.style.objectFit = 'cover';
