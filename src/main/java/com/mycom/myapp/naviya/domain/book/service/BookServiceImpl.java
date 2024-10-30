@@ -426,8 +426,9 @@ public class BookServiceImpl implements BookService {
     public BookResultDto BookCategoryOne(long childId,String categoryId) {
         BookResultDto bookResultDto=new BookResultDto();
         try{
-            List<BookDto> bookDto = bookRepository.findBookDtoOneCateogory(categoryId,childId);
+            List<BookDto> bookDto = bookRepository.findBookDtoOneCateogory(childId,categoryId);
             bookResultDto.setBooks(bookDto);  // Book 리스트를 BookResultDto에 설정
+            System.out.println(bookResultDto);
             bookResultDto.setSuccess("success");
             return bookResultDto;
         }

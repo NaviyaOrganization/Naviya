@@ -232,13 +232,12 @@ public interface BookRepository extends JpaRepository<Book, Long> {
             "LEFT JOIN bm.mbti m " +
             "LEFT JOIN BookFavorTotal f ON f.book.bookId = b.bookId " +
             "LEFT JOIN Child c ON c.childId = :childId " +
-            "WHERE b.categoryCode =:categoryCodes " +
+            "WHERE b.categoryCode =:categoryCode " +
             "AND b.recommendedAge = c.ChildAgeRange " +
             "GROUP BY b.bookId, b.title, b.summary, b.recommendedAge, b.publisher, " +
             "b.author, b.createdAt, b.fullStory, b.bookImage, b.categoryCode, " +
             "m.mbtiId, m.eiType, m.snType, m.tfType, m.jpType, f.count")
-    List<BookDto> findBookDtoOneCateogory(@Param("categoryCodes")String categoryCodes,@Param("childId") long childId);
-    Book findBookByBookId(Long bookId);
+    List<BookDto> findBookDtoOneCateogory(@Param("childId") long childId,@Param("categoryCode")String categoryCode);
 
 
 }
