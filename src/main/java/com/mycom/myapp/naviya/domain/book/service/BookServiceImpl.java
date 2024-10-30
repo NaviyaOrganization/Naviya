@@ -765,7 +765,7 @@ public class BookServiceImpl implements BookService {
               //  while (selectedBooks.size() >= totalBooksCnt) {
               //  }
             }
-            bookResultDto.setSuccess("fail");
+            bookResultDto.setSuccess("success");
             bookResultDto.setBooks(selectedBooks);
             return bookResultDto;
 

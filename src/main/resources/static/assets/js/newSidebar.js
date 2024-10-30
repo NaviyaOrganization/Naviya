@@ -3,16 +3,13 @@
     document.getElementById('toggleSidebar').addEventListener('click', function() {
     const sidebar = document.getElementById('sidebar');
     const toggleBtn = document.getElementById('toggleSidebar');
-    const mainContent = document.getElementById('main-content');
 
     if (sidebar.style.left === '0px') {
     sidebar.style.left = '-250px';
     toggleBtn.classList.remove('toggle-active');
-    mainContent.style.marginLeft = '150px'; // 콘텐츠를 중앙으로 이동
 } else {
     sidebar.style.left = '0px';
     toggleBtn.classList.add('toggle-active');
-    mainContent.style.marginLeft = '250px';
 }
 });
 

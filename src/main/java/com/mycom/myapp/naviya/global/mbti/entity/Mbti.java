@@ -72,6 +72,13 @@ public class Mbti {
     }
 
     // Getters and Setters
+
+    public void updateMbti(int eiType, int snType, int tfType, int jpType) {
+        this.eiType = eiType;
+        this.snType = snType;
+        this.tfType = tfType;
+        this.jpType = jpType;
+    }
 }
 
 
