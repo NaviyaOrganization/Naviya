@@ -22,5 +22,5 @@ public interface ChildService {
     //ChildResultDto updateChildWithCategories(ChildDto childDto, List<String> categoryCodeList);
     boolean existsLike(Long childId, Long bookId);
     boolean existsDislike(Long childId, Long bookId);
-
+     boolean exsitCategory(Long childId);
 }
