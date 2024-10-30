@@ -176,9 +176,9 @@
     <a href="/children/page"><i class="fas fa-edit"></i> 아이 정보 수정</a>
     <a href="/userpage"><i class="fas fa-user"></i> 계정보기</a>
     <a href="/children/childMBTIResult"><i class="fas fa-user-circle"></i> 아이 성향 확인하기</a>
-    <a href="#"><i class="fas fa-history"></i> 최근 책 보기</a>
-    <a href="/ChildFavorBookList.html"><i class="fas fa-heart"></i> 좋아요 누른 책 보기</a>
-    <a href="#"><i class="fas fa-tags"></i> 카테고리 별 책보기</a>
+    <a href="/ChildRecentReadBook"><i class="fas fa-history"></i> 최근 책 보기</a>
+    <a href="/ChildFavorBookList"><i class="fas fa-heart"></i> 좋아요 누른 책 보기</a>
+    <a href="/BookCategoryHtml"><i class="fas fa-tags"></i> 카테고리 별 책보기</a>
     <a href="/lottery/form"><i class="fas fa-gift"></i> 선착순 이벤트</a>
 </div>
 
@@ -342,15 +342,12 @@
     }
 
     function checkResults() {
-        const resultButton = document.querySelector('#end-screen button');
-        resultButton.disabled = true; // 버튼 비활성화
-
         fetch(`/api/mbti/diagnose`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 eiScore: answers[0],
-                snScore: answers[1],
+                snScore:  answers[1],
                 tfScore: answers[2],
                 jpScore: answers[3]
             })
@@ -370,7 +367,6 @@
             .catch(error => {
                 console.error("오류 발생:", error);
                 alert('진단 결과를 전송하는 데 실패했습니다.');
-                resultButton.disabled = false; // 실패 시 버튼을 다시 활성화
             });
     }
 
