@@ -2,9 +2,7 @@ package com.mycom.myapp.naviya.domain.child.controller;
 
 import com.mycom.myapp.naviya.domain.child.dto.ChildWithMbtiHistoryDto;
 import com.mycom.myapp.naviya.domain.child.dto.MBTIScoresDto;
-import com.mycom.myapp.naviya.domain.child.entity.Child;
 import com.mycom.myapp.naviya.domain.child.service.ChildMbtiService;
-import com.mycom.myapp.naviya.domain.child.service.ChildService;
 import com.mycom.myapp.naviya.global.response.ResponseCode;
 import com.mycom.myapp.naviya.global.response.ResponseForm;
 import jakarta.servlet.http.HttpSession;
@@ -20,7 +18,6 @@ public class ChildMbtiController {
 
     @Autowired
     private ChildMbtiService childMbtiService;
-    private ChildService childService;
 
     /**
      * 자녀 성향(Mbti) 진단 후 결과 반환
@@ -78,12 +75,6 @@ public class ChildMbtiController {
 
     @GetMapping("/exist")
     public ResponseForm isChildMbtiDeleted(@RequestParam Long childId) {
-        boolean isDeleted = childMbtiService.existsChildMbti(childId);
-        return ResponseForm.of(ResponseCode.EXAMPLE_SUCCESS, isDeleted);
-    }
-    @GetMapping("/CategoryExist")
-    public ResponseForm BookCategoryOne(@RequestParam Long childId)
-    {
         boolean isDeleted = childMbtiService.existsChildMbti(childId);
         return ResponseForm.of(ResponseCode.EXAMPLE_SUCCESS, isDeleted);
     }
