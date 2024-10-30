@@ -736,7 +736,7 @@
             const data = await response.json();
 
             if (data.success === "success") {
-                popularBooks = data.books; // 받은 책 데이터를 popularBooks 할당
+                categoryBooks = data.books; // 받은 책 데이터를 categoryBooks 할당
                 bookSections['categoryBooks'] = categoryBooks; // bookSections 업데이트
                 displayBooks('categoryBooks');
             } else {

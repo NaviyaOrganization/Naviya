@@ -64,42 +64,28 @@ public class BookController {
     {
         return bookService.delBook(bookId);
     }
-//    @GetMapping("/detail")
-//    public String detailBook(@RequestParam long bookId, Model model, HttpSession session) {
-//        BookResultDto bookResultDto = bookServiceImpl.detailBook(bookId);
-//        model.addAttribute("book", bookResultDto);
-//        session.setAttribute("bookDto", bookResultDto);
-//        return "BookDetailPage";
-//    }
-//    @GetMapping("/read")
-//    public String readBook(Model model, HttpSession session) {
-//        BookResultDto bookResultDto = (BookResultDto) session.getAttribute("bookDto");
-//        model.addAttribute("book", bookResultDto);
-//        return "BookReadPage";
-//    }
-
     @GetMapping("/BookLike")
     public String BookLike(HttpSession session, Model model)
     {
-        /* BookDetailDto bookDetailDto = (BookDetailDto) session.getAttribute("book");
+        BookDetailDto bookDetailDto = (BookDetailDto) session.getAttribute("book");
         Long childId = (Long) session.getAttribute("selectedChildId");
         String type = (String)session.getAttribute("Type");
         bookDetailDto.setLiked(true);
         session.setAttribute("book",bookDetailDto);
-        model.addAttribute("book",bookDetailDto);i*/
-        bookService.ChildBookLike(1,1,"MBTI");
+        model.addAttribute("book",bookDetailDto);
+        bookService.ChildBookLike(bookDetailDto.getBookId(),childId,type);
         return "BookDetailPage";
     }
     @GetMapping("/BookDisLike")
     public String BookDisLike(HttpSession session, Model model)
     {
-        /*BookDetailDto bookDetailDto = (BookDetailDto) session.getAttribute("book");
+        BookDetailDto bookDetailDto = (BookDetailDto) session.getAttribute("book");
         Long childId = (Long) session.getAttribute("selectedChildId");
         String type = (String)session.getAttribute("Type");
         bookDetailDto.setDisliked(true);
         session.setAttribute("book",bookDetailDto);
-        model.addAttribute("book",bookDetailDto);*/
-        bookService.ChildBookDisLike(1,1,"MBTI");
+        model.addAttribute("book",bookDetailDto);
+        bookService.ChildBookDisLike(bookDetailDto.getBookId(),childId,type);
         return "BookDetailPage";
     }
     @GetMapping("/DelBookLike")
@@ -159,30 +145,7 @@ public class BookController {
         return bookService.CategoryLike(childId,Ctegory);
     }
 
-    @GetMapping("/detail")
-    public String detailBook(@RequestParam long bookId, Model model, HttpSession session) {
-        Long selectedChildId = (Long) session.getAttribute("selectedChildId");
 
-        // 책의 상세 정보를 가져옴
-        BookResultDto bookResultDto = new BookResultDto();
-
-        // 좋아요 여부 확인
-        boolean isLiked = childService.existsLike(selectedChildId, bookId);
-
-        // 싫어요 여부 확인
-        boolean isDisliked = childService.existsDislike(selectedChildId, bookId);
-
-        // 새로 만든 DTO에 정보 저장
-        BookDetailDto bookDetailDto = bookService.detailBook(bookId,selectedChildId).getBookDetail();
-        bookDetailDto.setLiked(isLiked);
-        bookDetailDto.setDisliked(isDisliked);
-
-        // 모델에 추가
-        model.addAttribute("book", bookDetailDto);
-        session.setAttribute("book", bookDetailDto);
-
-        return "BookDetailPage";
-    }
     @GetMapping("/read")
     public String readBook(Model model, HttpSession session) {
         BookDetailDto bookDetailDto = (BookDetailDto) session.getAttribute("book");
