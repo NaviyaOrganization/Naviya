@@ -1,6 +1,7 @@
 package com.mycom.myapp.naviya.domain.book.service;
 import com.mycom.myapp.naviya.domain.book.dto.*;
 import com.mycom.myapp.naviya.domain.book.entity.Book;
+import com.mycom.myapp.naviya.domain.book.entity.BookFavorTotal;
 import com.mycom.myapp.naviya.domain.book.entity.BookMbti;
 import com.mycom.myapp.naviya.domain.book.entity.UserRecentBooks;
 import com.mycom.myapp.naviya.domain.book.repository.BookFavorTotalRepository;
@@ -234,8 +235,18 @@ public class BookServiceImpl implements BookService {
         bookMbti.setBook(book);  // Book relationship
         bookMbti.setMbti(mbti);  // Mbti relationship
 
-        // Set Book's relationship with BookMbti and persist
+        // Set Book's relationship with BookMbti
         book.setBookMbti(bookMbti);
+
+        // Create the BookFavorTotal entity and set relationship with Book
+        BookFavorTotal bookFavorTotal = new BookFavorTotal();
+        bookFavorTotal.setBook(book);
+        bookFavorTotal.setCount(0L); // 초기 count 값 설정
+
+        // Set Book's relationship with BookFavorTotal
+        book.setBookFavorTotal(bookFavorTotal);
+
+        // Save Book entity (BookMbti and BookFavorTotal will be saved due to cascading)
         bookRepository.save(book);
 
         return bookInsertDto;
