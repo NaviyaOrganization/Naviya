@@ -51,8 +51,9 @@ public interface ChildBookLikeRepository extends JpaRepository<ChildBookLike, Lo
 
     @Query("DELETE FROM ChildBookLike cbl WHERE cbl.child = :child AND cbl.deletedAt = :deleteAt")
     void deleteByChildAndDeletedAt(Child child, LocalDateTime deleteAt);
-
-    boolean existsByChild_ChildIdAndBook_BookId(Long childId, Long bookId);
+    @Query("SELECT CASE WHEN COUNT(cbl) > 0 THEN true ELSE false END FROM ChildBookLike cbl " +
+            "WHERE cbl.child.childId = :childId AND cbl.book.bookId = :bookId AND cbl.deletedAt IS NULL")
+    boolean existsByChild_ChildIdAndBook_BookIdAndDeletedAtIsNull(Long childId, Long bookId);
 
     @Modifying
     @Transactional

@@ -238,11 +238,11 @@ public class ChildServiceImpl implements ChildService {
     }
     @Override
     public boolean existsLike(Long childId, Long bookId){
-        return childBookLikeRepository.existsByChild_ChildIdAndBook_BookId(childId,bookId);
+        return childBookLikeRepository.existsByChild_ChildIdAndBook_BookIdAndDeletedAtIsNull(childId,bookId);
     }
     @Override
     public boolean existsDislike(Long childId, Long bookId){
-        return childBookDisLikeRepository.existsByChild_ChildIdAndBook_BookId(childId,bookId);
+        return childBookDisLikeRepository.CHildBookDislkeIsExistDelDateIsNull(childId,bookId);
     }
 
     @Override
