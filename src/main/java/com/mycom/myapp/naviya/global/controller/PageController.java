@@ -239,10 +239,9 @@ public class PageController {
     }
 
     @GetMapping("/BookDisLike")
-    public String BookDisLike(HttpSession session, Model model) {
+    public String BookDisLike(HttpSession session, Model model,@RequestParam("type")String type) {
         BookDetailDto bookDetailDto = (BookDetailDto) session.getAttribute("book");
         Long childId = (Long) session.getAttribute("selectedChildId");
-        String type = (String)session.getAttribute("Type");
 
         bookDetailDto.setDisliked(true);
         session.setAttribute("book",bookDetailDto);
@@ -251,7 +250,6 @@ public class PageController {
 
         session.setAttribute("book", bookDetailDto);
         model.addAttribute("book", bookDetailDto);
-        System.out.println("wwww");
         // 좋아요가 설정되어 있었다면 삭제하고 싫어요 추가
         if(bookDetailDto.isLiked())
         {
