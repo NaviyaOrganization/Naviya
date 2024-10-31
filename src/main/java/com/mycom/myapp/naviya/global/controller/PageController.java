@@ -4,6 +4,8 @@ import com.mycom.myapp.naviya.domain.book.dto.BookDetailDto;
 import com.mycom.myapp.naviya.domain.book.dto.BookInsertDto;
 import com.mycom.myapp.naviya.domain.book.dto.BookResultDto;
 import com.mycom.myapp.naviya.domain.book.service.BookService;
+import com.mycom.myapp.naviya.domain.book.service.BookServiceImpl;
+import com.mycom.myapp.naviya.domain.book.service.LikeDislikeProcessor;
 import com.mycom.myapp.naviya.domain.child.entity.Child;
 import com.mycom.myapp.naviya.domain.child.repository.ChildRepository;
 import com.mycom.myapp.naviya.domain.child.service.ChildService;
@@ -33,7 +35,8 @@ public class PageController {
     private final AdminRepository adminRepository;
     private final ChildService childService;
     private final BookService bookService;
-
+    private final BookServiceImpl bookServiceImpl;
+    private final LikeDislikeProcessor likeDislikeProcessor;
     @GetMapping("/login")
     public String loginPage() {
 
@@ -113,6 +116,7 @@ public class PageController {
         } else {
             model.addAttribute("user", null);
         }
+
         return "index";
     }
 
@@ -211,24 +215,25 @@ public class PageController {
     }
 
     @GetMapping("/BookLike")
-    public String BookLike(HttpSession session, Model model) {
+    public String BookLike(HttpSession session, Model model,@RequestParam("type")String type) {
         BookDetailDto bookDetailDto = (BookDetailDto) session.getAttribute("book");
         Long childId = (Long) session.getAttribute("selectedChildId");
-        String type = (String)session.getAttribute("Type");
         bookDetailDto.setLiked(true);
+        System.out.println(childId);
+        System.out.println(type);
         session.setAttribute("book",bookDetailDto);
         model.addAttribute("book",bookDetailDto);
-        bookService.ChildBookLike(bookDetailDto.getBookId(),childId, type);
         bookDetailDto.setDisliked(false); // 싫어요 취소
 
         session.setAttribute("book", bookDetailDto);
         model.addAttribute("book", bookDetailDto);
+    // 싫어요가 설정되어 있었다면 삭제하고 좋아요 추가
 
-        // 싫어요가 설정되어 있었다면 삭제하고 좋아요 추가
-        if (bookDetailDto.isDisliked()){
-            bookService.DelChildBookDisLike(bookDetailDto.getBookId(), childId);
+        if(bookDetailDto.isDisliked())
+        {
+            bookServiceImpl.DelChildBookDisLike(bookDetailDto.getBookId(), childId);
         }
-        bookService.ChildBookLike(bookDetailDto.getBookId(), childId, type);
+        likeDislikeProcessor.enqueueLike(childId,bookDetailDto.getBookId(), type);
 
         return "BookDetailPage";
     }
@@ -242,18 +247,17 @@ public class PageController {
         bookDetailDto.setDisliked(true);
         session.setAttribute("book",bookDetailDto);
         model.addAttribute("book",bookDetailDto);
-        bookService.ChildBookDisLike(bookDetailDto.getBookId(),childId, type);
-        bookDetailDto.setLiked(false); // 좋아요 취소
+                bookDetailDto.setLiked(false); // 좋아요 취소
 
         session.setAttribute("book", bookDetailDto);
         model.addAttribute("book", bookDetailDto);
-
+        System.out.println("wwww");
         // 좋아요가 설정되어 있었다면 삭제하고 싫어요 추가
-        if(bookDetailDto.isLiked()){
-            bookService.DelChildBookLike(bookDetailDto.getBookId(), childId);
+        if(bookDetailDto.isLiked())
+        {
+            bookServiceImpl.DelChildBookLike(bookDetailDto.getBookId(), childId);
         }
-        bookService.ChildBookDisLike(bookDetailDto.getBookId(), childId, type);
-
+        likeDislikeProcessor.enqueueDisLike(childId,bookDetailDto.getBookId(), type);
         return "BookDetailPage";
     }
 
@@ -299,6 +303,8 @@ public class PageController {
         bookService.delBook(bookId);
         return "admin";
     }
+
+
 
     @GetMapping("/admin/List")
     public String AllBookList(Model model)

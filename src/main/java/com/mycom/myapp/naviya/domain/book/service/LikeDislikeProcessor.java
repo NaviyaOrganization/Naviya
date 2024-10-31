@@ -1,21 +1,16 @@
 package com.mycom.myapp.naviya.domain.book.service;
 
-import com.mycom.myapp.naviya.domain.book.dto.BookResultDto;
 import com.mycom.myapp.naviya.domain.book.dto.LikeDislikeTaskDto;
-import com.mycom.myapp.naviya.domain.book.entity.Book;
-import com.mycom.myapp.naviya.domain.book.entity.BookMbti;
 import com.mycom.myapp.naviya.domain.book.repository.BookFavorTotalRepository;
 import com.mycom.myapp.naviya.domain.book.repository.BookMbtiRepository;
 import com.mycom.myapp.naviya.domain.book.repository.BookRepository;
-import com.mycom.myapp.naviya.domain.child.entity.Child;
-import com.mycom.myapp.naviya.domain.child.entity.ChildBookDislike;
-import com.mycom.myapp.naviya.domain.child.entity.ChildBookLike;
 import com.mycom.myapp.naviya.domain.child.entity.ChildMbti;
 import com.mycom.myapp.naviya.domain.child.repository.*;
 import com.mycom.myapp.naviya.global.mbti.Dto.MbtiDto;
 import com.mycom.myapp.naviya.global.mbti.entity.Mbti;
 import com.mycom.myapp.naviya.global.mbti.repository.MbtiRepository;
-import jakarta.transaction.Transactional;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.connection.stream.*;
@@ -23,11 +18,13 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 
 @RequiredArgsConstructor
 @Component
+@Service
 public class LikeDislikeProcessor {
     private final BookRepository bookRepository;
     private final MbtiRepository mbtiRepository;
@@ -38,7 +35,8 @@ public class LikeDislikeProcessor {
     private final ChildRepository childRepository;
     private final ChildFavorCategoryRepository childFavorCategoryRepository;
     private final ChildMbtiRepository childMbtiRepository;
-
+    @PersistenceContext
+    private EntityManager entityManager;
 
 
     @Autowired
@@ -47,13 +45,14 @@ public class LikeDislikeProcessor {
 
     public void enqueueLike(Long childId, Long bookId, String type) {
         // 요청을 큐에 추가
+        System.out.println("222");
         addTaskToStream(new LikeDislikeTaskDto("like",childId, bookId,type));
     }
-    public void enqueueDisLike(Long childId, Long bookId,String type) {
+    public void enqueueDisLike(Long childId, Long bookId, String type) {
         // 요청을 큐에 추가
         addTaskToStream(new LikeDislikeTaskDto("Dislike",childId, bookId,type));
     }
-    public void addTaskToStream(LikeDislikeTaskDto task) {
+    public  void addTaskToStream(LikeDislikeTaskDto task) {
         Map<String, Object> taskMap = new HashMap<>();
         taskMap.put("method", task.getMethod());
         taskMap.put("childId", task.getChildId().toString());
@@ -122,9 +121,12 @@ public class LikeDislikeProcessor {
         return newWeight;
     }
 
-
-    private boolean handleLike(Long childId, Long bookId,String Type) {
+    @Transactional
+    public void handleLike(Long childId, Long bookId, String Type) {
         try {
+            System.out.println(childId);
+            System.out.println(bookId);
+            System.out.println(Type);
             Optional<MbtiDto> childmbtiDto =childMbtiRepository.findMbtiDtoByChildIdAndDeletedAtIsNull(childId);
             Mbti mbti = new Mbti();
             if (childmbtiDto.isPresent()) {
@@ -133,24 +135,29 @@ public class LikeDislikeProcessor {
                 mbti.setSnType(childmbtiDto.get().getSnType());
                 mbti.setTfType(childmbtiDto.get().getTfType());
                 mbti.setJpType(childmbtiDto.get().getJpType());
+                System.out.println(mbti.getMbtiId());
+                System.out.println(mbti.getEiType());
+                System.out.println(mbti.getSnType());
+                System.out.println(mbti.getTfType());
+                System.out.println(mbti.getJpType());
             }
             else
             {
-                return false;
+                return;
             }
-            Optional<MbtiDto> mbtiDto =bookMbtiRepository.findMbtiDtoByBookId(bookId);
+            Optional<MbtiDto> bookMbti =bookMbtiRepository.findMbtiDtoByBookId(bookId);
             Mbti Bookmbti = new Mbti();
-            if (childmbtiDto.isPresent()) {
-                Bookmbti.setMbtiId(mbtiDto.get().getMbtiId());
-                Bookmbti.setEiType(mbtiDto.get().getEiType());
-                Bookmbti.setSnType(mbtiDto.get().getSnType());
-                Bookmbti.setTfType(mbtiDto.get().getTfType());
-                Bookmbti.setJpType(mbtiDto.get().getJpType());
+            if (bookMbti.isPresent()) {
+                Bookmbti.setMbtiId(bookMbti.get().getMbtiId());
+                Bookmbti.setEiType(bookMbti.get().getEiType());
+                Bookmbti.setSnType(bookMbti.get().getSnType());
+                Bookmbti.setTfType(bookMbti.get().getTfType());
+                Bookmbti.setJpType(bookMbti.get().getJpType());
 
             }
             else
             {
-                return false;
+                return;
             }
 
             int EI;
@@ -167,13 +174,13 @@ public class LikeDislikeProcessor {
                 SN = weightCal((int) (Bookmbti.getSnType() * 1.2), mbti.getSnType(), 1);
                 TF = weightCal((int) (Bookmbti.getTfType() * 1.2), mbti.getTfType(), 1);
                 JP = weightCal((int) (Bookmbti.getJpType() * 1.2), mbti.getJpType(), 1);
-            } else if (Type != null && Objects.equals(Type, "NOMAL")) {
+            } else if (Type != null && Objects.equals(Type, "NORMAL")) {
                 EI = weightCal((int) (Bookmbti.getEiType() * 0.7), mbti.getEiType(), 1);
                 SN = weightCal((int) (Bookmbti.getSnType() * 0.7), mbti.getSnType(), 1);
                 TF = weightCal((int) (Bookmbti.getTfType() * 0.7), mbti.getTfType(), 1);
                 JP = weightCal((int) (Bookmbti.getJpType() * 0.7), mbti.getJpType(), 1);
             } else {
-                return false;
+                return;
             }
             if(childBookLikeRepository.saveChildBooklike(childId,bookId)>0) {
                 mbti.setEiType(EI);
@@ -183,16 +190,14 @@ public class LikeDislikeProcessor {
                 mbtiRepository.save(mbti);
                 bookFavorTotalRepository.incrementCountByBookId(bookId);
                 childBookDisLikeRepository.deleteByChild_ChildIdAndBook_BookId(childId, bookId);
-                return true;
+                System.out.println(mbti.getMbtiId());
             }
-            return false;
 
         }catch(Exception e){
-            return false;
         }
     }
-
-    private boolean handleDislike(Long childId, Long bookId, String Type) {
+@Transactional
+public boolean handleDislike(Long childId, Long bookId, String Type) {
 
         try {
 
@@ -241,7 +246,7 @@ public class LikeDislikeProcessor {
                 SN = weightCal((int) (Bookmbti.getSnType() * 1.2), mbti.getSnType(), -1);
                 TF = weightCal((int) (Bookmbti.getTfType() * 1.2), mbti.getTfType(), -1);
                 JP = weightCal((int) (Bookmbti.getJpType() * 1.2), mbti.getJpType(), -1);
-            } else if (Type != null && Objects.equals(Type, "NOMAL")) {
+            } else if (Type != null && Objects.equals(Type, "NORMAL")) {
                 EI = weightCal((int) (Bookmbti.getEiType() * 0.7), mbti.getEiType(), -1);
                 SN = weightCal((int) (Bookmbti.getSnType() * 0.7), mbti.getSnType(), -1);
                 TF = weightCal((int) (Bookmbti.getTfType() * 0.7), mbti.getTfType(), -1);
@@ -259,6 +264,7 @@ public class LikeDislikeProcessor {
                 mbtiRepository.save(mbti);
                 bookFavorTotalRepository.decrementCountByBookId(bookId);
                 childBookLikeRepository.deleteByChildIdAndBookIdAndDelDateIsNull(childId, bookId);
+                System.out.println("qw");
                 return true;
             }
                 return false;
