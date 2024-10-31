@@ -2,9 +2,11 @@ package com.mycom.myapp.naviya.domain.book.service;
 import com.mycom.myapp.naviya.domain.book.dto.*;
 import com.mycom.myapp.naviya.domain.book.entity.Book;
 import com.mycom.myapp.naviya.domain.book.entity.BookMbti;
+import com.mycom.myapp.naviya.domain.book.entity.UserRecentBooks;
 import com.mycom.myapp.naviya.domain.book.repository.BookFavorTotalRepository;
 import com.mycom.myapp.naviya.domain.book.repository.BookMbtiRepository;
 import com.mycom.myapp.naviya.domain.book.repository.BookRepository;
+import com.mycom.myapp.naviya.domain.book.repository.UserRecentBooksRepository;
 import com.mycom.myapp.naviya.domain.child.entity.Child;
 import com.mycom.myapp.naviya.domain.child.entity.ChildBookDislike;
 import com.mycom.myapp.naviya.domain.child.entity.ChildBookLike;
@@ -21,7 +23,9 @@ import com.mycom.myapp.naviya.domain.child.entity.*;
 import com.mycom.myapp.naviya.domain.child.repository.*;
 import com.mycom.myapp.naviya.global.mbti.entity.Mbti;
 import com.mycom.myapp.naviya.global.mbti.repository.MbtiRepository;
+import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,7 +42,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class BookServiceImpl implements BookService {
-
+    private final UserRecentBooksRepository userRecentBooksRepository;
     private final BookRepository bookRepository;
     private final MbtiRepository mbtiRepository;
     private final ChildBookLikeRepository childBookLikeRepository;
@@ -50,7 +54,8 @@ public class BookServiceImpl implements BookService {
     private final ChildMbtiRepository childMbtiRepository;
     private final LikeDislikeProcessor likeDislikeProcessor;
     private final CodeRepository codeRepository;
-
+    @PersistenceContext
+    private EntityManager entityManager;
 
 
     @Override
@@ -60,12 +65,13 @@ public class BookServiceImpl implements BookService {
         try {
             bookRepository.deleteById(bookId);
             bookResultDto.setSuccess("success");
-        }catch(Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
             bookResultDto.setSuccess("fail");
         }
         return bookResultDto;
     }
+
     @Override
     public BookResultDto detailBook(Long bookId, Long childId) {
         BookResultDto bookResultDto = new BookResultDto();
@@ -119,8 +125,6 @@ public class BookServiceImpl implements BookService {
     }
 
 
-
-
     //to 유성 일단 서비스에서는 mbti 값 그대로 내리고 프론트  or 컨트롤러에서 추가 구현 및 조정 생각하고 구현해놨음
     //추후 구현방식 협의 후 수정 가능
     //일대일 관계에서는 lazy를 걸어도 eager로 적용되어
@@ -149,7 +153,6 @@ public class BookServiceImpl implements BookService {
             bookResultDto.setSuccess("success");
 
 
-
         } catch (Exception e) {
             e.printStackTrace();
             bookResultDto.setSuccess("fail");
@@ -160,14 +163,13 @@ public class BookServiceImpl implements BookService {
 
     @Override
     public BookResultDto ChildALLlistBook(Long childId) {
-        BookResultDto bookResultDto=new BookResultDto();
-        try{
+        BookResultDto bookResultDto = new BookResultDto();
+        try {
             List<BookDto> bookDto = bookRepository.ChildAgefindAllBookDto(childId);
             bookResultDto.setBooks(bookDto);  // Book 리스트를 BookResultDto에 설정
             bookResultDto.setSuccess("success");
             return bookResultDto;
-        }
-        catch(Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             bookResultDto.setSuccess("fail");
             return bookResultDto;
@@ -240,7 +242,6 @@ public class BookServiceImpl implements BookService {
     }
 
 
-
     @Override
     public BookInsertDto updateBook(BookInsertDto bookInsertDto) {
         Book book = bookRepository.findById(bookInsertDto.getBookId())
@@ -280,62 +281,60 @@ public class BookServiceImpl implements BookService {
     }
 
 
-
     @Override
     public BookResultDto listbookOrderByCreateDate(long childId) {
-        BookResultDto bookResultDto=new BookResultDto();
-        try{
+        BookResultDto bookResultDto = new BookResultDto();
+        try {
             List<BookDto> bookDto = bookRepository.findBookDtoDescCreateDate(childId);
             bookResultDto.setBooks(bookDto);  // Book 리스트를 BookResultDto에 설정
             bookResultDto.setSuccess("success");
             return bookResultDto;
-        }
-        catch(Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             bookResultDto.setSuccess("fail");
             return bookResultDto;
         }
     }
+
     @Override
     public BookResultDto NoCHildlistbookOrderByCreateDate() {
-        BookResultDto bookResultDto=new BookResultDto();
-        try{
+        BookResultDto bookResultDto = new BookResultDto();
+        try {
             List<BookDto> bookDto = bookRepository.NoChildfindBookDtoDescCreateDate();
             bookResultDto.setBooks(bookDto);  // Book 리스트를 BookResultDto에 설정
             bookResultDto.setSuccess("success");
             return bookResultDto;
-        }
-        catch(Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             bookResultDto.setSuccess("fail");
             return bookResultDto;
         }
     }
+
     @Override
     public BookResultDto listBookChildFavor(long ChildId) {
-        BookResultDto bookResultDto=new BookResultDto();
-        try{
+        BookResultDto bookResultDto = new BookResultDto();
+        try {
             List<BookDto> bookDto = bookRepository.findBooksLikeByChildId(ChildId);
             bookResultDto.setBooks(bookDto);
             bookResultDto.setSuccess("success");
             return bookResultDto;
-        }
-        catch(Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             bookResultDto.setSuccess("fail");
             return bookResultDto;
         }
     }
+
     @Override
     public BookResultDto NoChildlistBookChildFavor() {
-        BookResultDto bookResultDto=new BookResultDto();
-        try{
+        BookResultDto bookResultDto = new BookResultDto();
+        try {
             List<BookDto> bookDto = bookRepository.NoChildfindBookDescBookFavorCount();
             bookResultDto.setBooks(bookDto);
             bookResultDto.setSuccess("success");
             return bookResultDto;
-        }
-        catch(Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             bookResultDto.setSuccess("fail");
             return bookResultDto;
@@ -374,84 +373,77 @@ public class BookServiceImpl implements BookService {
 
     @Override
     public BookResultDto listBookFavorCount(long childId) {
-        BookResultDto bookResultDto=new BookResultDto();
-        try{
+        BookResultDto bookResultDto = new BookResultDto();
+        try {
             List<BookDto> bookDto = bookRepository.findBookDescBookFavorCount(childId);
             bookResultDto.setBooks(bookDto);  // Book 리스트를 BookResultDto에 설정
             bookResultDto.setSuccess("success");
             return bookResultDto;
-        }
-        catch(Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             bookResultDto.setSuccess("fail");
             return bookResultDto;
         }
     }
+
     public BookResultDto listBookChildRecntRead(long ChildId) {
-        BookResultDto bookResultDto=new BookResultDto();
-        try{
-        List<BookDto> bookDto = bookRepository.findBooksByChildRecentRead(ChildId);
-        bookResultDto.setBooks(bookDto);  // Book 리스트를 BookResultDto에 설정
-        bookResultDto.setSuccess("success");
-        return bookResultDto;
-        }
-        catch(Exception e){
+        BookResultDto bookResultDto = new BookResultDto();
+        try {
+            List<BookDto> bookDto = bookRepository.findBooksByChildRecentRead(ChildId);
+            bookResultDto.setBooks(bookDto);  // Book 리스트를 BookResultDto에 설정
+            bookResultDto.setSuccess("success");
+            return bookResultDto;
+        } catch (Exception e) {
             e.printStackTrace();
             bookResultDto.setSuccess("fail");
             return bookResultDto;
         }
     }
-    public int weightCal(int calWeight,int weight,int sign)
-    {
+
+    public int weightCal(int calWeight, int weight, int sign) {
         Double baseAdjustment = (double) calWeight;
         Double currentWeight = (double) weight;
         //절대값이라 현재 mbti 가중치가 음수여도 상관 없음
         int dynamicAdjustment = (int) (baseAdjustment * (1.2 - Math.abs(currentWeight / 100)));
-        int newWeight = Math.max(-100, Math.min(100, (int)(currentWeight + (dynamicAdjustment*sign))));
+        int newWeight = Math.max(-100, Math.min(100, (int) (currentWeight + (dynamicAdjustment * sign))));
         return newWeight;
     }
 
     @Override
     @Transactional
-    public BookResultDto ChildBookLike(long BookId, long ChildId,String Type) {
-        BookResultDto bookResultDto=new BookResultDto();
-        try{
-            Optional child=childRepository.findById(ChildId);
-            Child child1=new Child();
-            if(child.isPresent()){
-                child1=(Child)child.get();
-            }
-            else
-            {
+    public BookResultDto ChildBookLike(long BookId, long ChildId, String Type) {
+        BookResultDto bookResultDto = new BookResultDto();
+        try {
+            Optional child = childRepository.findById(ChildId);
+            Child child1 = new Child();
+            if (child.isPresent()) {
+                child1 = (Child) child.get();
+            } else {
                 bookResultDto.setSuccess("fail1");
                 return bookResultDto;
             }
-            Optional book=bookRepository.findById(BookId);
-            Book book1=new Book();
-            if(book.isPresent()){
-                book1=(Book)book.get();
-            }
-            else
-            {
+            Optional book = bookRepository.findById(BookId);
+            Book book1 = new Book();
+            if (book.isPresent()) {
+                book1 = (Book) book.get();
+            } else {
                 bookResultDto.setSuccess("fail2");
                 return bookResultDto;
             }
 
 
-            List<ChildMbti> childMbtis= child1.getChildMbti();
-            ChildMbti childMbti_val =new ChildMbti();
-            int flag=0;
+            List<ChildMbti> childMbtis = child1.getChildMbti();
+            ChildMbti childMbti_val = new ChildMbti();
+            int flag = 0;
 
-            for( ChildMbti childMbti_Temp : childMbtis)
-            {
-                if(childMbti_Temp.getDeletedAt()==null)
-                {
-                    childMbti_val=childMbti_Temp;
-                    flag=1;
+            for (ChildMbti childMbti_Temp : childMbtis) {
+                if (childMbti_Temp.getDeletedAt() == null) {
+                    childMbti_val = childMbti_Temp;
+                    flag = 1;
                     break;
                 }
             }
-            if (flag==0) {
+            if (flag == 0) {
                 bookResultDto.setSuccess("fail3");
                 return bookResultDto;
             }
@@ -459,45 +451,38 @@ public class BookServiceImpl implements BookService {
             childBookDisLikeRepository.deleteByChild_ChildIdAndBook_BookId(ChildId, BookId);
             //일대다여서 확인해야함
             //좋아요 토탈 카운트 올려주기 && 이미 deldate없는 좋아요는 올려주지 않기
-            if(!childBookLikeRepository.existsByChildIdAndBookIdAndDelDateIsNull(ChildId, BookId))
-            {
+            if (!childBookLikeRepository.existsByChildIdAndBookIdAndDelDateIsNull(ChildId, BookId)) {
                 bookFavorTotalRepository.incrementCountByBookId(BookId);
-            }
-            else
-            {
+            } else {
                 bookResultDto.setSuccess("duplicate");
                 return bookResultDto;
                 //이미 있음
             }
 
             BookMbti bookMbti = book1.getBookMbti();
-            Mbti book2Mbti=bookMbti.getMbti();
-            Mbti mbti=childMbti_val.getMbti();
+            Mbti book2Mbti = bookMbti.getMbti();
+            Mbti mbti = childMbti_val.getMbti();
 
             int EI;
             int SN;
             int TF;
             int JP;
-            if (Type!=null &&Objects.equals(Type, "MBTI"))
-            {
-                EI =weightCal(book2Mbti.getEiType(),mbti.getEiType(),1);
-                SN= weightCal(book2Mbti.getSnType(),mbti.getSnType(),1);
-                TF= weightCal(book2Mbti.getTfType(),mbti.getTfType(),1);
-                JP=weightCal(book2Mbti.getJpType(),mbti.getJpType(),1);
-            } else if (Type!=null &&Objects.equals(Type, "REVERSE")) {
-                EI =weightCal((int)(book2Mbti.getEiType()*1.2),mbti.getEiType(),1);
-                SN= weightCal((int)(book2Mbti.getSnType()*1.2),mbti.getSnType(),1);
-                TF= weightCal((int)(book2Mbti.getTfType()*1.2),mbti.getTfType(),1);
-                JP=weightCal((int)(book2Mbti.getJpType()*1.2),mbti.getJpType(),1);
-            }
-            else if (Type!=null &&Objects.equals(Type, "NOMAL")) {
-                EI =weightCal((int)(book2Mbti.getEiType()*0.7),mbti.getEiType(),1);
-                SN= weightCal((int)(book2Mbti.getSnType()*0.7),mbti.getSnType(),1);
-                TF= weightCal((int)(book2Mbti.getTfType()*0.7),mbti.getTfType(),1);
-                JP=weightCal((int)(book2Mbti.getJpType()*0.7),mbti.getJpType(),1);
-            }
-            else
-            {
+            if (Type != null && Objects.equals(Type, "MBTI")) {
+                EI = weightCal(book2Mbti.getEiType(), mbti.getEiType(), 1);
+                SN = weightCal(book2Mbti.getSnType(), mbti.getSnType(), 1);
+                TF = weightCal(book2Mbti.getTfType(), mbti.getTfType(), 1);
+                JP = weightCal(book2Mbti.getJpType(), mbti.getJpType(), 1);
+            } else if (Type != null && Objects.equals(Type, "REVERSE")) {
+                EI = weightCal((int) (book2Mbti.getEiType() * 1.2), mbti.getEiType(), 1);
+                SN = weightCal((int) (book2Mbti.getSnType() * 1.2), mbti.getSnType(), 1);
+                TF = weightCal((int) (book2Mbti.getTfType() * 1.2), mbti.getTfType(), 1);
+                JP = weightCal((int) (book2Mbti.getJpType() * 1.2), mbti.getJpType(), 1);
+            } else if (Type != null && Objects.equals(Type, "NOMAL")) {
+                EI = weightCal((int) (book2Mbti.getEiType() * 0.7), mbti.getEiType(), 1);
+                SN = weightCal((int) (book2Mbti.getSnType() * 0.7), mbti.getSnType(), 1);
+                TF = weightCal((int) (book2Mbti.getTfType() * 0.7), mbti.getTfType(), 1);
+                JP = weightCal((int) (book2Mbti.getJpType() * 0.7), mbti.getJpType(), 1);
+            } else {
                 bookResultDto.setSuccess("fail5");
                 return bookResultDto;
             }
@@ -516,13 +501,13 @@ public class BookServiceImpl implements BookService {
             mbtiRepository.save(mbti);
             bookResultDto.setSuccess("success");
             return bookResultDto;
-        }
-        catch(Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             bookResultDto.setSuccess("fail4");
             return bookResultDto;
         }
     }
+
     @Override
     @Transactional
     /*
@@ -530,43 +515,37 @@ public class BookServiceImpl implements BookService {
 *     <a> mbti 별 추천은 그냥 현재 가중치로 한다.
     <b> 일반책은 0.7곱해서 더해준다
     <c>mbti 반대별 좋아요는 의미가 있는거니 1.2 곱해서 더해준다.*/
-    public BookResultDto ChildBookDisLike(long BookId, long ChildId,String Type) {
-        BookResultDto bookResultDto=new BookResultDto();
-        try{
-            Optional child=childRepository.findById(ChildId);
-            Child child1=new Child();
-            if(child.isPresent()){
-                child1=(Child)child.get();
-            }
-            else
-            {
+    public BookResultDto ChildBookDisLike(long BookId, long ChildId, String Type) {
+        BookResultDto bookResultDto = new BookResultDto();
+        try {
+            Optional child = childRepository.findById(ChildId);
+            Child child1 = new Child();
+            if (child.isPresent()) {
+                child1 = (Child) child.get();
+            } else {
                 bookResultDto.setSuccess("fail1");
                 return bookResultDto;
             }
-            Optional book=bookRepository.findById(BookId);
-            Book book1=new Book();
-            if(book.isPresent()){
-                book1=(Book)book.get();
-            }
-            else
-            {
+            Optional book = bookRepository.findById(BookId);
+            Book book1 = new Book();
+            if (book.isPresent()) {
+                book1 = (Book) book.get();
+            } else {
                 bookResultDto.setSuccess("fail2");
                 return bookResultDto;
             }
-            List<ChildMbti> childMbtis= child1.getChildMbti();
-            ChildMbti childMbti_val =new ChildMbti();
-            int flag=0;
+            List<ChildMbti> childMbtis = child1.getChildMbti();
+            ChildMbti childMbti_val = new ChildMbti();
+            int flag = 0;
 
-            for( ChildMbti childMbti_Temp : childMbtis)
-            {
-                if(childMbti_Temp.getDeletedAt()==null)
-                {
-                    childMbti_val=childMbti_Temp;
-                    flag=1;
+            for (ChildMbti childMbti_Temp : childMbtis) {
+                if (childMbti_Temp.getDeletedAt() == null) {
+                    childMbti_val = childMbti_Temp;
+                    flag = 1;
                     break;
                 }
             }
-            if (flag==0) {
+            if (flag == 0) {
                 bookResultDto.setSuccess("fail3");
                 return bookResultDto;
             }
@@ -575,32 +554,28 @@ public class BookServiceImpl implements BookService {
             //상대편 토탈 좋아요 카운트 내려야함
             bookFavorTotalRepository.decrementCountByBookId(BookId);
             BookMbti bookMbti = book1.getBookMbti();
-            Mbti book2Mbti=bookMbti.getMbti();
+            Mbti book2Mbti = bookMbti.getMbti();
 
             int EI;
             int SN;
             int TF;
             int JP;
-            if (Type!=null &&Objects.equals(Type, "MBTI"))
-            {
-                EI =weightCal(book2Mbti.getEiType(),mbti.getEiType(),-1);
-                SN= weightCal(book2Mbti.getSnType(),mbti.getSnType(),-1);
-                TF= weightCal(book2Mbti.getTfType(),mbti.getTfType(),-1);
-                JP=weightCal(book2Mbti.getJpType(),mbti.getJpType(),-1);
-            } else if (Type!=null &&Objects.equals(Type, "REVERSE")) {
-                EI =weightCal((int)(book2Mbti.getEiType()*1.2),mbti.getEiType(),-1);
-                SN= weightCal((int)(book2Mbti.getSnType()*1.2),mbti.getSnType(),-1);
-                TF= weightCal((int)(book2Mbti.getTfType()*1.2),mbti.getTfType(),-1);
-                JP=weightCal((int)(book2Mbti.getJpType()*1.2),mbti.getJpType(),-1);
-            }
-            else if (Type!=null &&Objects.equals(Type, "NOMAL")) {
-                EI =weightCal((int)(book2Mbti.getEiType()*0.7),mbti.getEiType(),-1);
-                SN= weightCal((int)(book2Mbti.getSnType()*0.7),mbti.getSnType(),-1);
-                TF= weightCal((int)(book2Mbti.getTfType()*0.7),mbti.getTfType(),-1);
-                JP=weightCal((int)(book2Mbti.getJpType()*0.7),mbti.getJpType(),-1);
-            }
-            else
-            {
+            if (Type != null && Objects.equals(Type, "MBTI")) {
+                EI = weightCal(book2Mbti.getEiType(), mbti.getEiType(), -1);
+                SN = weightCal(book2Mbti.getSnType(), mbti.getSnType(), -1);
+                TF = weightCal(book2Mbti.getTfType(), mbti.getTfType(), -1);
+                JP = weightCal(book2Mbti.getJpType(), mbti.getJpType(), -1);
+            } else if (Type != null && Objects.equals(Type, "REVERSE")) {
+                EI = weightCal((int) (book2Mbti.getEiType() * 1.2), mbti.getEiType(), -1);
+                SN = weightCal((int) (book2Mbti.getSnType() * 1.2), mbti.getSnType(), -1);
+                TF = weightCal((int) (book2Mbti.getTfType() * 1.2), mbti.getTfType(), -1);
+                JP = weightCal((int) (book2Mbti.getJpType() * 1.2), mbti.getJpType(), -1);
+            } else if (Type != null && Objects.equals(Type, "NOMAL")) {
+                EI = weightCal((int) (book2Mbti.getEiType() * 0.7), mbti.getEiType(), -1);
+                SN = weightCal((int) (book2Mbti.getSnType() * 0.7), mbti.getSnType(), -1);
+                TF = weightCal((int) (book2Mbti.getTfType() * 0.7), mbti.getTfType(), -1);
+                JP = weightCal((int) (book2Mbti.getJpType() * 0.7), mbti.getJpType(), -1);
+            } else {
                 bookResultDto.setSuccess("fail5");
                 return bookResultDto;
             }
@@ -617,13 +592,13 @@ public class BookServiceImpl implements BookService {
             mbtiRepository.save(mbti);
             bookResultDto.setSuccess("success");
             return bookResultDto;
-        }
-        catch(Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             bookResultDto.setSuccess("fail4");
             return bookResultDto;
         }
     }
+
     /*
     모두 가중치 동적 조정법 적용
     <a> mbti 별 추천에 대한 싫어요는 가중치를 1.2를 곱해서 크게 빼준다.
@@ -631,42 +606,42 @@ public class BookServiceImpl implements BookService {
     <c>mbti 반대별 싫어요는 당연한거니 0.5 곱해서 빼준다.*/
     @Override
     public BookResultDto DelChildBookLike(long BookId, long ChildId) {
-        BookResultDto bookResultDto=new BookResultDto();
+        BookResultDto bookResultDto = new BookResultDto();
         try {
             childBookLikeRepository.deleteByChildIdAndBookId(ChildId, BookId);
             bookResultDto.setSuccess("success");
             return bookResultDto;
-        }
-        catch(Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             bookResultDto.setSuccess("fail");
             return bookResultDto;
         }
     }
+
     /*
    JPA에서 delete 메서드를 호출하면, 존재하지 않는 엔티티에 대한 삭제 요청이 있을 때 특별한 예외를 발생시키지 않습니다.*/
     @Override
     public BookResultDto DelChildBookDisLike(long BookId, long ChildId) {
-        BookResultDto bookResultDto=new BookResultDto();
+        BookResultDto bookResultDto = new BookResultDto();
         try {
             childBookDisLikeRepository.deleteByChild_ChildIdAndBook_BookId(ChildId, BookId);
             bookResultDto.setSuccess("success");
             return bookResultDto;
-        }
-        catch(Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             bookResultDto.setSuccess("fail");
             return bookResultDto;
         }
     }
+
     @Transactional
     @Override
     public BookResultDto LogicDelChildBookLike(long BookId, long ChildId) {
-        BookResultDto bookResultDto=new BookResultDto();
+        BookResultDto bookResultDto = new BookResultDto();
         try {
-            List<ChildBookLike> childBookLikes=childBookLikeRepository.findByBookIdAndChildId(ChildId, BookId);
+            List<ChildBookLike> childBookLikes = childBookLikeRepository.findByBookIdAndChildId(ChildId, BookId);
             if (!childBookLikes.isEmpty()) {
-                ChildBookLike childBookLike=childBookLikes.get(0);
+                ChildBookLike childBookLike = childBookLikes.get(0);
                 Calendar calendar = Calendar.getInstance();
                 calendar.add(Calendar.DAY_OF_YEAR, 30); // 현재 날짜에 30일 추가
                 Timestamp futureDate = new Timestamp(calendar.getTimeInMillis());
@@ -674,14 +649,11 @@ public class BookServiceImpl implements BookService {
                 childBookLikeRepository.save(childBookLike);
                 bookResultDto.setSuccess("success");
                 return bookResultDto;
-            }
-            else
-            {
+            } else {
                 bookResultDto.setSuccess("fail");
                 return bookResultDto;
             }
-        }
-        catch(Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             bookResultDto.setSuccess("fail");
             return bookResultDto;
@@ -699,13 +671,12 @@ public class BookServiceImpl implements BookService {
     //나이대별로 들고와야함
     @Transactional
     public BookResultDto CategoryList(long childId) {
-        BookResultDto bookResultDto=new BookResultDto();
+        BookResultDto bookResultDto = new BookResultDto();
         try {
 
             //비로그인들 걍 랜덤으로 보내버림
-            if(childId==0)
-            {
-                List<BookDto> BookDtoList=bookRepository.findAllBookDto();
+            if (childId == 0) {
+                List<BookDto> BookDtoList = bookRepository.findAllBookDto();
                 bookResultDto.setBooks(BookDtoList);
                 bookResultDto.setSuccess("success");
                 return bookResultDto;
@@ -716,7 +687,7 @@ public class BookServiceImpl implements BookService {
             List<String> categoryCodes = childFavorCategory.stream()
                     .map(ChildFavCategoryDto::getCategoryCode)
                     .collect(Collectors.toList());
-            List<BookDto> booksInCategory = bookRepository.findAllBookDtoByCategoryCodes(categoryCodes,childId);
+            List<BookDto> booksInCategory = bookRepository.findAllBookDtoByCategoryCodes(categoryCodes, childId);
             double totalWeight = 0;
 
             // 가중치 합산
@@ -761,64 +732,69 @@ public class BookServiceImpl implements BookService {
                     currentCounts.put(categoryCode, count); // 감소된 개수 다시 저장
                 }
                 // 절대적으로 책 자체가 쿼리에서 10개 미만으로 왔을때 고민 중
-              //  int idx=0;
-              //  while (selectedBooks.size() >= totalBooksCnt) {
-              //  }
+                //  int idx=0;
+                //  while (selectedBooks.size() >= totalBooksCnt) {
+                //  }
             }
             bookResultDto.setSuccess("success");
             bookResultDto.setBooks(selectedBooks);
             return bookResultDto;
 
-        }
-        catch(Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             bookResultDto.setSuccess("fail");
             return bookResultDto;
         }
     }
-    @Override
-    public BookResultDto CategoryLike(long childId,String Ctegory) {
-        BookResultDto bookResultDto=new BookResultDto();
+
+    public BookResultDto CategoryLike(long childId, String Ctegory) {
+        BookResultDto bookResultDto = new BookResultDto();
         try {
+            Optional<ChildFavorCategory> optionalFavorCategory = childFavorCategoryRepository
+                    .findByChild_ChildIdAndCategoryCode(childId, Ctegory);
 
-            ChildFavorCategory favorCategory = childFavorCategoryRepository
-                    .findByChild_ChildIdAndCategoryCode(childId, Ctegory)
-                    .orElseThrow(() -> new IllegalArgumentException("해당 카테고리가 존재하지 않습니다."));
-
-            Long TempVal=favorCategory.getChildFavorCategoryWeight();
-            Long newWeight = Math.max(0, Math.min(100, TempVal+10));
-            favorCategory.setChildFavorCategoryWeight(newWeight);
-            childFavorCategoryRepository.save(favorCategory);
-            bookResultDto.setSuccess("success");
-            return bookResultDto;
-        }
-        catch(Exception e){
+            if (optionalFavorCategory.isPresent()) {
+                ChildFavorCategory favorCategory = optionalFavorCategory.get();
+                Long tempVal = favorCategory.getChildFavorCategoryWeight();
+                Long newWeight = Math.max(0, Math.min(100, tempVal + 10));
+                favorCategory.setChildFavorCategoryWeight(newWeight);
+                childFavorCategoryRepository.save(favorCategory);
+                bookResultDto.setSuccess("success");
+            } else {
+                bookResultDto.setSuccess("not_found"); // 결과가 없을 경우 처리
+            }
+        } catch (Exception e) {
             e.printStackTrace();
             bookResultDto.setSuccess("fail");
-            return bookResultDto;
         }
+        return bookResultDto;
     }
+
     @Override
-    public BookResultDto CategoryDisLike(long childId,String Ctegory) {
-        BookResultDto bookResultDto=new BookResultDto();
+    public BookResultDto CategoryDisLike(long childId, String Ctegory) {
+        BookResultDto bookResultDto = new BookResultDto();
         try {
 
-            ChildFavorCategory favorCategory = childFavorCategoryRepository
-                    .findByChild_ChildIdAndCategoryCode(childId, Ctegory)
-                    .orElseThrow(() -> new IllegalArgumentException("해당 카테고리가 존재하지 않습니다."));
+            Optional<ChildFavorCategory> optionalFavorCategory = childFavorCategoryRepository
+                    .findByChild_ChildIdAndCategoryCode(childId, Ctegory);
 
-            Long TempVal=favorCategory.getChildFavorCategoryWeight();
-            Long newWeight = Math.max(0, Math.min(100, TempVal));
-            favorCategory.setChildFavorCategoryWeight(newWeight);
-            childFavorCategoryRepository.save(favorCategory);
-            bookResultDto.setSuccess("success");
-            return bookResultDto;
-        }
-        catch(Exception e){
+            if (optionalFavorCategory.isPresent()) {
+                ChildFavorCategory favorCategory = optionalFavorCategory.get();
+                Long tempVal = favorCategory.getChildFavorCategoryWeight();
+                Long newWeight = Math.max(0, Math.min(100, tempVal - 10));
+                favorCategory.setChildFavorCategoryWeight(newWeight);
+                childFavorCategoryRepository.save(favorCategory);
+                bookResultDto.setSuccess("success");
+
+            } else {
+                bookResultDto.setSuccess("not_found"); // 결과가 없을 경우 처리
+            }
+        } catch (Exception e) {
             e.printStackTrace();
             bookResultDto.setSuccess("fail");
             return bookResultDto;
         }
+        return bookResultDto;
     }
     @Override
     public BookResultDto BookCategoryOne(long childId,String categoryId) {
@@ -847,6 +823,36 @@ public class BookServiceImpl implements BookService {
 
         // Decode Base64 String to byte[]
         return Base64.getDecoder().decode(base64Image);
+    }
+    @Transactional
+    @Override
+    public BookResultDto addUserRecentBookIfNotExists(Long childId, Long bookId)
+    { BookResultDto bookResultDto=new BookResultDto();
+        try{
+
+            boolean exists = userRecentBooksRepository.existsByChildIdAndBookId(childId, bookId);
+
+            if (!exists) {
+                Child child = entityManager.getReference(Child.class, childId);
+                Book book = entityManager.getReference(Book.class, bookId);
+
+                UserRecentBooks userRecentBook = new UserRecentBooks();
+                userRecentBook.setChild(child);
+                userRecentBook.setBook(book);
+                userRecentBook.setViewedAt(new Timestamp(System.currentTimeMillis()));
+
+                userRecentBooksRepository.save(userRecentBook);
+            }
+            System.out.println(bookResultDto);
+            bookResultDto.setSuccess("success");
+            return bookResultDto;
+        }
+        catch(Exception e){
+            e.printStackTrace();
+            bookResultDto.setSuccess("fail");
+            return bookResultDto;
+        }
+
     }
 
 
