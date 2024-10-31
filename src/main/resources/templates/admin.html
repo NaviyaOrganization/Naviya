@@ -194,7 +194,7 @@
                         </div>
                         <div class="mb-3">
                             <label for="editBookCategoryId" class="form-label">카테고리</label>
-                            <input type="number" class="form-control" id="editBookCategoryId" name="categoryId">
+                            <input type="text" class="form-control" id="editBookCategoryId" name="categoryId">
                         </div>
                     </form>
                 </div>
@@ -326,7 +326,7 @@
             snType: parseInt(document.getElementById('editBookSnType').value) || null,
             tfType: parseInt(document.getElementById('editBookTfType').value) || null,
             jpType: parseInt(document.getElementById('editBookJpType').value) || null,
-            category: parseInt(document.getElementById('editBookCategoryId').value) || null
+            category: document.getElementById('editBookCategoryId').value || null
         };
 
         // Null fields 삭제

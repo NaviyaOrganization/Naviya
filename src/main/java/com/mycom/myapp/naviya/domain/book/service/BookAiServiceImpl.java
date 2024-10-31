@@ -104,9 +104,10 @@ public class BookAiServiceImpl implements BookAiService {
     @Override
     public String generateBookImage(String title, String summary) {
         try {
-            String prompt = "Create a book cover for a story titled: '" + title + "'." +
-                    " The summary of the story is: '" + summary + "'." +
-                    " Ensure that any text, especially the title on the book cover, is written in clear and legible English.";
+            String prompt = "Create an image for a book cover based on the following details: " +
+                    "Title: '" + title + "'. " +
+                    "Summary: '" + summary + "'. " +
+                    "Generate an image without any text on it, focusing solely on visual elements that capture the essence of the title and summary.";
             String dallERequest = "{ \"prompt\": \"" + prompt + "\", \"n\": 1, \"size\": \"512x512\" }";
 
             RestTemplate restTemplate = new RestTemplate();

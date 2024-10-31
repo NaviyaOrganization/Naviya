@@ -231,9 +231,10 @@
     const selectedChildId = sessionStorage.getItem("selectedChildId");
     window.addEventListener('load', () => {
         ListFavorBook(selectedChildId,"010");
+        selectCategory('010');
     });
 
-    async function ListFavorBook(selectedChildId,cateogryId) {
+    async function ListFavorBook(selectedChildId, cateogryId) {
         try {
             const response = await fetch(`/Book/BookCategoryOne?childId=${selectedChildId}&Ctegory=${cateogryId}`);
             const data = await response.json();
