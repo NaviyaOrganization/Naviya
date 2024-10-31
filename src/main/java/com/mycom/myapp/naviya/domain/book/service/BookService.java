@@ -4,6 +4,8 @@ import com.mycom.myapp.naviya.domain.book.dto.BookDetailDto;
 import com.mycom.myapp.naviya.domain.book.dto.BookDto;
 import com.mycom.myapp.naviya.domain.book.dto.BookInsertDto;
 import com.mycom.myapp.naviya.domain.book.dto.BookResultDto;
+import com.mycom.myapp.naviya.domain.book.entity.Book;
+import com.mycom.myapp.naviya.domain.child.entity.Child;
 
 import java.util.List;
 
@@ -32,5 +34,6 @@ public interface BookService {
     BookResultDto NoChildlistBookChildFavor();
     BookDetailDto adminBookDetail(Long bookId);
     byte[] getImageBytesByBookId(Long bookId);
+    BookResultDto addUserRecentBookIfNotExists(Long childId, Long bookId);
 
 }

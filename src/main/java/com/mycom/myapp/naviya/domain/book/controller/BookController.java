@@ -175,4 +175,11 @@ public class BookController {
     {
         return bookService.BookCategoryOne(childId,Ctegory);
     }
+
+    @GetMapping("/ChildBookRead")
+    public BookResultDto ChildBookRead(@RequestParam Long childId,@RequestParam Long booKId)
+    {
+        return bookService.addUserRecentBookIfNotExists(childId,booKId);
+    }
+
 }
