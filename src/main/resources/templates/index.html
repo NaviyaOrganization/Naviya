@@ -532,9 +532,9 @@
                     {
                         sessionStorage.setItem('IsCategory', "0");
                     }
-
+                    sessionStorage.setItem("category",book.category);
                     sessionStorage.setItem('Type', type);
-
+                    sessionStorage.setItem('bookId', book.bookId);
                     // 동적으로 폼 생성
                     const form = document.createElement('form');
                     form.method = 'GET';

@@ -208,34 +208,70 @@
   </div>
 </div>
 <div class="modal fade" id="myModal" tabindex="-1" aria-labelledby="myModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content" style="background-color: #fff8b3; border-radius: 15px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);">
       <div class="modal-header">
-        <h5 class="modal-title" id="myModalLabel">모달 제목</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+        <h5 class="modal-title" id="myModalLabel" style="font-family: 'Comic Sans MS', cursive; color: #ff6f00;">추천은 어땠나요?</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="border: none; background: transparent; font-size: 1.5rem; color: #ff6f00;">
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
-      <div class="modal-body">
-        모달 내용이 여기에 표시됩니다.
+      <div class="modal-body" style="text-align: center;">
+        <p style="font-family: 'Comic Sans MS', cursive; color: #333;">추천 내용을 마음에 드셨나요? 아래 버튼 중 하나를 선택해주세요.</p>
       </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">닫기</button>
+      <div class="modal-footer" style="justify-content: center;">
+        <button type="button" class="btn btn-success" id="yesButton" style="border-radius: 20px;">좋아요</button>
+        <button type="button" class="btn btn-danger" data-dismiss="modal" id="noButton" style="border-radius: 20px;">별로에요</button>
       </div>
     </div>
   </div>
 </div>
 
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 <script src="/assets/js/newSidebar.js"></script>
 <script>
   const IsCategory = sessionStorage.getItem("IsCategory"); // "IsCategory"라는 문자열을 사용합니다.
   console.log(IsCategory); // 이제 정상 작동
+  const selectedChildId = sessionStorage.getItem("selectedChildId");
+  const category = sessionStorage.getItem("category");
+
   if (IsCategory === "1") {
     setTimeout(() => {
       $('#myModal').modal('show'); // Bootstrap 모달을 표시합니다.
     }, 5000); // 5000 밀리초 = 5초
   }// JavaScript Code
+  document.addEventListener("DOMContentLoaded", function() {
+    const yesButton = document.getElementById("yesButton");
+    const noButton = document.getElementById("noButton");
+    yesButton.addEventListener("click", function() {
+      BookCategoryLike(selectedChildId,category);
+      $('#myModal').modal('hide'); // 모달 닫기
+    });
+
+    noButton.addEventListener("click", function() {
+      BookCategoryDisLike(selectedChildId,category);
+      $('#myModal').modal('hide'); // 모달 닫기
+    });
+  });
+  // "좋아요" API 호출 함수
+  function BookCategoryLike(childId, category) {
+    $.get(`/Book/CategoryLike?childId=${childId}&Ctegory=${category}`, function(response) {
+      console.log("좋아요 응답:", response);
+    }).fail(function() {
+      console.error("좋아요 호출 실패");
+    });
+  }
+
+  // "싫어요" API 호출 함수
+  function BookCategoryDisLike(childId, category) {
+    $.get(`/Book/CategoryDisLike?childId=${childId}&Ctegory=${category}`, function(response) {
+      console.log("싫어요 응답:", response);
+    }).fail(function() {
+      console.error("싫어요 호출 실패");
+    });
+  }
 
 </script>
 </body>
