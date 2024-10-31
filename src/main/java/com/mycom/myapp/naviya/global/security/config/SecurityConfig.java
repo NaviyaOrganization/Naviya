@@ -52,7 +52,7 @@ public class SecurityConfig {
                 .securityMatcher(new AntPathRequestMatcher("/admin/**")) // 관리자 경로에 대한 보안 설정
                 .authenticationProvider(adminAuthenticationProvider()) // 관리자 인증 프로바이더 설정
                 .authorizeHttpRequests(authorizeHttpRequests -> authorizeHttpRequests
-                        .requestMatchers("/admin/signup", "/admin/login", "/admin/loginProc","/","/login","/Book/**").permitAll() // 로그인과 회원가입 경로 허용 // 관리자 가입은 추후에 막을 예정
+                        .requestMatchers("/admin/signup", "/admin/login", "/admin/loginProc","/","/login").permitAll() // 로그인과 회원가입 경로 허용 // 관리자 가입은 추후에 막을 예정
                         .requestMatchers("/admin/**").hasRole("ADMIN") // 관리자 접근 제한
                 )
                 .formLogin(formLogin -> formLogin
@@ -82,6 +82,7 @@ public class SecurityConfig {
                 .authenticationProvider(userAuthenticationProvider()) // 사용자 인증 프로바이더 설정
                 .authorizeHttpRequests(authorizeHttpRequests -> authorizeHttpRequests
                         .requestMatchers("/", "/login", "/signup", "/signupProc",
+                                "/Book/NoChildListOrderDate","/Book/NoChildlistBookChildFavor", "/book/image/**", "/Book/search", "/search",
                                 "/static/**","/assets/img/**", "/css/**", "/js/**").permitAll() // 사용자 접근 경로 허용
                         .anyRequest().authenticated() // 모든 다른 요청은 인증 요구
                 )
