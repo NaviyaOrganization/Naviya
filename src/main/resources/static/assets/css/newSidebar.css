@@ -116,3 +116,12 @@ body {
     transform: scale(1.1);
     background-color: #ffd43b;
 }
+
+.btn-warning.custom-warning {
+    background-color: #f2d46d;
+    border-color: #f2d46d;
+}
+.btn-warning.custom-warning:hover {
+    background-color: #e68a00;
+    border-color: #e68a00;
+}

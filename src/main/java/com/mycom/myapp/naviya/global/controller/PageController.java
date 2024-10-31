@@ -212,28 +212,38 @@ public class PageController {
     }
 
     @GetMapping("/BookLike")
-    public String BookLike(HttpSession session, Model model)
-    {
+    public String bookLike(HttpSession session, Model model) {
         BookDetailDto bookDetailDto = (BookDetailDto) session.getAttribute("book");
-        //Long childId = (Long) session.getAttribute("selectedChildId");
-        String type = (String)session.getAttribute("Type");
         bookDetailDto.setLiked(true);
-        session.setAttribute("book",bookDetailDto);
-        model.addAttribute("book",bookDetailDto);
-        bookService.ChildBookLike(bookDetailDto.getBookId(),1,"MBTI");
+        bookDetailDto.setDisliked(false); // 싫어요 취소
+
+        session.setAttribute("book", bookDetailDto);
+        model.addAttribute("book", bookDetailDto);
+
+        // 싫어요가 설정되어 있었다면 삭제하고 좋아요 추가
+        bookService.DelChildBookDisLike(bookDetailDto.getBookId(), 1);
+        bookService.ChildBookLike(bookDetailDto.getBookId(), 1, "MBTI");
+
         return "BookDetailPage";
     }
+
     @GetMapping("/BookDisLike")
-    public String BookDisLike(HttpSession session, Model model)
-    {
+    public String bookDisLike(HttpSession session, Model model) {
         BookDetailDto bookDetailDto = (BookDetailDto) session.getAttribute("book");
-        //Long childId = (Long) session.getAttribute("selectedChildId");
         bookDetailDto.setDisliked(true);
-        session.setAttribute("book",bookDetailDto);
-        model.addAttribute("book",bookDetailDto);
-        bookService.ChildBookDisLike(bookDetailDto.getBookId(),1,"MBTI");
+        bookDetailDto.setLiked(false); // 좋아요 취소
+
+        session.setAttribute("book", bookDetailDto);
+        model.addAttribute("book", bookDetailDto);
+
+        // 좋아요가 설정되어 있었다면 삭제하고 싫어요 추가
+        bookService.DelChildBookLike(bookDetailDto.getBookId(), 1);
+        bookService.ChildBookDisLike(bookDetailDto.getBookId(), 1, "MBTI");
+
         return "BookDetailPage";
     }
+
+
     @GetMapping("/DelBookLike")
     public String DelBookLike(HttpSession session,Model model)
     {
