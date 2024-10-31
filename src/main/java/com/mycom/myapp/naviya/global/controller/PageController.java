@@ -226,7 +226,9 @@ public class PageController {
         model.addAttribute("book", bookDetailDto);
 
         // 싫어요가 설정되어 있었다면 삭제하고 좋아요 추가
-        bookService.DelChildBookDisLike(bookDetailDto.getBookId(), childId);
+        if (bookDetailDto.isDisliked()){
+            bookService.DelChildBookDisLike(bookDetailDto.getBookId(), childId);
+        }
         bookService.ChildBookLike(bookDetailDto.getBookId(), childId, type);
 
         return "BookDetailPage";
@@ -248,7 +250,9 @@ public class PageController {
         model.addAttribute("book", bookDetailDto);
 
         // 좋아요가 설정되어 있었다면 삭제하고 싫어요 추가
-        bookService.DelChildBookLike(bookDetailDto.getBookId(), childId);
+        if(bookDetailDto.isLiked()){
+            bookService.DelChildBookLike(bookDetailDto.getBookId(), childId);
+        }
         bookService.ChildBookDisLike(bookDetailDto.getBookId(), childId, type);
 
         return "BookDetailPage";
