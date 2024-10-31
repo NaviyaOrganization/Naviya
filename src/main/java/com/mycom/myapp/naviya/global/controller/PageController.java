@@ -223,7 +223,7 @@ public class PageController {
         System.out.println(type);
         session.setAttribute("book",bookDetailDto);
         model.addAttribute("book",bookDetailDto);
-               bookDetailDto.setDisliked(false); // 싫어요 취소
+        bookDetailDto.setDisliked(false); // 싫어요 취소
 
         session.setAttribute("book", bookDetailDto);
         model.addAttribute("book", bookDetailDto);

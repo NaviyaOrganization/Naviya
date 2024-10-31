@@ -60,7 +60,8 @@ body {
 
 #sidebar a:hover {
     background-color: #ffe066;
-    transform: scale(1.02);
+    transform: scale(1.05);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
 }
 
 
@@ -112,9 +113,10 @@ body {
     padding: 10px; /* 클릭 영역을 위한 패딩 */
 }
 
-#toggleSidebar:hover {
-    transform: scale(1.1);
-    background-color: #ffd43b;
+#toggleButton:hover {
+    background-color: #ffe066;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 }
 
 .btn-warning.custom-warning {

@@ -233,7 +233,7 @@
 
             const cardImage = document.createElement('img');
             cardImage.className = 'card-img-top';
-            cardImage.src = book.bookImage || '/img.png';
+            cardImage.src = `/book/image/${book.bookId}`;
             cardImage.alt = book.title;
             cardImage.style.height = '200px';
             cardImage.style.objectFit = 'cover';
@@ -255,7 +255,7 @@
 
             const cardLink = document.createElement('a');
             cardLink.href = '#';
-            cardLink.className = 'btn btn-primary mt-auto';
+            cardLink.className = 'btn btn-warning custom-warning mt-auto';
             cardLink.textContent = '자세히 보기';
 
             cardLink.addEventListener('click', function(e) {

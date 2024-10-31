@@ -37,6 +37,11 @@
             background-color: #ffd43b;
             transform: scale(1.05);
         }
+        .category-button.active {
+            background-color: #ffcc00; /* 선택된 버튼의 배경색 변경 */
+            color: #fff; /* 선택된 버튼의 텍스트 색 변경 */
+            transform: scale(1.1); /* 선택된 버튼의 크기 약간 증가 */
+        }
         body {
             overflow-x: hidden;
             background-color: #fff9e6;
@@ -225,10 +230,11 @@
 
     const selectedChildId = sessionStorage.getItem("selectedChildId");
     window.addEventListener('load', () => {
-        ListFavorBook(selectedChildId,"001");
+        ListFavorBook(selectedChildId,"010");
+        selectCategory('010');
     });
 
-    async function ListFavorBook(selectedChildId,cateogryId) {
+    async function ListFavorBook(selectedChildId, cateogryId) {
         try {
             const response = await fetch(`/Book/BookCategoryOne?childId=${selectedChildId}&Ctegory=${cateogryId}`);
             const data = await response.json();
@@ -317,7 +323,18 @@
         });
     }
     function selectCategory(categoryId) {
-        ListFavorBook(selectedChildId, categoryId); // 변환된 ID를 사용하여 함수 호출
+        // 모든 카테고리 버튼에서 active 클래스를 제거
+        const categoryButtons = document.querySelectorAll('.category-button');
+        categoryButtons.forEach(button => button.classList.remove('active'));
+
+        // 클릭한 버튼에만 active 클래스를 추가
+        const selectedButton = document.querySelector(`.category-button[onclick="selectCategory('${categoryId}')"]`);
+        if (selectedButton) {
+            selectedButton.classList.add('active');
+        }
+
+        // 선택된 카테고리에 대한 책 목록을 불러오는 함수 호출
+        ListFavorBook(selectedChildId, categoryId);
     }
 </script>
 </body>
