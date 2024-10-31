@@ -215,25 +215,25 @@ public class PageController {
     }
 
     @GetMapping("/BookLike")
-    public String BookLike(HttpSession session, Model model) {
+    public String BookLike(HttpSession session, Model model,@RequestParam("type")String type) {
         BookDetailDto bookDetailDto = (BookDetailDto) session.getAttribute("book");
         Long childId = (Long) session.getAttribute("selectedChildId");
-        String type = (String)session.getAttribute("Type");
         bookDetailDto.setLiked(true);
+        System.out.println(childId);
+        System.out.println(type);
         session.setAttribute("book",bookDetailDto);
         model.addAttribute("book",bookDetailDto);
-        bookService.ChildBookLike(bookDetailDto.getBookId(),childId, type);
-        bookDetailDto.setDisliked(false); // 싫어요 취소
+               bookDetailDto.setDisliked(false); // 싫어요 취소
 
         session.setAttribute("book", bookDetailDto);
         model.addAttribute("book", bookDetailDto);
+    // 싫어요가 설정되어 있었다면 삭제하고 좋아요 추가
 
-        // 싫어요가 설정되어 있었다면 삭제하고 좋아요 추가
         if(bookDetailDto.isDisliked())
         {
             bookServiceImpl.DelChildBookDisLike(bookDetailDto.getBookId(), childId);
         }
-        likeDislikeProcessor.enqueueLike(bookDetailDto.getBookId(), childId, type);
+        likeDislikeProcessor.enqueueLike(childId,bookDetailDto.getBookId(), type);
 
         return "BookDetailPage";
     }
@@ -247,19 +247,17 @@ public class PageController {
         bookDetailDto.setDisliked(true);
         session.setAttribute("book",bookDetailDto);
         model.addAttribute("book",bookDetailDto);
-        bookService.ChildBookDisLike(bookDetailDto.getBookId(),childId, type);
-        bookDetailDto.setLiked(false); // 좋아요 취소
+                bookDetailDto.setLiked(false); // 좋아요 취소
 
         session.setAttribute("book", bookDetailDto);
         model.addAttribute("book", bookDetailDto);
-
+        System.out.println("wwww");
         // 좋아요가 설정되어 있었다면 삭제하고 싫어요 추가
         if(bookDetailDto.isLiked())
         {
             bookServiceImpl.DelChildBookLike(bookDetailDto.getBookId(), childId);
         }
-
-        likeDislikeProcessor.enqueueDisLike(bookDetailDto.getBookId(), childId, type);
+        likeDislikeProcessor.enqueueDisLike(childId,bookDetailDto.getBookId(), type);
         return "BookDetailPage";
     }
 
