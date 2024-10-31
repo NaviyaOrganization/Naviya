@@ -227,10 +227,7 @@
 
 <script src="/assets/js/newSidebar.js"></script>
 <script>
-    sessionStorage.setItem('IsCategory', "0");
-    type = 'NORMAL';
-    sessionStorage.setItem('Type', type);
-    sessionStorage.setItem('bookId', book.bookId);
+
 
     const selectedChildId = sessionStorage.getItem("selectedChildId");
     window.addEventListener('load', () => {
@@ -284,6 +281,11 @@
             const cardTitle = document.createElement('h5');
             cardTitle.className = 'card-title text-truncate';
             cardTitle.textContent = book.title;
+
+            sessionStorage.setItem('IsCategory', "0");
+            type = 'NORMAL';
+            sessionStorage.setItem('Type', type);
+            sessionStorage.setItem('bookId', book.bookId);
 
             const cardAuthor = document.createElement('p');
             cardAuthor.className = 'card-text text-muted';
