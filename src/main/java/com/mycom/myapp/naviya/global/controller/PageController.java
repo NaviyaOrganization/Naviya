@@ -157,7 +157,6 @@ public class PageController {
     public String search(HttpSession session, Model model) {
         // 세션에서 사용자 이메일을 가져옴
         String email = (String) session.getAttribute("userEmail");
-
         User user = userRepository.findByEmail(email);
         model.addAttribute("user", user);
         return "search";
@@ -216,6 +215,11 @@ public class PageController {
 
     @GetMapping("/BookLike")
     public String BookLike(HttpSession session, Model model,@RequestParam("type")String type) {
+        // 세션에서 사용자 이메일을 가져옴
+        String email = (String) session.getAttribute("userEmail");
+        User user = userRepository.findByEmail(email);
+        model.addAttribute("user", user);
+
         BookDetailDto bookDetailDto = (BookDetailDto) session.getAttribute("book");
         Long childId = (Long) session.getAttribute("selectedChildId");
         bookDetailDto.setLiked(true);
@@ -240,6 +244,11 @@ public class PageController {
 
     @GetMapping("/BookDisLike")
     public String BookDisLike(HttpSession session, Model model,@RequestParam("type")String type) {
+        // 세션에서 사용자 이메일을 가져옴
+        String email = (String) session.getAttribute("userEmail");
+        User user = userRepository.findByEmail(email);
+        model.addAttribute("user", user);
+
         BookDetailDto bookDetailDto = (BookDetailDto) session.getAttribute("book");
         Long childId = (Long) session.getAttribute("selectedChildId");
 
@@ -261,8 +270,12 @@ public class PageController {
 
 
     @GetMapping("/DelBookLike")
-    public String DelBookLike(HttpSession session,Model model)
-    {
+    public String DelBookLike(HttpSession session,Model model) {
+        // 세션에서 사용자 이메일을 가져옴
+        String email = (String) session.getAttribute("userEmail");
+        User user = userRepository.findByEmail(email);
+        model.addAttribute("user", user);
+
         BookDetailDto bookDetailDto = (BookDetailDto) session.getAttribute("book");
         Long childId = (Long) session.getAttribute("selectedChildId");
         bookDetailDto.setLiked(false);
@@ -272,8 +285,12 @@ public class PageController {
         return "BookDetailPage";
     }
     @GetMapping("/DelBookDisLike")
-    public String DelBookDisLike(HttpSession session, Model model)
-    {
+    public String DelBookDisLike(HttpSession session, Model model) {
+        // 세션에서 사용자 이메일을 가져옴
+        String email = (String) session.getAttribute("userEmail");
+        User user = userRepository.findByEmail(email);
+        model.addAttribute("user", user);
+
         BookDetailDto bookDetailDto = (BookDetailDto) session.getAttribute("book");
         Long childId = (Long) session.getAttribute("selectedChildId");
         bookDetailDto.setDisliked(false);

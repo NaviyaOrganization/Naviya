@@ -10,9 +10,16 @@
   <!--  메인페이지 css 파일-->
   <link href="/assets/css/newSidebar.css" rel="stylesheet">
   <style>
+    @font-face {
+      font-family: 'IM_Hyemin-Bold';
+      src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_2106@1.1/IM_Hyemin-Bold.woff2') format('woff');
+      font-weight: normal;
+      font-style: normal;
+    }
     body {
       overflow-x: hidden;
       background-color: #fff9e6;
+      font-family: 'IM_Hyemin-Bold';
     }
 
     .navbar {
@@ -256,22 +263,10 @@
 </div>
 
 <script>
-  // // Sidebar toggle functionality
-  // document.getElementById('toggleSidebar').addEventListener('click', function() {
-  //   const sidebar = document.getElementById('sidebar');
-  //   const toggleBtn = document.getElementById('toggleSidebar');
-  //   const mainContent = document.getElementById('main-content');
-  //
-  //   if (sidebar.style.left === '0px') {
-  //     sidebar.style.left = '-250px';
-  //     toggleBtn.classList.remove('toggle-active');
-  //     mainContent.style.marginLeft = '150px'; // Reset margin when sidebar is closed
-  //   } else {
-  //     sidebar.style.left = '0px';
-  //     toggleBtn.classList.add('toggle-active');
-  //     mainContent.style.marginLeft = '250px';
-  //   }
-  // });
+  sessionStorage.setItem('IsCategory', "0");
+  let type = 'NORMAL';
+  sessionStorage.setItem('Type', type);
+  sessionStorage.setItem('bookId', book.bookId);
 
   // Search form submission
   document.getElementById("searchForm").addEventListener("submit", async function(event) {

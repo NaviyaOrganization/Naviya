@@ -227,6 +227,10 @@
 
 <script src="/assets/js/newSidebar.js"></script>
 <script>
+    sessionStorage.setItem('IsCategory', "0");
+    type = 'NORMAL';
+    sessionStorage.setItem('Type', type);
+    sessionStorage.setItem('bookId', book.bookId);
 
     const selectedChildId = sessionStorage.getItem("selectedChildId");
     window.addEventListener('load', () => {
