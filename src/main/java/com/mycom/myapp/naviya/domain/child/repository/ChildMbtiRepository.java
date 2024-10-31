@@ -37,7 +37,7 @@ public interface ChildMbtiRepository extends JpaRepository<ChildMbti, Long> {
             "FROM ChildMbti c " +
             "WHERE c.child.childId = :childId AND c.deletedAt IS NULL")
     List<MbtiDto> findActiveMbtiScoresByChildId(@Param("childId") Long childId);
-    @Query("SELECT new com.mycom.myapp.naviya.global.mbti.Dto.MbtiDto(cm.mbtiId, m.eiType, m.snType, m.tfType, m.jpType) " +
+    @Query("SELECT new com.mycom.myapp.naviya.global.mbti.Dto.MbtiDto(m.mbtiId, m.eiType, m.snType, m.tfType, m.jpType) " +
             "FROM ChildMbti cm " +
             "JOIN cm.mbti m " +
             "WHERE cm.child.childId = :childId AND cm.deletedAt IS NULL")
