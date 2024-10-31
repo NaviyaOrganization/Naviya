@@ -182,6 +182,7 @@ public class PageController {
         BookDetailDto bookDetailDto = bookService.detailBook(bookId,selectedChildId).getBookDetail();
         bookDetailDto.setLiked(isLiked);
         bookDetailDto.setDisliked(isDisliked);
+
         // 모델에 추가
         model.addAttribute("book", bookDetailDto);
         session.setAttribute("book", bookDetailDto);
@@ -211,28 +212,49 @@ public class PageController {
     }
 
     @GetMapping("/BookLike")
-    public String BookLike(HttpSession session, Model model)
-    {
+    public String BookLike(HttpSession session, Model model) {
         BookDetailDto bookDetailDto = (BookDetailDto) session.getAttribute("book");
         Long childId = (Long) session.getAttribute("selectedChildId");
         String type = (String)session.getAttribute("Type");
         bookDetailDto.setLiked(true);
         session.setAttribute("book",bookDetailDto);
         model.addAttribute("book",bookDetailDto);
-        bookService.ChildBookLike(bookDetailDto.getBookId(),childId,"MBTI");
+        bookService.ChildBookLike(bookDetailDto.getBookId(),childId, type);
+        bookDetailDto.setDisliked(false); // 싫어요 취소
+
+        session.setAttribute("book", bookDetailDto);
+        model.addAttribute("book", bookDetailDto);
+
+        // 싫어요가 설정되어 있었다면 삭제하고 좋아요 추가
+        bookService.DelChildBookDisLike(bookDetailDto.getBookId(), childId);
+        bookService.ChildBookLike(bookDetailDto.getBookId(), childId, type);
+
         return "BookDetailPage";
     }
+
     @GetMapping("/BookDisLike")
-    public String BookDisLike(HttpSession session, Model model)
-    {
+    public String BookDisLike(HttpSession session, Model model) {
         BookDetailDto bookDetailDto = (BookDetailDto) session.getAttribute("book");
         Long childId = (Long) session.getAttribute("selectedChildId");
+        String type = (String)session.getAttribute("Type");
+
         bookDetailDto.setDisliked(true);
         session.setAttribute("book",bookDetailDto);
         model.addAttribute("book",bookDetailDto);
-        bookService.ChildBookDisLike(bookDetailDto.getBookId(),childId,"MBTI");
+        bookService.ChildBookDisLike(bookDetailDto.getBookId(),childId, type);
+        bookDetailDto.setLiked(false); // 좋아요 취소
+
+        session.setAttribute("book", bookDetailDto);
+        model.addAttribute("book", bookDetailDto);
+
+        // 좋아요가 설정되어 있었다면 삭제하고 싫어요 추가
+        bookService.DelChildBookLike(bookDetailDto.getBookId(), childId);
+        bookService.ChildBookDisLike(bookDetailDto.getBookId(), childId, type);
+
         return "BookDetailPage";
     }
+
+
     @GetMapping("/DelBookLike")
     public String DelBookLike(HttpSession session,Model model)
     {
