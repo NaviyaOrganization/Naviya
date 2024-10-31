@@ -113,7 +113,6 @@ public class PageController {
         } else {
             model.addAttribute("user", null);
         }
-
         return "index";
     }
 
@@ -300,8 +299,6 @@ public class PageController {
         bookService.delBook(bookId);
         return "admin";
     }
-
-
 
     @GetMapping("/admin/List")
     public String AllBookList(Model model)
