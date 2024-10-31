@@ -4,7 +4,8 @@ import com.mycom.myapp.naviya.domain.book.dto.LikeDislikeTaskDto;
 import com.mycom.myapp.naviya.domain.book.repository.BookFavorTotalRepository;
 import com.mycom.myapp.naviya.domain.book.repository.BookMbtiRepository;
 import com.mycom.myapp.naviya.domain.book.repository.BookRepository;
-import com.mycom.myapp.naviya.domain.child.entity.ChildMbti;
+import com.mycom.myapp.naviya.domain.child.entity.Child;
+import com.mycom.myapp.naviya.domain.child.entity.ChildMbtiHistory;
 import com.mycom.myapp.naviya.domain.child.repository.*;
 import com.mycom.myapp.naviya.global.mbti.Dto.MbtiDto;
 import com.mycom.myapp.naviya.global.mbti.entity.Mbti;
@@ -20,6 +21,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.*;
 
 @RequiredArgsConstructor
@@ -42,6 +44,8 @@ public class LikeDislikeProcessor {
     @Autowired
     private  RedisTemplate<String, Object> redisTemplate;
     private static final String STREAM_KEY = "likeDislikeStream"; // 스트림 키
+    @Autowired
+    private ChildMbtiHistoryRepository childMbtiHistoryRepository;
 
     public void enqueueLike(Long childId, Long bookId, String type) {
         // 요청을 큐에 추가
@@ -127,6 +131,10 @@ public class LikeDislikeProcessor {
             System.out.println(childId);
             System.out.println(bookId);
             System.out.println(Type);
+            int tempEI;
+            int tempSN;
+            int tempTF;
+            int tempJP;
             Optional<MbtiDto> childmbtiDto =childMbtiRepository.findMbtiDtoByChildIdAndDeletedAtIsNull(childId);
             Mbti mbti = new Mbti();
             if (childmbtiDto.isPresent()) {
@@ -140,6 +148,10 @@ public class LikeDislikeProcessor {
                 System.out.println(mbti.getSnType());
                 System.out.println(mbti.getTfType());
                 System.out.println(mbti.getJpType());
+                tempEI=childmbtiDto.get().getEiType();
+                tempSN=childmbtiDto.get().getSnType();
+                tempTF=childmbtiDto.get().getTfType();
+                tempJP=childmbtiDto.get().getJpType();
             }
             else
             {
@@ -153,6 +165,11 @@ public class LikeDislikeProcessor {
                 Bookmbti.setSnType(bookMbti.get().getSnType());
                 Bookmbti.setTfType(bookMbti.get().getTfType());
                 Bookmbti.setJpType(bookMbti.get().getJpType());
+                System.out.println(Bookmbti.getMbtiId());
+                System.out.println(Bookmbti.getEiType());
+                System.out.println(Bookmbti.getSnType());
+                System.out.println(Bookmbti.getTfType());
+                System.out.println(Bookmbti.getJpType());
 
             }
             else
@@ -182,26 +199,89 @@ public class LikeDislikeProcessor {
             } else {
                 return;
             }
-            if(childBookLikeRepository.saveChildBooklike(childId,bookId)>0) {
+            int a=childBookLikeRepository.saveChildBooklike(childId,bookId);
+            System.out.println(a);
+            if(a>0) {
                 mbti.setEiType(EI);
                 mbti.setSnType(SN);
                 mbti.setTfType(TF);
                 mbti.setJpType(JP);
+                System.out.println(mbti.getMbtiId());
+                System.out.println(mbti.getEiType());
+                System.out.println(mbti.getSnType());
+                System.out.println(mbti.getTfType());
+                System.out.println(mbti.getJpType());
                 mbtiRepository.save(mbti);
                 bookFavorTotalRepository.incrementCountByBookId(bookId);
                 childBookDisLikeRepository.deleteByChild_ChildIdAndBook_BookId(childId, bookId);
                 System.out.println(mbti.getMbtiId());
+            }
+            boolean hasSignChanged =
+                    ((tempEI <= 0 && EI > 0) || (tempEI >= 0 && EI < 0)) ||
+                            ((tempSN <= 0 && SN > 0) || (tempSN >= 0 && SN < 0)) ||
+                            ((tempTF <= 0 && TF > 0) || (tempTF >= 0 && TF < 0)) ||
+                            ((tempJP <= 0 && JP > 0) || (tempJP >= 0 && JP < 0));
+            if(hasSignChanged)
+            {
+                String new_Mbti="";
+                if(EI>0)
+                {
+                    new_Mbti=new_Mbti.concat("E");
+                }
+                else
+                {
+                    new_Mbti=new_Mbti.concat("I");
+                }
+                if(SN>0)
+                {
+                    new_Mbti=new_Mbti.concat("N");
+                }
+                else
+                {
+                    new_Mbti= new_Mbti.concat("S");
+                }
+                if(TF>0)
+                {
+                    new_Mbti=  new_Mbti.concat("F");
+                }
+                else
+                {
+                    new_Mbti=  new_Mbti.concat("T");
+                }
+                if(JP>0)
+                {
+                    new_Mbti= new_Mbti.concat("P");
+                }
+                else
+                {
+                    new_Mbti=new_Mbti.concat("J");
+                }
+                System.out.println(new_Mbti);
+                Child child=childRepository.findByChildId(childId);
+                child.setCodeMbti(new_Mbti);
+                ChildMbtiHistory childMbtiHistory = new ChildMbtiHistory();
+                childMbtiHistory.setDeletedAt(null);
+                childMbtiHistory.setCodeNewMbti(new_Mbti);
+                childMbtiHistory.setUpdatedAt(LocalDateTime.now());
+                childMbtiHistory.setChild(child);
+                childMbtiHistoryRepository.save(childMbtiHistory);
+                childRepository.save(child);
             }
 
         }catch(Exception e){
         }
     }
 @Transactional
-public boolean handleDislike(Long childId, Long bookId, String Type) {
+public void handleDislike(Long childId, Long bookId, String Type) {
 
         try {
 
             Optional<MbtiDto> childmbtiDto =childMbtiRepository.findMbtiDtoByChildIdAndDeletedAtIsNull(childId);
+            System.out.println("싫엉요");
+            int tempEI;
+            int tempSN;
+            int tempTF;
+            int tempJP;
             Mbti mbti = new Mbti();
             if (childmbtiDto.isPresent()) {
                 mbti.setMbtiId(childmbtiDto.get().getMbtiId());
@@ -209,10 +289,19 @@ public boolean handleDislike(Long childId, Long bookId, String Type) {
                 mbti.setSnType(childmbtiDto.get().getSnType());
                 mbti.setTfType(childmbtiDto.get().getTfType());
                 mbti.setJpType(childmbtiDto.get().getJpType());
+                System.out.println(mbti.getMbtiId());
+                System.out.println(mbti.getEiType());
+                System.out.println(mbti.getSnType());
+                System.out.println(mbti.getTfType());
+                System.out.println(mbti.getJpType());
+                tempEI=childmbtiDto.get().getEiType();
+                tempSN=childmbtiDto.get().getSnType();
+                tempTF=childmbtiDto.get().getTfType();
+                tempJP=childmbtiDto.get().getJpType();
             }
             else
             {
-                return false;
+                return;
             }
 
 
@@ -225,17 +314,22 @@ public boolean handleDislike(Long childId, Long bookId, String Type) {
                 Bookmbti.setSnType(mbtiDto.get().getSnType());
                 Bookmbti.setTfType(mbtiDto.get().getTfType());
                 Bookmbti.setJpType(mbtiDto.get().getJpType());
-
+                System.out.println(Bookmbti.getMbtiId());
+                System.out.println(Bookmbti.getEiType());
+                System.out.println(Bookmbti.getSnType());
+                System.out.println(Bookmbti.getTfType());
+                System.out.println(Bookmbti.getJpType());
             }
             else
             {
-                return false;
+                return;
             }
 
             int EI;
             int SN;
             int TF;
             int JP;
+            System.out.println(Type);
             if (Type != null && Objects.equals(Type, "MBTI")) {
                 EI = weightCal(Bookmbti.getEiType(), mbti.getEiType(), -1);
                 SN = weightCal(Bookmbti.getSnType(), mbti.getSnType(), -1);
@@ -253,7 +347,7 @@ public boolean handleDislike(Long childId, Long bookId, String Type) {
                 JP = weightCal((int) (Bookmbti.getJpType() * 0.7), mbti.getJpType(), -1);
             } else {
 
-                return false;
+                return;
             }
 
             if(childBookDisLikeRepository.saveChildBookDislike(childId, bookId)>0) {
@@ -265,12 +359,60 @@ public boolean handleDislike(Long childId, Long bookId, String Type) {
                 bookFavorTotalRepository.decrementCountByBookId(bookId);
                 childBookLikeRepository.deleteByChildIdAndBookIdAndDelDateIsNull(childId, bookId);
                 System.out.println("qw");
-                return true;
             }
-                return false;
+            boolean hasSignChanged =
+                    ((tempEI <= 0 && EI > 0) || (tempEI >= 0 && EI < 0)) ||
+                            ((tempSN <= 0 && SN > 0) || (tempSN >= 0 && SN < 0)) ||
+                            ((tempTF <= 0 && TF > 0) || (tempTF >= 0 && TF < 0)) ||
+                            ((tempJP <= 0 && JP > 0) || (tempJP >= 0 && JP < 0));
+            if(hasSignChanged)
+            {
+                String new_Mbti="";
+                if(EI>0)
+                {
+                    new_Mbti=new_Mbti.concat("E");
+                }
+                else
+                {
+                    new_Mbti=new_Mbti.concat("I");
+                }
+                if(SN>0)
+                {
+                    new_Mbti=new_Mbti.concat("N");
+                }
+                else
+                {
+                    new_Mbti= new_Mbti.concat("S");
+                }
+                if(TF>0)
+                {
+                    new_Mbti=  new_Mbti.concat("F");
+                }
+                else
+                {
+                    new_Mbti=  new_Mbti.concat("T");
+                }
+                if(JP>0)
+                {
+                    new_Mbti= new_Mbti.concat("P");
+                }
+                else
+                {
+                    new_Mbti=new_Mbti.concat("J");
+                }
+                System.out.println(new_Mbti);
+                Child child=childRepository.findByChildId(childId);
+                child.setCodeMbti(new_Mbti);
+                ChildMbtiHistory childMbtiHistory = new ChildMbtiHistory();
+                childMbtiHistory.setDeletedAt(null);
+                childMbtiHistory.setCodeNewMbti(new_Mbti);
+                childMbtiHistory.setUpdatedAt(LocalDateTime.now());
+                childMbtiHistory.setChild(child);
+                childMbtiHistoryRepository.save(childMbtiHistory);
+                childRepository.save(child);
+            }
 
         }catch (Exception e){
-            return false;
         }
     }
 

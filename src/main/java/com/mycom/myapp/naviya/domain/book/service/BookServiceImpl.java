@@ -7,6 +7,7 @@ import com.mycom.myapp.naviya.domain.book.repository.BookFavorTotalRepository;
 import com.mycom.myapp.naviya.domain.book.repository.BookMbtiRepository;
 import com.mycom.myapp.naviya.domain.book.repository.BookRepository;
 import com.mycom.myapp.naviya.domain.book.repository.UserRecentBooksRepository;
+import com.mycom.myapp.naviya.domain.child.dto.ChildFavorCategoryDto;
 import com.mycom.myapp.naviya.domain.child.entity.Child;
 import com.mycom.myapp.naviya.domain.child.entity.ChildBookDislike;
 import com.mycom.myapp.naviya.domain.child.entity.ChildBookLike;
@@ -512,7 +513,7 @@ public class BookServiceImpl implements BookService {
                 return bookResultDto;
             }
 
-            List<ChildFavCategoryDto> childFavorCategory = childFavorCategoryRepository.findFavCategoriesByChildId(childId);
+            List<ChildFavCategoryDto> childFavorCategory = childFavorCategoryRepository.findFavCategoriesByChildIdDeletedAtIsNull(childId);
             //쿼리 위해 존재
             List<String> categoryCodes = childFavorCategory.stream()
                     .map(ChildFavCategoryDto::getCategoryCode)
@@ -580,19 +581,22 @@ public class BookServiceImpl implements BookService {
     public BookResultDto CategoryLike(long childId, String Ctegory) {
         BookResultDto bookResultDto = new BookResultDto();
         try {
-            Optional<ChildFavorCategory> optionalFavorCategory = childFavorCategoryRepository
-                    .findByChild_ChildIdAndCategoryCode(childId, Ctegory);
+            ChildFavorCategoryDto optionalFavorCategory = childFavorCategoryRepository
+                    .findByChildIdAndCategoryCode(childId, Ctegory);
 
-            if (optionalFavorCategory.isPresent()) {
-                ChildFavorCategory favorCategory = optionalFavorCategory.get();
-                Long tempVal = favorCategory.getChildFavorCategoryWeight();
+                System.out.println(optionalFavorCategory);
+                Long tempVal = optionalFavorCategory.getChildFavorCategoryWeight();
                 Long newWeight = Math.max(0, Math.min(100, tempVal + 10));
-                favorCategory.setChildFavorCategoryWeight(newWeight);
-                childFavorCategoryRepository.save(favorCategory);
+                optionalFavorCategory.setChildFavorCategoryWeight(newWeight);
+                ChildFavorCategory childFavorCategory =new ChildFavorCategory();
+
+                childFavorCategory.setCategoryCode(Ctegory);
+                childFavorCategory.setChildFavorCategoryWeight(newWeight);
+                childFavorCategory.setChildBookCategoryId(optionalFavorCategory.getChildBookCategoryId());
+                    childFavorCategory.setChild(childRepository.findByChildId(childId));
+                childFavorCategoryRepository.save(childFavorCategory);
                 bookResultDto.setSuccess("success");
-            } else {
-                bookResultDto.setSuccess("not_found"); // 결과가 없을 경우 처리
-            }
+
         } catch (Exception e) {
             e.printStackTrace();
             bookResultDto.setSuccess("fail");
@@ -600,29 +604,28 @@ public class BookServiceImpl implements BookService {
         return bookResultDto;
     }
 
-    @Override
     public BookResultDto CategoryDisLike(long childId, String Ctegory) {
         BookResultDto bookResultDto = new BookResultDto();
         try {
+            ChildFavorCategoryDto optionalFavorCategory = childFavorCategoryRepository
+                    .findByChildIdAndCategoryCode(childId, Ctegory);
 
-            Optional<ChildFavorCategory> optionalFavorCategory = childFavorCategoryRepository
-                    .findByChild_ChildIdAndCategoryCode(childId, Ctegory);
+            System.out.println(optionalFavorCategory);
+            Long tempVal = optionalFavorCategory.getChildFavorCategoryWeight();
+            Long newWeight = Math.max(0, Math.min(100, tempVal -3));
+            optionalFavorCategory.setChildFavorCategoryWeight(newWeight);
+            ChildFavorCategory childFavorCategory =new ChildFavorCategory();
 
-            if (optionalFavorCategory.isPresent()) {
-                ChildFavorCategory favorCategory = optionalFavorCategory.get();
-                Long tempVal = favorCategory.getChildFavorCategoryWeight();
-                Long newWeight = Math.max(0, Math.min(100, tempVal - 10));
-                favorCategory.setChildFavorCategoryWeight(newWeight);
-                childFavorCategoryRepository.save(favorCategory);
-                bookResultDto.setSuccess("success");
+            childFavorCategory.setCategoryCode(Ctegory);
+            childFavorCategory.setChildFavorCategoryWeight(newWeight);
+            childFavorCategory.setChildBookCategoryId(optionalFavorCategory.getChildBookCategoryId());
+            childFavorCategory.setChild(childRepository.findByChildId(childId));
+            childFavorCategoryRepository.save(childFavorCategory);
+            bookResultDto.setSuccess("success");
 
-            } else {
-                bookResultDto.setSuccess("not_found"); // 결과가 없을 경우 처리
-            }
         } catch (Exception e) {
             e.printStackTrace();
             bookResultDto.setSuccess("fail");
-            return bookResultDto;
         }
         return bookResultDto;
     }

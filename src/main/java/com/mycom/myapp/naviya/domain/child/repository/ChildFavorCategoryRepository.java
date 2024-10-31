@@ -1,6 +1,7 @@
 package com.mycom.myapp.naviya.domain.child.repository;
 
 import com.mycom.myapp.naviya.domain.child.dto.ChildFavCategoryDto;
+import com.mycom.myapp.naviya.domain.child.dto.ChildFavorCategoryDto;
 import com.mycom.myapp.naviya.domain.child.entity.Child;
 import com.mycom.myapp.naviya.domain.child.entity.ChildFavorCategory;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -35,8 +36,13 @@ public interface ChildFavorCategoryRepository extends JpaRepository<ChildFavorCa
             "FROM ChildFavorCategory cfc " +
             "JOIN cfc.child c " +
             "WHERE c.childId = :childId")
-    List<ChildFavCategoryDto> findFavCategoriesByChildId(@Param("childId") Long childId);
-    Optional<ChildFavorCategory> findByChild_ChildIdAndCategoryCode(Long childId, String categoryCode);
+    List<ChildFavCategoryDto> findFavCategoriesByChildIdDeletedAtIsNull(@Param("childId") Long childId);
+
+
+    @Query("SELECT new com.mycom.myapp.naviya.domain.child.dto.ChildFavorCategoryDto(c.childBookCategoryId, c.childFavorCategoryWeight, c.categoryCode) " +
+            "FROM ChildFavorCategory c WHERE c.child.childId = :childId AND c.categoryCode = :categoryCode AND c.deletedAt IS NULL")
+    ChildFavorCategoryDto findByChildIdAndCategoryCode(Long childId, String categoryCode);
+
     @Query("SELECT COUNT(c) > 0 FROM ChildFavorCategory c WHERE c.child.childId = :childId")
     boolean existsByChildId(@Param("childId") Long childId);
 }

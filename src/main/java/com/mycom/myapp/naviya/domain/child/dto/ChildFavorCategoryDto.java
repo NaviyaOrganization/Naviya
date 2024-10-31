@@ -7,7 +7,9 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ChildCategoryDto {
-    String categoryName;
+public class ChildFavorCategoryDto {
+    private Long childBookCategoryId;
+    private Long childFavorCategoryWeight;
+    private String categoryCode;
 
 }
