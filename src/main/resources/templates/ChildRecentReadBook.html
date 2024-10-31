@@ -190,10 +190,6 @@
 
 <script src="/assets/js/newSidebar.js"></script>
 <script>
-    sessionStorage.setItem('IsCategory', "0");
-    let type = 'NORMAL';
-    sessionStorage.setItem('Type', type);
-    sessionStorage.setItem('bookId', book.bookId);
 
     window.addEventListener('load', () => {
         const selectedChildId = sessionStorage.getItem("selectedChildId");
@@ -263,7 +259,10 @@
 
             cardLink.addEventListener('click', function(e) {
                 e.preventDefault();
-                sessionStorage.setItem('Type', 'NORMAL');
+                sessionStorage.setItem('IsCategory', "0");
+                let type = 'NORMAL';
+                sessionStorage.setItem('Type', type);
+                sessionStorage.setItem('bookId', book.bookId);
 
                 const form = document.createElement('form');
                 form.method = 'GET';

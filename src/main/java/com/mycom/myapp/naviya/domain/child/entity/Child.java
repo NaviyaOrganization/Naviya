@@ -1,4 +1,5 @@
 package com.mycom.myapp.naviya.domain.child.entity;
+import com.mycom.myapp.naviya.domain.book.entity.UserRecentBooks;
 import com.mycom.myapp.naviya.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.Data;
@@ -45,6 +46,9 @@ public class Child {
 
     @Column(name="child_age_range")
     private String ChildAgeRange;
+
+    @OneToMany(mappedBy = "child", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<UserRecentBooks> userRecentBooks;
 
     @OneToMany(mappedBy = "child", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ChildBookDislike> childBookDislikes;
