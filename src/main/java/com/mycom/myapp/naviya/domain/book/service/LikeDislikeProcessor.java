@@ -39,8 +39,6 @@ public class LikeDislikeProcessor {
     private final ChildFavorCategoryRepository childFavorCategoryRepository;
     private final ChildMbtiRepository childMbtiRepository;
 
-
-
     @Autowired
     private  RedisTemplate<String, Object> redisTemplate;
     private static final String STREAM_KEY = "likeDislikeStream"; // 스트림 키
@@ -49,11 +47,11 @@ public class LikeDislikeProcessor {
         // 요청을 큐에 추가
         addTaskToStream(new LikeDislikeTaskDto("like",childId, bookId,type));
     }
-    public void enqueueDisLike(Long childId, Long bookId,String type) {
+    public void enqueueDisLike(Long childId, Long bookId, String type) {
         // 요청을 큐에 추가
         addTaskToStream(new LikeDislikeTaskDto("Dislike",childId, bookId,type));
     }
-    public void addTaskToStream(LikeDislikeTaskDto task) {
+    public  void addTaskToStream(LikeDislikeTaskDto task) {
         Map<String, Object> taskMap = new HashMap<>();
         taskMap.put("method", task.getMethod());
         taskMap.put("childId", task.getChildId().toString());
@@ -175,6 +173,7 @@ public class LikeDislikeProcessor {
             } else {
                 return false;
             }
+            System.out.println("9=/`1235");
             if(childBookLikeRepository.saveChildBooklike(childId,bookId)>0) {
                 mbti.setEiType(EI);
                 mbti.setSnType(SN);
@@ -183,6 +182,7 @@ public class LikeDislikeProcessor {
                 mbtiRepository.save(mbti);
                 bookFavorTotalRepository.incrementCountByBookId(bookId);
                 childBookDisLikeRepository.deleteByChild_ChildIdAndBook_BookId(childId, bookId);
+                System.out.println("qw");
                 return true;
             }
             return false;
@@ -250,7 +250,7 @@ public class LikeDislikeProcessor {
 
                 return false;
             }
-
+            System.out.println("9=/`1235");
             if(childBookDisLikeRepository.saveChildBookDislike(childId, bookId)>0) {
                 mbti.setEiType(EI);
                 mbti.setSnType(SN);
@@ -259,6 +259,7 @@ public class LikeDislikeProcessor {
                 mbtiRepository.save(mbti);
                 bookFavorTotalRepository.decrementCountByBookId(bookId);
                 childBookLikeRepository.deleteByChildIdAndBookIdAndDelDateIsNull(childId, bookId);
+                System.out.println("qw");
                 return true;
             }
                 return false;

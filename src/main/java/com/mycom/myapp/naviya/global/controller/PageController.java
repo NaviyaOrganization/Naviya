@@ -4,6 +4,8 @@ import com.mycom.myapp.naviya.domain.book.dto.BookDetailDto;
 import com.mycom.myapp.naviya.domain.book.dto.BookInsertDto;
 import com.mycom.myapp.naviya.domain.book.dto.BookResultDto;
 import com.mycom.myapp.naviya.domain.book.service.BookService;
+import com.mycom.myapp.naviya.domain.book.service.BookServiceImpl;
+import com.mycom.myapp.naviya.domain.book.service.LikeDislikeProcessor;
 import com.mycom.myapp.naviya.domain.child.entity.Child;
 import com.mycom.myapp.naviya.domain.child.repository.ChildRepository;
 import com.mycom.myapp.naviya.domain.child.service.ChildService;
@@ -33,7 +35,8 @@ public class PageController {
     private final AdminRepository adminRepository;
     private final ChildService childService;
     private final BookService bookService;
-
+    private final BookServiceImpl bookServiceImpl;
+    private final LikeDislikeProcessor likeDislikeProcessor;
     @GetMapping("/login")
     public String loginPage() {
 
@@ -226,8 +229,11 @@ public class PageController {
         model.addAttribute("book", bookDetailDto);
 
         // 싫어요가 설정되어 있었다면 삭제하고 좋아요 추가
-        bookService.DelChildBookDisLike(bookDetailDto.getBookId(), childId);
-        bookService.ChildBookLike(bookDetailDto.getBookId(), childId, type);
+        if(bookDetailDto.isDisliked())
+        {
+            bookServiceImpl.DelChildBookDisLike(bookDetailDto.getBookId(), childId);
+        }
+        likeDislikeProcessor.enqueueLike(bookDetailDto.getBookId(), childId, type);
 
         return "BookDetailPage";
     }
@@ -248,9 +254,12 @@ public class PageController {
         model.addAttribute("book", bookDetailDto);
 
         // 좋아요가 설정되어 있었다면 삭제하고 싫어요 추가
-        bookService.DelChildBookLike(bookDetailDto.getBookId(), childId);
-        bookService.ChildBookDisLike(bookDetailDto.getBookId(), childId, type);
+        if(bookDetailDto.isLiked())
+        {
+            bookServiceImpl.DelChildBookLike(bookDetailDto.getBookId(), childId);
+        }
 
+        likeDislikeProcessor.enqueueDisLike(bookDetailDto.getBookId(), childId, type);
         return "BookDetailPage";
     }
 
