@@ -128,8 +128,6 @@ public class ChildMbtiServiceImpl implements ChildMbtiService {
         childMbti.setMbti(mbti);
 
         child.setCodeMbti(calculateMBTI(scores));
-        childMbtiRepository.save(childMbti);
-        // ChildMbti 저장
 
         childMbtiRepository.save(childMbti);
     }
