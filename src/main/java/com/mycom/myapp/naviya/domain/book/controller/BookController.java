@@ -11,10 +11,13 @@ import com.mycom.myapp.naviya.domain.child.service.ChildService;
 import com.mycom.myapp.naviya.global.response.ResponseForm;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -39,6 +42,41 @@ public class BookController {
     {
         return bookService.listBook();
     }
+
+    @GetMapping("/all")
+    public ResponseEntity<Map<String, Object>> getAllBooks(
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "9") int size,
+            @RequestParam String searchType,
+            @RequestParam String keyword) {
+
+        Page<BookDto> bookPage = bookService.getAllBooks(page, size, searchType, keyword);
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("books", bookPage.getContent());
+        response.put("currentPage", bookPage.getNumber() + 1);
+        response.put("totalItems", bookPage.getTotalElements());
+        response.put("totalPages", bookPage.getTotalPages());
+
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/load")
+    public ResponseEntity<Map<String, Object>> getAllBooks(
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "9") int size) {
+
+        Page<BookDto> bookPage = bookService.getAllBooksLoad(page, size);
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("books", bookPage.getContent());
+        response.put("currentPage", bookPage.getNumber() + 1);
+        response.put("totalItems", bookPage.getTotalElements());
+        response.put("totalPages", bookPage.getTotalPages());
+
+        return ResponseEntity.ok(response);
+    }
+
     @GetMapping("/ListOrderDate")
     public BookResultDto ListOrderDate(@RequestParam  long childId)
     {
