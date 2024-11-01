@@ -227,8 +227,6 @@
 
 <script src="/assets/js/newSidebar.js"></script>
 <script>
-
-
     const selectedChildId = sessionStorage.getItem("selectedChildId");
     window.addEventListener('load', () => {
         ListFavorBook(selectedChildId,"010");
@@ -282,11 +280,6 @@
             cardTitle.className = 'card-title text-truncate';
             cardTitle.textContent = book.title;
 
-            sessionStorage.setItem('IsCategory', "0");
-            type = 'NORMAL';
-            sessionStorage.setItem('Type', type);
-            sessionStorage.setItem('bookId', book.bookId);
-
             const cardAuthor = document.createElement('p');
             cardAuthor.className = 'card-text text-muted';
             cardAuthor.textContent = `저자: ${book.author}`;
@@ -302,7 +295,10 @@
 
             cardLink.addEventListener('click', function(e) {
                 e.preventDefault();
-                sessionStorage.setItem('Type', 'NORMAL');
+                sessionStorage.setItem('IsCategory', "0");
+                let type = 'NORMAL';
+                sessionStorage.setItem('Type', type);
+                sessionStorage.setItem('bookId', book.bookId);
 
                 const form = document.createElement('form');
                 form.method = 'GET';

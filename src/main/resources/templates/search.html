@@ -263,10 +263,6 @@
 </div>
 
 <script>
-  sessionStorage.setItem('IsCategory', "0");
-  let type = 'NORMAL';
-  sessionStorage.setItem('Type', type);
-  sessionStorage.setItem('bookId', book.bookId);
 
   // Search form submission
   document.getElementById("searchForm").addEventListener("submit", async function(event) {
@@ -341,7 +337,10 @@
 
       cardLink.addEventListener('click', function(e) {
         e.preventDefault();
-        sessionStorage.setItem('Type', 'NORMAL');
+        sessionStorage.setItem('IsCategory', "0");
+        let type = 'NORMAL';
+        sessionStorage.setItem('Type', type);
+        sessionStorage.setItem('bookId', book.bookId);
 
         // 동적으로 폼 생성
         const form = document.createElement('form');

@@ -557,7 +557,9 @@
                 if (data && data.result === 'success') {
                   alert('Child deleted successfully.');
                   // 삭제 후 페이지 이동
-                  window.location.href = '/children/page';
+                  sessionStorage.removeItem('selectedChildId');
+                  window.location.href = '/children/select';
+
                 } else {
                   alert('Failed to delete child.');
                 }
