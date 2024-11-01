@@ -33,6 +33,50 @@ public interface BookRepository extends JpaRepository<Book, Long> {
             "b.title, b.summary, b.recommendedAge, b.publisher, b.author, " +
             "b.createdAt, b.fullStory, b.bookImage, b.categoryCode, " +
             "new com.mycom.myapp.naviya.global.mbti.Dto.MbtiDto(m.mbtiId, m.eiType, m.snType, m.tfType, m.jpType), " +
+            "new com.mycom.myapp.naviya.domain.book.dto.BookFavorTotalDto(f.count)) " +
+            "FROM Book b " +
+            "LEFT JOIN b.bookMbti bm " +
+            "LEFT JOIN bm.mbti m " +
+            "LEFT JOIN BookFavorTotal f ON f.book.bookId = b.bookId " +
+            "WHERE LOWER(b.title) LIKE LOWER(CONCAT('%', :keyword, '%')) " +
+            "GROUP BY b.bookId, b.title, b.summary, b.recommendedAge, b.publisher, " +
+            "b.author, b.createdAt, b.fullStory, b.bookImage, b.categoryCode, " +
+            "m.mbtiId, m.eiType, m.snType, m.tfType, m.jpType, f.count")
+    List<BookDto> findByTitleContaining(@Param("keyword") String keyword);
+
+    @Query("SELECT new com.mycom.myapp.naviya.domain.book.dto.BookDto(b.bookId, " +
+            "b.title, b.summary, b.recommendedAge, b.publisher, b.author, " +
+            "b.createdAt, b.fullStory, b.bookImage, b.categoryCode, " +
+            "new com.mycom.myapp.naviya.global.mbti.Dto.MbtiDto(m.mbtiId, m.eiType, m.snType, m.tfType, m.jpType), " +
+            "new com.mycom.myapp.naviya.domain.book.dto.BookFavorTotalDto(f.count)) " +
+            "FROM Book b " +
+            "LEFT JOIN b.bookMbti bm " +
+            "LEFT JOIN bm.mbti m " +
+            "LEFT JOIN BookFavorTotal f ON f.book.bookId = b.bookId " +
+            "WHERE LOWER(b.author) LIKE LOWER(CONCAT('%', :keyword, '%')) " +
+            "GROUP BY b.bookId, b.title, b.summary, b.recommendedAge, b.publisher, " +
+            "b.author, b.createdAt, b.fullStory, b.bookImage, b.categoryCode, " +
+            "m.mbtiId, m.eiType, m.snType, m.tfType, m.jpType, f.count")
+    List<BookDto> findByAuthorContaining(@Param("keyword") String keyword);
+
+    @Query("SELECT new com.mycom.myapp.naviya.domain.book.dto.BookDto(b.bookId, " +
+            "b.title, b.summary, b.recommendedAge, b.publisher, b.author, " +
+            "b.createdAt, b.fullStory, b.bookImage, b.categoryCode, " +
+            "new com.mycom.myapp.naviya.global.mbti.Dto.MbtiDto(m.mbtiId, m.eiType, m.snType, m.tfType, m.jpType), " +
+            "new com.mycom.myapp.naviya.domain.book.dto.BookFavorTotalDto(f.count)) " +
+            "FROM Book b " +
+            "LEFT JOIN b.bookMbti bm " +
+            "LEFT JOIN bm.mbti m " +
+            "LEFT JOIN BookFavorTotal f ON f.book.bookId = b.bookId " +
+            "WHERE LOWER(b.publisher) LIKE LOWER(CONCAT('%', :keyword, '%')) " +
+            "GROUP BY b.bookId, b.title, b.summary, b.recommendedAge, b.publisher, " +
+            "b.author, b.createdAt, b.fullStory, b.bookImage, b.categoryCode, " +
+            "m.mbtiId, m.eiType, m.snType, m.tfType, m.jpType, f.count")
+    List<BookDto> findByPublisherContaining(@Param("keyword") String keyword);
+    @Query("SELECT new com.mycom.myapp.naviya.domain.book.dto.BookDto(b.bookId, " +
+            "b.title, b.summary, b.recommendedAge, b.publisher, b.author, " +
+            "b.createdAt, b.fullStory, b.bookImage, b.categoryCode, " +
+            "new com.mycom.myapp.naviya.global.mbti.Dto.MbtiDto(m.mbtiId, m.eiType, m.snType, m.tfType, m.jpType), " +
             "new com.mycom.myapp.naviya.domain.book.dto.BookFavorTotalDto(f.count)) " + // 수정된 부분
             "FROM Book b " +
             "LEFT JOIN b.bookMbti bm " +

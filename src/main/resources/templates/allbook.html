@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>아이들나라 - 모든 책 보기</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!--  아이콘-->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+  <!--  메인페이지 css 파일-->
+  <link href="/assets/css/newSidebar.css" rel="stylesheet">
+  <style>
+    body {
+      overflow-x: hidden;
+      background-color: #fff9e6;
+    }
+
+    .navbar {
+      background-color: #ffe066;
+      border-radius: 0 0 20px 20px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    .navbar-nav .nav-link {
+      color: #5a4d41 !important;
+      font-size: 1.1rem;
+      margin: 0 10px;
+      border-radius: 20px;
+      padding: 8px 15px;
+    }
+
+    .navbar-nav .nav-link:hover {
+      background-color: #fff3b0;
+      transform: scale(1.05);
+      transition: all 0.3s ease;
+    }
+
+    #sidebar {
+      height: 100%;
+      width: 250px;
+      position: fixed;
+      top: 60px;
+      left: -250px;
+      background-color: #fff3b0;
+      border-radius: 0 20px 20px 0;
+      transition: left 0.3s ease;
+      padding-top: 20px;
+      z-index: 1000;
+      box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+      overflow-y: auto;
+    }
+
+    #sidebar a {
+      padding: 15px 25px;
+      text-decoration: none;
+      font-size: 18px;
+      color: #5a4d41;
+      display: block;
+      transition: all 0.3s ease;
+      margin: 5px 10px;
+      border-radius: 15px;
+    }
+
+    #sidebar a:hover {
+      background-color: #ffe066;
+      transform: scale(1.02);
+    }
+
+    #toggleSidebar {
+      background-color: #ffe066;
+      border-radius: 50%;
+      width: 45px;
+      height: 45px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      transition: left 0.3s ease;
+      z-index: 1100;
+      padding: 10px;
+      color: #5a4d41;
+      font-size: 24px;
+      cursor: pointer;
+      position: fixed;
+      top: 15px;
+      left: 15px;
+    }
+
+    #toggleSidebar:hover {
+      transform: scale(1.1);
+      background-color: #ffd43b;
+    }
+
+    #main-content {
+      transition: margin-left 0.3s ease;
+      padding: 20px;
+      text-align: center;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    h1, h2 {
+      color: #5a4d41;
+      font-weight: bold;
+      margin: 20px 0;
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+    }
+
+    .search-form {
+      background-color: white;
+      padding: 20px;
+      border-radius: 25px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      margin: 20px auto;
+      max-width: 600px;
+    }
+
+    .search-form select,
+    .search-form input {
+      border-radius: 20px;
+      border: 2px solid #ffe066;
+      padding: 10px 20px;
+    }
+
+    .search-form button {
+      background-color: #ffe066;
+      border: none;
+      color: #5a4d41;
+      border-radius: 20px;
+      padding: 10px 25px;
+      font-weight: bold;
+      transition: all 0.3s ease;
+    }
+
+    .search-form button:hover {
+      background-color: #ffd43b;
+      transform: scale(1.05);
+    }
+
+    .search-results {
+      margin-top: 20px;
+    }
+
+    .card {
+      background-color: white;
+      border-radius: 20px;
+      transition: transform 0.3s ease;
+      border: 1px solid #ddd;
+      padding: 15px;
+      text-align: center;
+      /*width: 330px;*/
+      width: 100%;
+      max-width: 330px;
+      margin: 10px auto;
+      height: 430px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      /*margin: 10px;*/
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    @media (min-width: 768px) {
+      .col-md-4 {
+        flex: 0 0 33.333333%;
+        max-width: 33.333333%;
+      }
+    }
+
+    .card:hover {
+      transform: scale(1.05);
+
+      box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+    }
+
+    .loading {
+      display: none;
+      justify-content: center;
+      align-items: center;
+      height: 100px;
+    }
+
+    .loading::after {
+      content: "";
+      width: 50px;
+      height: 50px;
+      border: 10px solid #ffe066;
+      border-top: 10px solid #5a4d41;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    .pagination {
+      justify-content: center;
+      margin-top: 20px;
+    }
+
+    .pagination .page-item .page-link {
+      color: #5a4d41;
+      background-color: #ffe066;
+      border-color: #ffd43b;
+    }
+
+    .pagination .page-item.active .page-link {
+      background-color: #ffd43b;
+      border-color: #ffd43b;
+    }
+
+    .pagination .page-item .page-link:hover {
+      background-color: #ffd43b;
+    }
+  </style>
+</head>
+<body>
+
+<!-- Navigation Bar -->
+<nav class="navbar navbar-expand-lg">
+  <div class="container-fluid">
+    <span id="toggleSidebar" class="navbar-toggler-icon"></span>
+    <div class="collapse navbar-collapse justify-content-end">
+      <ul class="navbar-nav">
+        <li class="nav-item">
+          <a class="nav-link" href="/"><i class="fas fa-home"></i> 메인페이지</a>
+        </li>
+        <li class="nav-item" th:if="${user == null}">
+          <a class="nav-link" href="/login"><i class="fas fa-sign-in-alt"></i> 로그인</a>
+        </li>
+        <li class="nav-item" th:if="${user == null}">
+          <a class="nav-link" href="/signup"><i class="fas fa-user-plus"></i> 회원가입</a>
+        </li>
+        <li class="nav-item" th:if="${user != null}">
+          <a class="nav-link" th:text="${user.name + '님'}"><i class="fas fa-user-plus"></i></a>
+        </li>
+        <li class="nav-item" th:if="${user != null}">
+          <a class="nav-link" href="/logout"><i class="fas fa-sign-out-alt"></i> 로그아웃</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<!-- Sidebar with Icons -->
+<div id="sidebar">
+  <a href="/children/select"><i class="fas fa-child"></i> 아이 프로필 변경</a>
+  <a href="/children/page"><i class="fas fa-edit"></i> 아이 정보 수정</a>
+  <a href="/userpage"><i class="fas fa-user"></i> 계정보기</a>
+  <a href="/children/childMBTIResult"><i class="fas fa-user-circle"></i> 아이 성향 확인하기</a>
+  <a href="/ChildRecentReadBook"><i class="fas fa-history"></i> 최근 책 보기</a>
+  <a href="/ChildFavorBookList"><i class="fas fa-heart"></i> 좋아요 누른 책 보기</a>
+  <a href="/BookCategoryHtml"><i class="fas fa-tags"></i> 카테고리 별 책보기</a>
+  <a href="/lottery/form"><i class="fas fa-gift"></i> 선착순 이벤트</a>
+</div>
+
+<!-- Main Content -->
+<div id="main-content">
+  <h1 class="mb-4">아이들나라 - 모든 책 보기</h1>
+
+  <!-- Search Form -->
+  <form id="searchForm" class="search-form mb-5">
+    <div class="input-group">
+      <select class="form-select" id="searchType" style="max-width: 120px;">
+        <option value="title">제목</option>
+        <option value="author">저자</option>
+        <option value="publisher">출판사</option>
+      </select>
+      <input class="form-control" type="search" id="keyword" placeholder="검색" aria-label="Search">
+      <button class="btn btn-primary" type="submit">검색</button>
+    </div>
+  </form>
+
+  <!-- Loading Indicator -->
+  <div id="loading" class="loading"></div>
+
+  <!-- Book Results -->
+  <div id="bookResults" class="search-results row"></div>
+
+  <!-- Pagination -->
+  <nav aria-label="Page navigation">
+    <ul class="pagination" id="pagination"></ul>
+  </nav>
+</div>
+
+<script>
+  let currentPage = 1;
+  const booksPerPage = 9;
+
+  // Load all books immediately on page load
+  window.addEventListener('load', function() {
+    loadAllBooks();
+  });
+
+  // Search form submission
+  document.getElementById("searchForm").addEventListener("submit", function(event) {
+    event.preventDefault();
+    currentPage = 1;
+    loadBooks(currentPage);
+  });
+
+  async function loadAllBooks() {
+    document.getElementById("loading").style.display = "flex";
+    document.getElementById("bookResults").innerHTML = '';
+
+    try {
+      const response = await fetch(`/Book/load?page=1&size=${booksPerPage}`);
+
+      if (response.ok) {
+        const data = await response.json();
+        displayBooks(data.books);
+        updatePagination(data.totalPages);
+      } else {
+        throw new Error("책을 불러오는데 실패했습니다.");
+      }
+    } catch (error) {
+      alert(error.message);
+    } finally {
+      document.getElementById("loading").style.display = "none";
+    }
+  }
+
+  async function loadBooks(page) {
+    const searchType = document.getElementById("searchType").value;
+    const keyword = document.getElementById("keyword").value;
+
+    document.getElementById("loading").style.display = "flex";
+    document.getElementById("bookResults").innerHTML = '';
+
+    try {
+      const response = await fetch(`/Book/all?page=${page}&size=${booksPerPage}&searchType=${searchType}&keyword=${encodeURIComponent(keyword)}`);
+
+      if (response.ok) {
+        const data = await response.json();
+        displayBooks(data.books);
+        updatePagination(data.totalPages);
+      } else {
+        throw new Error("책을 불러오는데 실패했습니다.");
+      }
+    } catch (error) {
+      alert(error.message);
+    } finally {
+      document.getElementById("loading").style.display = "none";
+    }
+  }
+
+  function displayBooks(books) {
+    const resultsContainer = document.getElementById("bookResults");
+    resultsContainer.innerHTML = '';
+
+    if (books.length === 0) {
+      resultsContainer.innerHTML = '<p class="col-12">표시할 책이 없습니다.</p>';
+      return;
+    }
+
+    books.forEach(book => {
+      const col = document.createElement('div');
+      col.className = 'col-md-4 mb-4';
+
+      const card = document.createElement('div');
+      card.className = 'card h-100';
+
+      const cardImage = document.createElement('img');
+      cardImage.className = 'card-img-top';
+      cardImage.src = `/book/image/${book.bookId}`;
+      cardImage.alt = book.title;
+
+      const cardBody = document.createElement('div');
+      cardBody.className = 'card-body d-flex flex-column';
+
+      const cardTitle = document.createElement('h5');
+      cardTitle.className = 'card-title';
+      cardTitle.textContent = book.title;
+
+      const cardAuthor = document.createElement('p');
+      cardAuthor.className = 'card-text';
+      cardAuthor.textContent = `저자: ${book.author}`;
+
+      const cardPublisher = document.createElement('p');
+      cardPublisher.className = 'card-text text-muted';
+      cardPublisher.textContent = `출판사: ${book.publisher}`;
+
+      const cardLink = document.createElement('a');
+      cardLink.href = '#';
+      cardLink.className = 'btn btn-warning custom-warning mt-auto';
+      cardLink.textContent = '자세히 보기';
+
+      cardLink.addEventListener('click', function(e) {
+        e.preventDefault();
+        sessionStorage.setItem('Type', 'NORMAL');
+
+        const form = document.createElement('form');
+        form.method = 'GET';
+        form.action = '/detail';
+
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'bookId';
+        input.value = book.bookId;
+
+        form.appendChild(input);
+        document.body.appendChild(form);
+        form.submit();
+      });
+
+      cardBody.appendChild(cardTitle);
+      cardBody.appendChild(cardAuthor);
+      cardBody.appendChild(cardPublisher);
+      cardBody.appendChild(cardLink);
+      card.appendChild(cardImage);
+      card.appendChild(cardBody);
+      col.appendChild(card);
+      resultsContainer.appendChild(col);
+    });
+  }
+
+  function updatePagination(totalPages) {
+    const pagination = document.getElementById('pagination');
+    pagination.innerHTML = '';
+
+    for (let i = 1; i <= totalPages; i++) {
+      const li = document.createElement('li');
+      li.className = `page-item ${i === currentPage ? 'active' : ''}`;
+
+      const a = document.createElement('a');
+      a.className = 'page-link';
+      a.href = '#';
+      a.textContent = i;
+      a.addEventListener('click', (e) => {
+        e.preventDefault();
+        currentPage = i;
+        loadBooks(currentPage);
+      });
+
+      li.appendChild(a);
+      pagination.appendChild(li);
+    }
+  }
+</script>
+<!--nav바 , 토글 관련 JS-->
+<script src="/assets/js/newSidebar.js"></script>
+</body>
+</html>

@@ -31,6 +31,10 @@ import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
@@ -160,6 +164,54 @@ public class BookServiceImpl implements BookService {
             bookResultDto.setSuccess("fail");
         }
         return bookResultDto;
+    }
+
+    public Page<BookDto> getAllBooks(int page, int size, String searchType, String keyword) {
+        PageRequest pageRequest = PageRequest.of(page - 1, size);
+        List<BookDto> allBooks = new ArrayList<>();
+        List<BookDto> pageContent = new ArrayList<>();
+        int start;
+        int end;
+        if (searchType != null && keyword != null && !keyword.isEmpty()) {
+            switch (searchType) {
+                case "title":
+                    allBooks = bookRepository.findByTitleContaining(keyword);
+                    start = (int) pageRequest.getOffset();
+                    end = Math.min((start + pageRequest.getPageSize()), allBooks.size());
+                    pageContent = allBooks.subList(start, end);
+                    break;
+                case "author":
+                    allBooks = bookRepository.findByAuthorContaining(keyword);
+                    start = (int) pageRequest.getOffset();
+                    end = Math.min((start + pageRequest.getPageSize()), allBooks.size());
+                    pageContent = allBooks.subList(start, end);
+                    break;
+                case "publisher":
+                    allBooks = bookRepository.findByPublisherContaining(keyword);
+                    start = (int) pageRequest.getOffset();
+                    end = Math.min((start + pageRequest.getPageSize()), allBooks.size());
+                    pageContent = allBooks.subList(start, end);
+                    break;
+            }
+        } else {
+            allBooks = bookRepository.findAllBookDto();
+            start = (int) pageRequest.getOffset();
+            end = Math.min((start + pageRequest.getPageSize()), allBooks.size());
+
+            pageContent = allBooks.subList(start, end);
+        }
+
+        return new PageImpl<>(pageContent, pageRequest, allBooks.size());
+    }
+
+    public Page<BookDto> getAllBooksLoad(int page, int size) {
+        PageRequest pageRequest = PageRequest.of(page - 1, size);
+        List<BookDto> allBooks = bookRepository.findAllBookDto();
+        int start = (int) pageRequest.getOffset();
+        int end = Math.min((start + pageRequest.getPageSize()), allBooks.size());
+
+        List<BookDto> pageContent = allBooks.subList(start, end);
+        return new PageImpl<>(pageContent, pageRequest, allBooks.size());
     }
 
 

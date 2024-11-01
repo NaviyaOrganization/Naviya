@@ -6,6 +6,7 @@ import com.mycom.myapp.naviya.domain.book.dto.BookInsertDto;
 import com.mycom.myapp.naviya.domain.book.dto.BookResultDto;
 import com.mycom.myapp.naviya.domain.book.entity.Book;
 import com.mycom.myapp.naviya.domain.child.entity.Child;
+import org.springframework.data.domain.Page;
 
 import java.util.List;
 
@@ -13,6 +14,9 @@ public interface BookService {
     BookResultDto delBook(Long bookId);
     BookResultDto detailBook(Long bookId, Long childId);
     BookResultDto listBook();
+
+    Page<BookDto> getAllBooks(int page, int size, String searchType, String keyword);
+    Page<BookDto> getAllBooksLoad(int page, int size);
     BookInsertDto updateBook(BookInsertDto bookInsertDto);
     BookInsertDto insertBook(BookInsertDto bookInsertDto);
     BookResultDto listbookOrderByCreateDate(long childId);
