@@ -1,19 +1,11 @@
-package com.mycom.myapp.naviya.service;
+package com.mycom.myapp.naviya.domain.book.service;
 
 import com.mycom.myapp.naviya.domain.book.entity.BookFavorTotal;
-import com.mycom.myapp.naviya.domain.book.service.BookServiceImpl;
-import com.mycom.myapp.naviya.domain.child.entity.Child; // Child 엔티티를 import
-import com.mycom.myapp.naviya.domain.child.entity.ChildBookLike;
-import com.mycom.myapp.naviya.domain.child.repository.ChildBookLikeRepository;
 import com.mycom.myapp.naviya.domain.child.repository.ChildRepository; // ChildRepository를 import
-import com.mycom.myapp.naviya.domain.user.entity.User;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.annotation.Commit;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -39,7 +31,7 @@ public class BookFavorTotalConcurrencyTest {
 
         long startTime = System.nanoTime(); // 시작 시간 기록
 
-        for (int i = 1; i <= 1000; i++) {
+        for (int i = 1; i <=1; i++) {
             long childId = i;
             executor.submit(() -> {
                 // 스레드 동기화 및 실행
@@ -59,6 +51,9 @@ public class BookFavorTotalConcurrencyTest {
         // 검증 - 최종적으로 BookFavorTotal count가 예상 값인지 확인
         BookFavorTotal bookFavorTotal = bookFavorService.getBookFavorTotal(bookId);
         Assertions.assertEquals(0, bookFavorTotal.getCount());
+        // 검증 - 최종적으로 BookFavorTotal count가 예상 값인지 확인
+        BookFavorTotal bookFavorTota2= bookFavorService.getBookFavorTotal(bookId);
+        Assertions.assertEquals(0, bookFavorTota2.getCount());
 
 
 

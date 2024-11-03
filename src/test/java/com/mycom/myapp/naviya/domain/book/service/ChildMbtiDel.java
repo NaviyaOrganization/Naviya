@@ -1,10 +1,11 @@
-package com.mycom.myapp.naviya.domain.child.service;
+package com.mycom.myapp.naviya.domain.book.service;
 
 import com.mycom.myapp.naviya.domain.child.dto.*;
 import com.mycom.myapp.naviya.domain.child.entity.Child;
 import com.mycom.myapp.naviya.domain.child.entity.ChildMbti;
 import com.mycom.myapp.naviya.domain.child.entity.ChildMbtiHistory;
 import com.mycom.myapp.naviya.domain.child.repository.*;
+import com.mycom.myapp.naviya.domain.child.service.ChildMbtiServiceImpl;
 import com.mycom.myapp.naviya.domain.user.entity.User;
 import com.mycom.myapp.naviya.domain.user.repository.UserRepository;
 import com.mycom.myapp.naviya.global.mbti.entity.Mbti;
@@ -30,7 +31,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class ChildMbtiServiceImplTest {
+class ChildMbtiDel {
 
     // 테스트할 서비스 클래스 주입
     @InjectMocks

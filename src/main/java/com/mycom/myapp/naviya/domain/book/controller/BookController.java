@@ -11,6 +11,7 @@ import com.mycom.myapp.naviya.domain.child.service.ChildService;
 import com.mycom.myapp.naviya.global.response.ResponseForm;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -29,8 +30,8 @@ import static com.mycom.myapp.naviya.global.response.ResponseCode.EXAMPLE_SUCCES
 @RequestMapping("/Book")
 public class BookController {
     private final BookService bookService;
-    private final MbtiRecommendService mbtiRecommendService;
-    private final ChildService childService;
+    //private final MbtiRecommendService mbtiRecommendService;
+    //private final ChildService childService;
 
     @PostMapping("insert")
     public BookInsertDto InsertBook(BookInsertDto bookInsertDto){
@@ -150,7 +151,7 @@ public class BookController {
     }
 
 
-    @GetMapping("/recommend")
+    /*@GetMapping("/recommend")
     public ResponseForm recommendBook(@RequestParam Long childId) {
         List<BookDto> books = mbtiRecommendService.recommendBooks(childId);
         return ResponseForm.of(EXAMPLE_SUCCESS, books);
@@ -160,7 +161,7 @@ public class BookController {
     public ResponseForm SNFTRecommendBooks(@RequestParam Long childId) {
         Map<String, Object> books = mbtiRecommendService.SNFTRecommendBooks(childId);
         return ResponseForm.of(EXAMPLE_SUCCESS, books);
-    }
+    }*/
 
     @GetMapping("/search")
     public ResponseForm searchBooks(@RequestParam String searchType, String keyword) {

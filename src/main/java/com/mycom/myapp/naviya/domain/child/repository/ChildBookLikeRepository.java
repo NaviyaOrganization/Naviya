@@ -68,4 +68,6 @@ public interface ChildBookLikeRepository extends JpaRepository<ChildBookLike, Lo
     )
 """, nativeQuery = true)
     int saveChildBooklike(@Param("childId") Long childId, @Param("bookId") Long bookId);
+
+    void deleteByChild_ChildIdAndBook_BookId(long childId, long bookId);
 }
