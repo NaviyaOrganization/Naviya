@@ -1,14 +1,13 @@
-package com.mycom.myapp.naviya.service;
+package com.mycom.myapp.naviya.domain.book.service;
 
 import com.mycom.myapp.naviya.domain.book.entity.BookFavorTotal;
 import com.mycom.myapp.naviya.domain.book.repository.BookFavorTotalRepository;
-import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-public class BookFavorService {
+public class BookFavorLike {
 
     @Autowired
     private BookFavorTotalRepository bookFavorTotalRepository;

@@ -60,7 +60,7 @@ public class BookServiceImpl implements BookService {
     private final ChildMbtiRepository childMbtiRepository;
     private final LikeDislikeProcessor likeDislikeProcessor;
     private final CodeRepository codeRepository;
-    @PersistenceContext
+    @Autowired
     private EntityManager entityManager;
 
 
@@ -646,8 +646,9 @@ public class BookServiceImpl implements BookService {
         try {
             ChildFavorCategoryDto optionalFavorCategory = childFavorCategoryRepository
                     .findByChildIdAndCategoryCode(childId, Ctegory);
-
                 System.out.println(optionalFavorCategory);
+            System.out.println(childId);
+            System.out.println(Ctegory);
                 Long tempVal = optionalFavorCategory.getChildFavorCategoryWeight();
                 Long newWeight = Math.max(0, Math.min(100, tempVal + 10));
                 optionalFavorCategory.setChildFavorCategoryWeight(newWeight);
