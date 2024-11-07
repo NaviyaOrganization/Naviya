@@ -4,7 +4,14 @@
 **Naviya**는 맞춤형 도서 추천 시스템을 구현한 프로젝트로, 유저의 MBTI 성향을 기반으로 도서를 추천하고, 자녀의 성향에 맞는 책을 제시하는 시스템입니다. 
 
 ## 🌻UI
-![Image 1](https://github.com/user-attachments/assets/f13d8f46-610b-4d4d-8259-c8ba06bc3a61) ![Image 2](https://github.com/user-attachments/assets/dd8a637a-55e6-4e1a-9ebb-6fe80339cb28) ![Image 3](https://github.com/user-attachments/assets/b3708dd9-f98a-4c89-9dd7-5655db849242)
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/f13d8f46-610b-4d4d-8259-c8ba06bc3a61" width="200" />
+  <img src="https://github.com/user-attachments/assets/dd8a637a-55e6-4e1a-9ebb-6fe80339cb28" width="200" />
+  <img src="https://github.com/user-attachments/assets/b3708dd9-f98a-4c89-9dd7-5655db849242" width="200" />
+  <img src="https://github.com/user-attachments/assets/df8f0ba8-bdaf-4dab-959d-2ac62724181e" width="200" />
+</p>
+
+
 
 ## 🛠 기술 스택
 
