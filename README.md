@@ -1,9 +1,10 @@
-# Naviya 프로젝트
+# ✨Naviya 프로젝트
 
 ## 프로젝트 개요
 **Naviya**는 맞춤형 도서 추천 시스템을 구현한 프로젝트로, 유저의 MBTI 성향을 기반으로 도서를 추천하고, 자녀의 성향에 맞는 책을 제시하는 시스템입니다. 
 
 ## 🌻UI
+![Image 1](https://github.com/user-attachments/assets/f13d8f46-610b-4d4d-8259-c8ba06bc3a61) ![Image 2](https://github.com/user-attachments/assets/dd8a637a-55e6-4e1a-9ebb-6fe80339cb28) ![Image 3](https://github.com/user-attachments/assets/b3708dd9-f98a-4c89-9dd7-5655db849242)
 
 ## 🛠 기술 스택
 
@@ -45,11 +46,11 @@
 - 동적 가중치 조정법을 활용한 콘텐츠 추천 시스템 구현
 - 유저 경험을 고려한 응답 속도 최적화
 - 유저 피드백 구현
-  
-  ### **유성**
--사용자의 MBTI 성향과 도서에 대한 가중 합 알고리즘을 기반으로 추천하는 맞춤형 도서 추천 시스템을 구현
--유저 경험을 고려한 응답 속도 최적화
--캐싱을 적용해 같은 데이터를 반복적으로 호출하지 않도록 메인 페이지 최적화
+
+### **한유성**
+- 사용자의 MBTI 성향과 도서에 대한 가중 합 알고리즘을 기반으로 추천하는 맞춤형 도서 추천 시스템을 구현
+- 유저 경험을 고려한 응답 속도 최적화
+- 캐싱을 적용해 같은 데이터를 반복적으로 호출하지 않도록 메인 페이지 최적화
    
 
 ### **박준형**
@@ -97,13 +98,15 @@
 ## 🏗️ 아키텍처
 
 ### **응모시스템 아키텍처**
+![image (17)](https://github.com/user-attachments/assets/78689a66-adeb-457b-a523-b6d244161499)
 
 
 
 
 ## 📚 DB 설계
 
-![DB ERD](링크)
+![image (18)](https://github.com/user-attachments/assets/0eb6d8ad-8882-4224-945b-d3081a82ae35)
+
 
 ---
 
